@@ -20,6 +20,12 @@ model User {
   defaultCity   String?   // "rhodes" or other city
   // Trust events count (verified after 2+)
   trustEventCount Int     @default(0)
+  // Fraud system
+  fraudScore      Int     @default(0)  // 0-100
+  isHeld          Boolean @default(false)  // Requires Super Admin approval
+  restrictedMode  Boolean @default(false)
+  restrictedUntil DateTime?  // 7-day cooldown end
+  tokensDisabled  Boolean @default(false)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now()) @updatedAt
   sessions      Session[]
@@ -102,6 +108,12 @@ model Listing {
   isActive    Boolean  @default(true)
   isFeatured  Boolean  @default(false)
   views       Int      @default(0)
+  // Fraud system
+  fraudScore  Int      @default(0)  // 0-100
+  isHeld      Boolean  @default(false)
+  isStore     Boolean  @default(false)  // Store vs private listing
+  reportCount24h Int   @default(0)
+  lastReportAt DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -152,4 +164,19 @@ model UserStrike {
 
   @@index([userId])
   @@map("user_strike")
+}
+
+model FraudHold {
+  id          String   @id @default(cuid())
+  entityType  String   // "user", "listing", "chat", "service", "appointment"
+  entityId    String
+  fraudScore  Int
+  reason      String
+  missiveDraftId String?
+  resolvedAt  DateTime?
+  resolvedBy  String?  // Super Admin ID
+  createdAt   DateTime @default(now())
+
+  @@index([entityId])
+  @@map("fraud_hold")
 }

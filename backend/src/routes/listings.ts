@@ -6,6 +6,14 @@ import {
   updateListingRequestSchema,
   getListingsQuerySchema,
 } from "@/shared/contracts";
+import {
+  performFraudCheck,
+  applyListingFraudHold,
+  applyFraudHold,
+  FRAUD_THRESHOLD,
+} from "../lib/fraud-scoring";
+import { createMissiveFraudDraft } from "../lib/missive";
+import { addStrike } from "../lib/chat-moderation";
 
 const listingsRouter = new Hono<AppType>();
 
@@ -25,7 +33,7 @@ listingsRouter.get("/", async (c) => {
     const query = getListingsQuerySchema.parse(c.req.query());
     const { category, condition, search, minPrice, maxPrice, featured, sellerId, limit, offset } = query;
 
-    const where: Record<string, unknown> = { isActive: true };
+    const where: Record<string, unknown> = { isActive: true, isHeld: false };
 
     if (category) where.category = category;
     if (condition) where.condition = condition;
@@ -109,9 +117,16 @@ listingsRouter.post("/", async (c) => {
   }
 
   try {
+    // Check if user is held
+    const dbUser = await db.user.findUnique({ where: { id: user.id } });
+    if (dbUser?.isHeld || dbUser?.tokensDisabled) {
+      return c.json({ error: "Account is restricted. Contact support." }, 403);
+    }
+
     const body = await c.req.json();
     const data = createListingRequestSchema.parse(body);
 
+    // Create listing first
     const listing = await db.listing.create({
       data: {
         title: data.title,
@@ -132,6 +147,46 @@ listingsRouter.post("/", async (c) => {
         },
       },
     });
+
+    // Fraud check (pricing anomaly for private listings)
+    const fraudResult = await performFraudCheck(
+      db,
+      listing.id,
+      data.price,
+      data.category,
+      data.condition,
+      false, // isStore - private listing
+      0,
+      0
+    );
+
+    if (fraudResult.newScore > 0) {
+      await db.listing.update({
+        where: { id: listing.id },
+        data: { fraudScore: fraudResult.newScore },
+      });
+    }
+
+    if (fraudResult.addStrike) {
+      await addStrike(db, user.id, `Pricing anomaly: ${data.price}`);
+    }
+
+    // If fraud score >= 80, hold and create Missive draft
+    if (fraudResult.shouldHold) {
+      await applyListingFraudHold(db, listing.id, fraudResult.newScore, fraudResult.reason || "fraud_threshold");
+      await applyFraudHold(db, user.id, FRAUD_THRESHOLD, "listing_fraud");
+
+      await createMissiveFraudDraft({
+        entityType: "listing",
+        entityId: listing.id,
+        fraudScore: fraudResult.newScore,
+        reason: fraudResult.reason || "fraud_threshold",
+        userEmail: user.email,
+        listingTitle: data.title,
+      });
+
+      return c.json({ error: "Listing under review", held: true }, 202);
+    }
 
     return c.json(transformListing(listing), 201);
   } catch (error) {
@@ -215,6 +270,65 @@ listingsRouter.delete("/:id", async (c) => {
   } catch (error) {
     console.error("Error deleting listing:", error);
     return c.json({ error: "Failed to delete listing" }, 500);
+  }
+});
+
+// POST /api/listings/:id/report - Report a listing
+listingsRouter.post("/:id/report", async (c) => {
+  const user = c.get("user");
+  if (!user) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  try {
+    const id = c.req.param("id");
+    const listing = await db.listing.findUnique({ where: { id } });
+
+    if (!listing) {
+      return c.json({ error: "Listing not found" }, 404);
+    }
+
+    const now = new Date();
+    const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+    // Reset count if last report was > 24h ago
+    let newReportCount = listing.reportCount24h + 1;
+    if (listing.lastReportAt && listing.lastReportAt < twentyFourHoursAgo) {
+      newReportCount = 1;
+    }
+
+    // Auto-hide thresholds: private=2, store=5
+    const threshold = listing.isStore ? 5 : 2;
+    const shouldAutoHide = newReportCount >= threshold;
+
+    await db.listing.update({
+      where: { id },
+      data: {
+        reportCount24h: newReportCount,
+        lastReportAt: now,
+        isActive: shouldAutoHide ? false : listing.isActive,
+        fraudScore: { increment: 10 },
+      },
+    });
+
+    // Add strike to seller
+    await addStrike(db, listing.sellerId, `Listing reported: ${id}`);
+
+    // If auto-hidden due to reports, create Missive draft
+    if (shouldAutoHide) {
+      await createMissiveFraudDraft({
+        entityType: "listing",
+        entityId: id,
+        fraudScore: listing.fraudScore + 10,
+        reason: `Auto-hidden: ${newReportCount} reports in 24h`,
+        listingTitle: listing.title,
+      });
+    }
+
+    return c.json({ success: true, autoHidden: shouldAutoHide });
+  } catch (error) {
+    console.error("Error reporting listing:", error);
+    return c.json({ error: "Failed to report listing" }, 500);
   }
 });
 

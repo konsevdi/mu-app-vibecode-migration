@@ -1,5 +1,5 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack, useRouter, useSegments } from 'expo-router';
+import { Stack, useRouter, useSegments, useRootNavigationState } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from '@/lib/useColorScheme';
@@ -22,14 +22,16 @@ const queryClient = new QueryClient();
 function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null | undefined }) {
   const router = useRouter();
   const segments = useSegments();
+  const navigationState = useRootNavigationState();
   const defaultCity = useCityStore((s) => s.defaultCity);
 
   useEffect(() => {
+    if (!navigationState?.key) return;
     const inOnboarding = segments[0] === 'onboarding';
     if (!defaultCity && !inOnboarding) {
       router.replace('/onboarding');
     }
-  }, [defaultCity, segments]);
+  }, [defaultCity, segments, navigationState?.key]);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>

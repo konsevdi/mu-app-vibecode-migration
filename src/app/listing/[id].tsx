@@ -27,6 +27,8 @@ import {
 import { api } from "@/lib/api";
 import { type GetListingResponse } from "@/shared/contracts";
 import { useCityStore } from "@/lib/cityStore";
+import { V1_STORES } from "@/lib/stores";
+import * as WebBrowser from "expo-web-browser";
 
 const { width } = Dimensions.get("window");
 
@@ -68,6 +70,25 @@ export default function ListingDetailScreen() {
       day: "numeric",
       month: "short",
       year: "numeric",
+    });
+  };
+
+  const openStorePage = (url: string) => {
+    WebBrowser.openBrowserAsync(url);
+  };
+
+  const openInMaps = (store: typeof V1_STORES[number]) => {
+    const { lat, lng } = store.coords;
+    // Try Apple Maps first, fallback to Google Maps
+    const appleMapsUrl = `maps://maps.apple.com/?q=${encodeURIComponent(store.name)}&ll=${lat},${lng}`;
+    const googleMapsUrl = `https://maps.google.com/?q=${lat},${lng}`;
+
+    Linking.canOpenURL(appleMapsUrl).then((supported) => {
+      if (supported) {
+        Linking.openURL(appleMapsUrl);
+      } else {
+        Linking.openURL(googleMapsUrl);
+      }
     });
   };
 
@@ -329,23 +350,34 @@ export default function ListingDetailScreen() {
 
           {/* Safe Meetup Suggestion */}
           {viewerCity === "rhodes" && listing.city === "rhodes" ? (
-            <View className="mb-6 overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#FFD700" }}>
-              <LinearGradient
-                colors={["#1a1a2e", "#0f0f23"]}
-                style={{ padding: 16, flexDirection: "row", alignItems: "center" }}
-              >
-                <View className="mr-4 rounded-xl p-3" style={{ backgroundColor: "#FFD70020" }}>
-                  <Store size={24} color="#FFD700" />
+            <View className="mb-6">
+              <Text className="mb-3 text-base font-bold uppercase tracking-wider text-white">
+                ΑΣΦΑΛΗΣ ΣΥΝΑΝΤΗΣΗ
+              </Text>
+              {V1_STORES.map((store) => (
+                <View key={store.id} className="mb-3 overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: store.isPrimary ? "#FFD700" : "#333" }}>
+                  <LinearGradient colors={["#1a1a2e", "#0f0f23"]} style={{ padding: 16 }}>
+                    <View className="flex-row items-center">
+                      <View className="mr-4 rounded-xl p-3" style={{ backgroundColor: store.isPrimary ? "#FFD70020" : "#FF00FF20" }}>
+                        <Store size={24} color={store.isPrimary ? "#FFD700" : "#FF00FF"} />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-base font-black text-white">{store.name}</Text>
+                        {"subtitle" in store && <Text className="text-xs font-medium text-gray-500">{store.subtitle}</Text>}
+                        <Text className="mt-1 text-sm font-medium text-gray-400">{store.address}</Text>
+                      </View>
+                    </View>
+                    <View className="mt-3 flex-row">
+                      <Pressable onPress={() => openStorePage(store.storePageUrl)} className="mr-2 flex-1 rounded-xl bg-gray-800 px-3 py-2">
+                        <Text className="text-center text-sm font-bold text-white">ΣΕΛΙΔΑ</Text>
+                      </Pressable>
+                      <Pressable onPress={() => openInMaps(store)} className="flex-1 rounded-xl bg-gray-800 px-3 py-2">
+                        <Text className="text-center text-sm font-bold text-white">ΧΑΡΤΗΣ</Text>
+                      </Pressable>
+                    </View>
+                  </LinearGradient>
                 </View>
-                <View className="flex-1">
-                  <Text className="text-base font-black text-white">
-                    ΑΣΦΑΛΗΣ ΣΥΝΑΝΤΗΣΗ
-                  </Text>
-                  <Text className="mt-1 text-sm font-medium text-gray-400">
-                    iRepair Ρόδος - Αμμοχώστου 18
-                  </Text>
-                </View>
-              </LinearGradient>
+              ))}
             </View>
           ) : !viewerCity ? (
             <View className="mb-6 overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#666" }}>

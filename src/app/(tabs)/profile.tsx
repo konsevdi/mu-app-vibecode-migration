@@ -19,6 +19,8 @@ import {
   Zap,
   Eye,
   Sparkles,
+  FileText,
+  HelpCircle,
 } from "lucide-react-native";
 import { api } from "@/lib/api";
 import { authClient } from "@/lib/authClient";
@@ -266,6 +268,33 @@ export default function ProfileScreen() {
                 </LinearGradient>
               </View>
             )}
+          </View>
+
+          {/* Settings Links */}
+          <View className="mx-5 mb-6 mt-6">
+            <Text className="mb-3 text-sm font-bold uppercase tracking-wider text-gray-500">Ρυθμίσεις</Text>
+            <View className="overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#333" }}>
+              <Pressable
+                onPress={() => router.push("/support" as Href)}
+                className="flex-row items-center border-b border-gray-800 p-4"
+              >
+                <View className="mr-3 rounded-lg p-2" style={{ backgroundColor: "#00FF8820" }}>
+                  <HelpCircle size={20} color="#00FF88" />
+                </View>
+                <Text className="flex-1 text-base font-semibold text-white">Υποστήριξη / Support</Text>
+                <ChevronRight size={20} color="#666" />
+              </Pressable>
+              <Pressable
+                onPress={() => router.push("/legal" as Href)}
+                className="flex-row items-center p-4"
+              >
+                <View className="mr-3 rounded-lg p-2" style={{ backgroundColor: "#FFD70020" }}>
+                  <FileText size={20} color="#FFD700" />
+                </View>
+                <Text className="flex-1 text-base font-semibold text-white">Νομικά / Legal</Text>
+                <ChevronRight size={20} color="#666" />
+              </Pressable>
+            </View>
           </View>
 
           {/* Sign Out */}

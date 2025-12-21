@@ -35,18 +35,18 @@ import { useCityStore } from "@/lib/cityStore";
 import * as WebBrowser from "expo-web-browser";
 
 const categories: { id: Category; name: string; icon: React.ComponentType<{ size: number; color: string }>; color: string }[] = [
-  { id: "phone", name: "Κινητό", icon: Smartphone, color: "#FF00FF" },
-  { id: "tablet", name: "Tablet", icon: Tablet, color: "#00FF88" },
-  { id: "laptop", name: "Laptop", icon: Laptop, color: "#00BFFF" },
-  { id: "accessory", name: "Αξεσουάρ", icon: Headphones, color: "#FFD700" },
+  { id: "phone", name: "ΚΙΝΗΤΟ", icon: Smartphone, color: "#FF00FF" },
+  { id: "tablet", name: "TABLET", icon: Tablet, color: "#00FF88" },
+  { id: "laptop", name: "LAPTOP", icon: Laptop, color: "#00BFFF" },
+  { id: "accessory", name: "ΑΞΕΣΟΥΑΡ", icon: Headphones, color: "#FFD700" },
 ];
 
 const conditions: { id: Condition; name: string; description: string; color: string; band: string }[] = [
-  { id: "new", name: "Καινούργιο", description: "Αχρησιμοποίητο", color: "#00FF88", band: "85-95%" },
-  { id: "like_new", name: "Σαν Καινούργιο", description: "Ελάχιστη χρήση", color: "#00BFFF", band: "75-88%" },
-  { id: "good", name: "Καλό", description: "Μικρά σημάδια χρήσης", color: "#FFD700", band: "60-75%" },
-  { id: "fair", name: "Μέτριο", description: "Φανερή χρήση, λειτουργικό", color: "#FF6B6B", band: "40-60%" },
-  { id: "parts", name: "Ανταλλακτικά", description: "Για επισκευή μόνο", color: "#888888", band: "10-35%" },
+  { id: "new", name: "ΚΑΙΝΟΥΡΓΙΟ", description: "Αχρησιμοποιητο", color: "#00FF88", band: "85-95%" },
+  { id: "like_new", name: "ΣΑΝ ΚΑΙΝΟΥΡΓΙΟ", description: "Ελαχιστη χρηση", color: "#00BFFF", band: "75-88%" },
+  { id: "good", name: "ΚΑΛΟ", description: "Μικρα σημαδια χρησης", color: "#FFD700", band: "60-75%" },
+  { id: "fair", name: "ΜΕΤΡΙΟ", description: "Φανερη χρηση, λειτουργικο", color: "#FF6B6B", band: "40-60%" },
+  { id: "parts", name: "ΑΝΤΑΛΛΑΚΤΙΚΑ", description: "Για επισκευη μονο", color: "#888888", band: "10-35%" },
 ];
 
 const placeholderImages = [

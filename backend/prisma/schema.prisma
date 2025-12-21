@@ -188,14 +188,169 @@ model Appointment {
   id          String   @id @default(cuid())
   userId      String
   listingId   String?
+  storeId     String?
   date        DateTime
   timeSlot    String   // "morning" or "afternoon"
-  status      String   @default("pending") // "pending", "confirmed", "completed", "cancelled"
+  status      String   @default("pending") // "pending", "approved", "checked_in", "completed", "cancelled"
+  tokenId     String?  @unique
+  diagnosticRedeemed Boolean @default(false)
+  turnaroundHours Int?    // Estimated turnaround
   notes       String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@index([userId])
   @@index([listingId])
+  @@index([storeId])
   @@map("appointment")
+}
+
+// V1: Rhodes only stores, backend multi-store ready
+model Store {
+  id              String   @id @default(cuid())
+  name            String
+  nameEl          String   // Greek name
+  address         String
+  addressEn       String?
+  phone           String?
+  hours           String?
+  hoursNote       String?
+  lat             Float?
+  lng             Float?
+  isPrimary       Boolean  @default(false)
+  visibleInApp    Boolean  @default(true)
+  promoEnabled    Boolean  @default(true)
+  // Partner billing (V2)
+  partnerStatus   String   @default("owned") // "owned", "partner"
+  leadFeePerCheckin Float  @default(0)
+  leadFeePerRedeem  Float  @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  staff           Staff[]
+  inspections     Inspection[]
+  tokens          Token[]
+
+  @@map("store")
+}
+
+// Staff roles for stores
+model Staff {
+  id        String   @id @default(cuid())
+  userId    String
+  storeId   String
+  store     Store    @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  role      String   // "super_admin", "admin", "store_manager", "moderator"
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, storeId])
+  @@index([userId])
+  @@index([storeId])
+  @@map("staff")
+}
+
+// Inspection records for listings
+model Inspection {
+  id              String   @id @default(cuid())
+  listingId       String
+  storeId         String
+  store           Store    @relation(fields: [storeId], references: [id])
+  inspectorId     String   // Staff userId
+  grade           String   // "A", "B", "C", "D"
+  checklistJson   String   // JSON object with checklist items
+  notes           String?
+  inspectedAt     DateTime @default(now())
+
+  @@index([listingId])
+  @@index([storeId])
+  @@map("inspection")
+}
+
+// Tokens for check-ins (TTL 72h, rotation 60s)
+model Token {
+  id            String   @id @default(cuid())
+  type          String   // "appointment", "reservation"
+  entityId      String   // Appointment or Reservation ID
+  userId        String
+  storeId       String?
+  store         Store?   @relation(fields: [storeId], references: [id])
+  code          String   // Current 6-digit code
+  codeRotatedAt DateTime @default(now())
+  isActive      Boolean  @default(false) // Enabled after admin approval
+  isRedeemed    Boolean  @default(false)
+  redeemedAt    DateTime?
+  redeemedById  String?  // Staff who validated
+  expiresAt     DateTime // 72h after approval
+  createdAt     DateTime @default(now())
+
+  @@unique([entityId, type])
+  @@index([code])
+  @@index([userId])
+  @@map("token")
+}
+
+// Audit log for all admin actions
+model AuditLog {
+  id          String   @id @default(cuid())
+  actorId     String   // User/Staff who performed action
+  actorRole   String?  // Role at time of action
+  action      String   // "approve_listing", "reject_listing", "ban_user", etc.
+  entityType  String   // "listing", "user", "message", "appointment", etc.
+  entityId    String
+  details     String?  // JSON with additional context
+  ipAddress   String?
+  createdAt   DateTime @default(now())
+
+  @@index([actorId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_log")
+}
+
+// Auto-moderation actions log
+model AutoActionLog {
+  id          String   @id @default(cuid())
+  entityType  String   // "listing", "user", "message"
+  entityId    String
+  action      String   // "auto_hide", "auto_restrict", "strike_added"
+  reason      String   // "report_threshold", "fraud_score", "url_detected", etc.
+  details     String?  // JSON with context
+  createdAt   DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("auto_action_log")
+}
+
+// Grade multipliers configuration (admin-configurable)
+model GradeConfig {
+  id            String   @id @default(cuid())
+  storeId       String?  // null = global config
+  gradeA        Float    @default(1.00)
+  gradeB        Float    @default(0.93)
+  gradeC        Float    @default(0.85)
+  gradeD        Float    @default(0.60)
+  updatedBy     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("grade_config")
+}
+
+// Moderation rules configuration
+model ModerationConfig {
+  id                    String   @id @default(cuid())
+  privateReportThreshold Int     @default(2)  // Auto-hide after X reports in 24h
+  storeReportThreshold   Int     @default(5)
+  cooldownDays          Int      @default(7)
+  limitedStateDays      Int      @default(7)
+  strikeDecayDays       Int      @default(90)
+  fraudHoldThreshold    Int      @default(80)
+  updatedBy             String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("moderation_config")
 }

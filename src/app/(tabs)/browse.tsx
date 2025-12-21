@@ -28,11 +28,11 @@ import { api } from "@/lib/api";
 import { type GetListingsResponse, type Listing, type Category } from "@/shared/contracts";
 
 const categories: { id: Category | "all"; name: string; icon: React.ComponentType<{ size: number; color: string }>; color: string }[] = [
-  { id: "all", name: "Όλα", icon: SlidersHorizontal, color: "#FF00FF" },
-  { id: "phone", name: "Κινητά", icon: Smartphone, color: "#FF00FF" },
-  { id: "tablet", name: "Tablets", icon: Tablet, color: "#00FF88" },
-  { id: "laptop", name: "Laptops", icon: Laptop, color: "#00BFFF" },
-  { id: "accessory", name: "Αξεσουάρ", icon: Headphones, color: "#FFD700" },
+  { id: "all", name: "ΟΛΑ", icon: SlidersHorizontal, color: "#FF00FF" },
+  { id: "phone", name: "ΚΙΝΗΤΑ", icon: Smartphone, color: "#FF00FF" },
+  { id: "tablet", name: "TABLETS", icon: Tablet, color: "#00FF88" },
+  { id: "laptop", name: "LAPTOPS", icon: Laptop, color: "#00BFFF" },
+  { id: "accessory", name: "ΑΞΕΣΟΥΑΡ", icon: Headphones, color: "#FFD700" },
 ];
 
 const conditionLabels: Record<string, { label: string; color: string }> = {

@@ -1,92 +1,99 @@
 # Mobile Unit
 
-Μια marketplace εφαρμογή για αγορά και πώληση κινητών τηλεφώνων, tablets, laptops και αξεσουάρ στην Ελλάδα.
+Μια marketplace εφαρμογη για αγορα και πωληση κινητων τηλεφωνων, tablets, laptops και αξεσουαρ στην Ελλαδα.
 
-## Χαρακτηριστικά
+## Χαρακτηριστικα
 
-### Για Αγοραστές
-- **Περιήγηση Αγγελιών** - Αναζήτηση και φιλτράρισμα συσκευών ανά κατηγορία
-- **Φίλτρο Πιστοποιημένων** - Δες μόνο πιστοποιημένες αγγελίες με βαθμολόγηση iRepair
-- **Προβολή Λεπτομερειών** - Πλήρεις πληροφορίες, κατάσταση, στοιχεία πωλητή
-- **Συμβουλές Ασφαλείας** - Bilingual (EL/EN) tips για ασφαλείς συναλλαγές
-- **Αναφορά Αγγελιών** - Report ύποπτες αγγελίες
+### Για Αγοραστες
+- **Περιηγηση Αγγελιων** - Αναζητηση και φιλτραρισμα συσκευων ανα κατηγορια
+- **Φιλτρο Πιστοποιημενων** - Δες μονο πιστοποιημενες αγγελιες με βαθμολογηση iRepair
+- **Προβολη Λεπτομερειων** - Πληρεις πληροφοριες, κατασταση, στοιχεια πωλητη
+- **Συμβουλες Ασφαλειας** - Bilingual (EL/EN) tips για ασφαλεις συναλλαγες
+- **Αναφορα Αγγελιων** - Report υποπτες αγγελιες
 
-### Για Πωλητές
-- **Δημιουργία Αγγελιών** - Καταχώρησε με 3-10 φωτογραφίες, οδηγός τιμών Pandas
-- **Έλεγχος & Έγκριση** - Οι αγγελίες περνούν από έγκριση πριν δημοσιευτούν
-- **Διαχείριση Αγγελιών** - Δες τις ενεργές αγγελίες και προβολές
-- **Πιστοποίηση** - Βαθμολόγηση στο iRepair Ρόδος (€10 διαγνωστικό)
+### Για Πωλητες
+- **Δημιουργια Αγγελιων** - Καταχωρησε με 3-10 φωτογραφιες, οδηγος τιμων Pandas
+- **Ελεγχος & Εγκριση** - Οι αγγελιες περνουν απο εγκριση πριν δημοσιευτουν
+- **Διαχειριση Αγγελιων** - Δες τις ενεργες αγγελιες και προβολες
+- **Πιστοποιηση** - Βαθμολογηση στο iRepair Ροδος (€10 διαγνωστικο)
 
-### Κατηγορίες
-- **Κινητά** - Τηλέφωνα από όλες τις μάρκες
-- **Tablets** - iPads, Android tablets και άλλα
-- **Laptops** - MacBooks, Windows laptops κ.λπ.
-- **Αξεσουάρ** - Θήκες, φορτιστές, ακουστικά κ.λπ.
+### Κατηγοριες
+- **ΚΙΝΗΤΑ** - Τηλεφωνα απο ολες τις μαρκες
+- **TABLETS** - iPads, Android tablets και αλλα
+- **LAPTOPS** - MacBooks, Windows laptops κ.λπ.
+- **ΑΞΕΣΟΥΑΡ** - Θηκες, φορτιστες, ακουστικα κ.λπ.
 
-### Βαθμολογίες Κατάστασης & Τιμολόγηση
-| Κατάσταση | Περιγραφή | % Τιμής Καινούργιου |
+### Βαθμολογιες Καταστασης & Τιμολογηση
+| Κατασταση | Περιγραφη | % Τιμης Καινουργιου |
 |-----------|-----------|---------------------|
-| Καινούργιο | Αχρησιμοποίητο | 85-95% |
-| Σαν Καινούργιο | Ελάχιστη χρήση | 75-88% |
-| Καλό | Μικρά σημάδια χρήσης | 60-75% |
-| Μέτριο | Ορατή χρήση, λειτουργικό | 40-60% |
-| Ανταλλακτικά | Για επισκευή μόνο | 10-35% |
+| ΚΑΙΝΟΥΡΓΙΟ | Αχρησιμοποιητο | 85-95% |
+| ΣΑΝ ΚΑΙΝΟΥΡΓΙΟ | Ελαχιστη χρηση | 75-88% |
+| ΚΑΛΟ | Μικρα σημαδια χρησης | 60-75% |
+| ΜΕΤΡΙΟ | Ορατη χρηση, λειτουργικο | 40-60% |
+| ΑΝΤΑΛΛΑΚΤΙΚΑ | Για επισκευη μονο | 10-35% |
 
-**Οδηγός Τιμολόγησης**: [Pandas Pricing](https://pricing-v2.pandas.io/el-GR/irepair/smartphone)
+**Οδηγος Τιμολογησης**: [Pandas Pricing](https://pricing-v2.pandas.io/el-GR/irepair/smartphone)
 
-## Ασφάλεια & Moderation
+## Καταστηματα (V1: ΡΟΔΟΣ)
+
+### iRepair Rhodes (ΚΥΡΙΟ)
+- Διευθυνση: Αμμοχωστου 18, 85131, Ροδος
+- Ωρες: 09:00 - 21:00 (ΔΕΥΤΕΡΑ - ΣΑΒΒΑΤΟ)
+- Υπηρεσιες: ΔΙΑΓΝΩΣΤΙΚΑ, ΕΠΙΣΚΕΥΕΣ, ΑΞΙΟΛΟΓΗΣΗ, ΠΩΛΗΣΕΙΣ
+
+### iRepair Spot (Public Νεα Μαρινα)
+- Διευθυνση: Αυστραλιας 84-86, 85100, Ροδος
+- Ωρες: 10:00 - 22:00 (ΚΑΘΗΜΕΡΙΝΑ)
+- Υπηρεσιες: ΔΙΑΓΝΩΣΤΙΚΑ, ΑΞΙΟΛΟΓΗΣΗ
+
+## Token System
+
+- Animated QR + rotating 6-digit code
+- Ανανεωση καθε 60 δευτερολεπτα
+- TTL: 72 ωρες μετα την εγκριση admin
+- Online validation στο καταστημα
+
+## Ασφαλεια & Moderation
 
 ### Anti-Scam Chat
-- Αυτόματος αποκλεισμός URLs, shortlinks, off-platform patterns (WhatsApp/Telegram)
-- Ανίχνευση image spam (όριο: 3 εικόνες/λεπτό)
-- Σύστημα strikes με 90-day decay
+- Αυτοματος αποκλεισμος URLs, shortlinks, off-platform patterns
+- Ανιχνευση image spam (οριο: 3 εικονες/λεπτο)
+- Συστημα strikes με 90-day decay
 
 ### Fraud Scoring
-- Score 0-100 για χρήστες, αγγελίες, chats
+- Score 0-100 για χρηστες, αγγελιες, chats
 - Auto-hold σε score >= 80
-- Auto-hide: 2 reports για ιδιώτες, 5 για stores
+- Auto-hide: 2 reports για ιδιωτες, 5 για stores
 - Pricing anomaly detection
-- Missive drafts για επιθεώρηση
+- Missive drafts για επιθεωρηση
 
 ### Listing Approval Workflow
-- Νέες αγγελίες status: "pending"
-- Εμφανίζονται μόνο μετά την έγκριση (status: "approved")
-- Fraud check κατά τη δημιουργία
+- Νεες αγγελιες status: "pending"
+- Εμφανιζονται μονο μετα την εγκριση (status: "approved")
+- Fraud check κατα τη δημιουργια
 
-## Γλώσσα
+## Γλωσσα
 
 ### EL/EN Toggle
-- Εναλλαγή γλώσσας στο Profile tab
-- Ελληνικά σε ΚΕΦΑΛΑΙΑ χωρίς τόνους
+- Εναλλαγη γλωσσας στο Profile tab
+- Ελληνικα σε ΚΕΦΑΛΑΙΑ χωρις τονους (per spec)
 - Persisted με AsyncStorage
 
-## Τοπική Υπηρεσία
+## Τοπικη Υπηρεσια
 
-**iRepair Ρόδος** - Συνεργάτης για πιστοποίηση και διαγνωστικά συσκευών.
-
-### Ραντεβού Βαθμολόγησης
-- Κλείσε ραντεβού in-app
-- Διαγνωστικό τέλος: **€10** (επιστρέφεται αν πουλήσεις)
-- Ώρες: Πρωί 09:00-14:00, Απόγευμα 14:00-21:00
+### Ραντεβου Βαθμολογησης
+- Κλεισε ραντεβου in-app
+- Διαγνωστικο τελος: **€10** (επιστρεφεται αν πουλησεις)
+- Ωρες: Πρωι 09:00-14:00, Απογευμα 14:00-21:00
 - External booking: public.irepair.gr/service-app
-
-### Πόλη & Ασφαλής Συνάντηση
-- Κάθε αγγελία απαιτεί επιλογή πόλης (V1: μόνο Ρόδος)
-- Safe meeting point: **iRepair Ρόδος - Αμμοχώστου 18**
-
-## Legal & Support
-
-- **Νομικά/Legal**: Αποποίηση ευθύνης, χωρίς εγγύηση Vibecode
-- **Υποστήριξη/Support**: Email, Τηλέφωνο, Διεύθυνση
 
 ## Design
 
-Η εφαρμογή διαθέτει ένα **funky, neon-inspired design** με:
-- **Κύριο Χρώμα**: Neon Magenta (#FF00FF)
+Η εφαρμογη διαθετει ενα **funky, neon-inspired design** με:
+- **Κυριο Χρωμα**: Neon Magenta (#FF00FF)
 - **Accent**: Electric Lime (#00FF88)
-- **Επισήμανση**: Gold (#FFD700)
-- **Φόντο**: Deep Black με dark gradients
-- **Στυλ**: Bold typography, glowing borders, neon accents
+- **Επισημανση**: Gold (#FFD700)
+- **Φοντο**: Deep Black με dark gradients
 
 ## Tech Stack
 
@@ -97,48 +104,60 @@
 - **Backend**: Hono + Prisma + SQLite
 - **Auth**: Better Auth
 
-## Δομή Εφαρμογής
+## Δομη Εφαρμογης
 
 ```
 src/
 ├── app/
 │   ├── (tabs)/
-│   │   ├── index.tsx      # Αρχική οθόνη
-│   │   ├── browse.tsx     # Αναζήτηση αγγελιών
-│   │   ├── sell.tsx       # Δημιουργία αγγελίας
-│   │   └── profile.tsx    # Προφίλ χρήστη
-│   ├── listing/
-│   │   └── [id].tsx       # Λεπτομέρειες αγγελίας
-│   ├── book-appointment.tsx # Κλείσε ραντεβού
-│   ├── legal.tsx          # Νομικά/Disclaimer
-│   ├── support.tsx        # Υποστήριξη
-│   └── login.tsx          # Σύνδεση/Εγγραφή
+│   │   ├── index.tsx      # Αρχικη οθονη (+ LAPTOPS category)
+│   │   ├── browse.tsx     # Αναζητηση αγγελιων
+│   │   ├── sell.tsx       # Δημιουργια αγγελιας
+│   │   └── profile.tsx    # Προφιλ χρηστη
+│   ├── listing/[id].tsx   # Λεπτομερειες αγγελιας
+│   ├── book-appointment.tsx # Κλεισε ραντεβου
+│   ├── stores.tsx         # Καταστηματα + Maps
+│   ├── token.tsx          # QR + rotating code
+│   ├── legal.tsx          # Νομικα/Disclaimer
+│   ├── support.tsx        # Υποστηριξη
+│   └── login.tsx          # Συνδεση/Εγγραφη
 ├── components/
 │   ├── LanguageToggle.tsx # EL/EN toggle
 │   ├── SafetyTips.tsx     # Bilingual safety tips
 │   └── LoginWithEmailPassword.tsx
 ├── lib/
 │   ├── api.ts             # API client
-│   ├── authClient.ts      # Auth client
-│   ├── languageStore.ts   # i18n store
+│   ├── languageStore.ts   # i18n store (Greek ALL CAPS no accents)
+│   ├── constants.ts       # Pricing bands, URLs
 │   └── cityStore.ts       # City selection
 └── shared/
-    └── contracts.ts       # API types, pricing bands
+    └── contracts.ts       # API types
 ```
 
-## Backend Routes
+## Backend Schema
 
 ```
-backend/src/routes/
-├── listings.ts     # CRUD + report + fraud check
-├── appointments.ts # Booking ραντεβού
-└── messages.ts     # Chat με anti-scam
+backend/prisma/schema.prisma
+
+Models:
+- User (fraud score, restricted mode, trust events)
+- Listing (status workflow, grade, fraud score)
+- Message (moderation, flags)
+- Store (V1: Rhodes 2 points, multi-store ready)
+- Staff (roles: super_admin, admin, store_manager, moderator)
+- Inspection (grade A/B/C/D + checklist)
+- Token (TTL 72h, rotation 60s, active after admin approval)
+- Appointment (status workflow, diagnostic redeemed)
+- AuditLog (all admin actions)
+- AutoActionLog (auto-moderation history)
+- GradeConfig (admin-configurable multipliers)
+- ModerationConfig (thresholds, cooldowns)
 ```
 
-## Σχέδιο Μελλοντικής Ανάπτυξης
+## Σχεδιο Μελλοντικης Αναπτυξης
 
-1. **Web Admin Dashboard** - RBAC για διαχείριση
-2. **Token System** - Animated QR + rotating 6-digit
-3. **Verified Users** - 2 trust events requirement
-4. **City Expansion** - Αθήνα, Θεσσαλονίκη κ.λπ.
-5. **Push Notifications** - Chat messages, price drops
+1. **Web Admin Dashboard** - RBAC για διαχειριση (REQUIRED)
+2. **Verified Users** - 2 trust events requirement
+3. **City Expansion** - Αθηνα, Θεσσαλονικη κ.λπ.
+4. **Push Notifications** - Chat messages, price drops
+5. **Partner Stores** - Lead fees, monthly statements

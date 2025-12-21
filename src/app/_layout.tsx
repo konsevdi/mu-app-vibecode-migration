@@ -29,6 +29,8 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
         <Stack.Screen name="legal" options={{ headerShown: true }} />
         <Stack.Screen name="support" options={{ headerShown: true }} />
         <Stack.Screen name="book-appointment" options={{ headerShown: true }} />
+        <Stack.Screen name="stores" options={{ headerShown: true }} />
+        <Stack.Screen name="token" options={{ headerShown: true }} />
       </Stack>
     </ThemeProvider>
   );

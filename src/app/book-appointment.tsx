@@ -99,7 +99,7 @@ export default function BookAppointmentScreen() {
 
           {/* Date Selection */}
           <Text className="mb-3 text-base font-bold uppercase tracking-wider text-white">
-            <Calendar size={16} color="#FF00FF" /> Επιλέξτε Ημερομηνία
+            <Calendar size={16} color="#FF00FF" /> ΕΠΙΛΕΞΤΕ ΗΜΕΡΟΜΗΝΙΑ
           </Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-6" style={{ flexGrow: 0 }}>
             {dates.map((date, index) => {
@@ -132,7 +132,7 @@ export default function BookAppointmentScreen() {
           </ScrollView>
 
           {/* Time Slot Selection */}
-          <Text className="mb-3 text-base font-bold uppercase tracking-wider text-white">Επιλέξτε Ώρα</Text>
+          <Text className="mb-3 text-base font-bold uppercase tracking-wider text-white">ΕΠΙΛΕΞΤΕ ΩΡΑ</Text>
           <View className="mb-6 flex-row">
             <Pressable
               onPress={() => setSelectedSlot("morning")}

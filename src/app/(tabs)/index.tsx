@@ -15,6 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Smartphone,
   Tablet,
+  Laptop,
   Headphones,
   MapPin,
   ChevronRight,
@@ -30,9 +31,10 @@ const { width } = Dimensions.get("window");
 const CARD_WIDTH = width * 0.75;
 
 const categories = [
-  { id: "phone", name: "Κινητά", icon: Smartphone, color: "#FF00FF", bgColor: "#FF00FF20" },
-  { id: "tablet", name: "Tablets", icon: Tablet, color: "#00FF88", bgColor: "#00FF8820" },
-  { id: "accessory", name: "Αξεσουάρ", icon: Headphones, color: "#FFD700", bgColor: "#FFD70020" },
+  { id: "phone", name: "ΚΙΝΗΤΑ", icon: Smartphone, color: "#FF00FF", bgColor: "#FF00FF20" },
+  { id: "tablet", name: "TABLETS", icon: Tablet, color: "#00FF88", bgColor: "#00FF8820" },
+  { id: "laptop", name: "LAPTOPS", icon: Laptop, color: "#00BFFF", bgColor: "#00BFFF20" },
+  { id: "accessory", name: "ΑΞΕΣΟΥΑΡ", icon: Headphones, color: "#FFD700", bgColor: "#FFD70020" },
 ];
 
 const conditionLabels: Record<string, { label: string; color: string }> = {
@@ -175,7 +177,11 @@ export default function HomeScreen() {
           </View>
 
           {/* iRepair Rhodes Banner */}
-          <Pressable className="mx-5 mb-8 overflow-hidden rounded-3xl" style={{ borderWidth: 2, borderColor: "#00FF88" }}>
+          <Pressable
+            onPress={() => router.push("/stores" as Href)}
+            className="mx-5 mb-8 overflow-hidden rounded-3xl"
+            style={{ borderWidth: 2, borderColor: "#00FF88" }}
+          >
             <LinearGradient
               colors={["#00FF88", "#00CC6A"]}
               start={{ x: 0, y: 0 }}
@@ -187,10 +193,10 @@ export default function HomeScreen() {
               </View>
               <View className="flex-1">
                 <Text className="text-xl font-black text-black">
-                  iRepair Ρόδος
+                  iRepair ΡΟΔΟΣ
                 </Text>
                 <Text className="mt-1 text-base font-semibold text-black/70">
-                  Πιστοποίηση & Διαγνωστικά συσκευών
+                  Πιστοποιηση & Διαγνωστικα συσκευων
                 </Text>
               </View>
               <ChevronRight size={28} color="#000000" />
@@ -200,7 +206,7 @@ export default function HomeScreen() {
           {/* Categories */}
           <View className="mb-8">
             <View className="mb-5 flex-row items-center justify-between px-5">
-              <Text className="text-2xl font-black uppercase tracking-wider text-white">Κατηγορίες</Text>
+              <Text className="text-2xl font-black uppercase tracking-wider text-white">ΚΑΤΗΓΟΡΙΕΣ</Text>
             </View>
             <ScrollView
               horizontal
@@ -219,7 +225,7 @@ export default function HomeScreen() {
             <View className="mb-5 flex-row items-center justify-between px-5">
               <View className="flex-row items-center">
                 <Sparkles size={22} color="#FFD700" />
-                <Text className="ml-2 text-2xl font-black uppercase tracking-wider text-white">Προτεινόμενα</Text>
+                <Text className="ml-2 text-2xl font-black uppercase tracking-wider text-white">ΠΡΟΤΕΙΝΟΜΕΝΑ</Text>
               </View>
               <Pressable
                 onPress={() => router.push("/browse" as Href)}
@@ -227,7 +233,7 @@ export default function HomeScreen() {
                 style={{ borderWidth: 1, borderColor: "#FF00FF" }}
               >
                 <Text className="mr-1 text-sm font-bold uppercase text-fuchsia-400">
-                  Όλα
+                  ΟΛΑ
                 </Text>
                 <ChevronRight size={16} color="#FF00FF" />
               </Pressable>
@@ -266,7 +272,7 @@ export default function HomeScreen() {
                       colors={["#FF00FF", "#CC00CC"]}
                       style={{ paddingHorizontal: 32, paddingVertical: 16 }}
                     >
-                      <Text className="text-lg font-black uppercase text-white">Πούλησε Τώρα</Text>
+                      <Text className="text-lg font-black uppercase text-white">ΠΟΥΛΗΣΕ ΤΩΡΑ</Text>
                     </LinearGradient>
                   </Pressable>
                 </LinearGradient>
@@ -277,14 +283,14 @@ export default function HomeScreen() {
           {/* Recent Listings */}
           <View className="mb-8 px-5">
             <View className="mb-5 flex-row items-center justify-between">
-              <Text className="text-2xl font-black uppercase tracking-wider text-white">Πρόσφατα</Text>
+              <Text className="text-2xl font-black uppercase tracking-wider text-white">ΠΡΟΣΦΑΤΑ</Text>
               <Pressable
                 onPress={() => router.push("/browse" as Href)}
                 className="flex-row items-center rounded-full bg-emerald-500/20 px-4 py-2"
                 style={{ borderWidth: 1, borderColor: "#00FF88" }}
               >
                 <Text className="mr-1 text-sm font-bold uppercase text-emerald-400">
-                  Όλα
+                  ΟΛΑ
                 </Text>
                 <ChevronRight size={16} color="#00FF88" />
               </Pressable>

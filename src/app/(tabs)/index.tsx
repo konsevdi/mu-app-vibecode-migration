@@ -23,13 +23,11 @@ import {
   Zap,
 } from "lucide-react-native";
 import { api } from "@/lib/api";
-import { type GetListingsResponse, type Listing, VERIFICATION_LABEL } from "@/shared/contracts";
+import { type GetListingsResponse, type Listing } from "@/shared/contracts";
+import { isListingVerified } from "@/lib/verification";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width * 0.75;
-
-// Helper to check if listing is verified (has grade + checklist)
-const isListingVerified = (listing: Listing) => listing.grade && listing.checklistComplete;
 
 const categories = [
   { id: "phone", name: "Κινητά", icon: Smartphone, color: "#FF00FF", bgColor: "#FF00FF20" },

@@ -25,9 +25,10 @@ import {
   Store,
 } from "lucide-react-native";
 import { api } from "@/lib/api";
-import { type GetListingResponse, VERIFICATION_LABEL } from "@/shared/contracts";
+import { type GetListingResponse } from "@/shared/contracts";
 import { useCityStore } from "@/lib/cityStore";
 import { V1_STORES } from "@/lib/stores";
+import { VERIFICATION_LABEL, gradeLabels } from "@/lib/verification";
 import * as WebBrowser from "expo-web-browser";
 
 const { width } = Dimensions.get("window");
@@ -43,13 +44,6 @@ const categoryLabels: Record<string, string> = {
   phone: "Κινητό",
   tablet: "Tablet",
   accessory: "Αξεσουάρ",
-};
-
-const gradeLabels: Record<string, { label: string; color: string }> = {
-  A: { label: "ΑΡΙΣΤΗ", color: "#00FF88" },
-  B: { label: "ΚΑΛΗ", color: "#00BFFF" },
-  C: { label: "ΜΕΤΡΙΑ", color: "#FFD700" },
-  D: { label: "ΓΙΑ ΑΝΤΑΛΛΑΚΤΙΚΑ", color: "#FF6B6B" },
 };
 
 export default function ListingDetailScreen() {

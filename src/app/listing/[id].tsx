@@ -25,7 +25,7 @@ import {
   Store,
 } from "lucide-react-native";
 import { api } from "@/lib/api";
-import { type GetListingResponse } from "@/shared/contracts";
+import { type GetListingResponse, VERIFICATION_LABEL } from "@/shared/contracts";
 import { useCityStore } from "@/lib/cityStore";
 import { V1_STORES } from "@/lib/stores";
 import * as WebBrowser from "expo-web-browser";
@@ -43,6 +43,13 @@ const categoryLabels: Record<string, string> = {
   phone: "Κινητό",
   tablet: "Tablet",
   accessory: "Αξεσουάρ",
+};
+
+const gradeLabels: Record<string, { label: string; color: string }> = {
+  A: { label: "ΑΡΙΣΤΗ", color: "#00FF88" },
+  B: { label: "ΚΑΛΗ", color: "#00BFFF" },
+  C: { label: "ΜΕΤΡΙΑ", color: "#FFD700" },
+  D: { label: "ΓΙΑ ΑΝΤΑΛΛΑΚΤΙΚΑ", color: "#FF6B6B" },
 };
 
 export default function ListingDetailScreen() {
@@ -275,6 +282,35 @@ export default function ListingDetailScreen() {
               </View>
             </LinearGradient>
           </View>
+
+          {/* Verified by iRepair - only if grade + checklist */}
+          {listing.grade && listing.checklistComplete && (
+            <View className="mb-5 overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#00FF88" }}>
+              <LinearGradient
+                colors={["#00FF8815", "#0f0f23"]}
+                style={{ padding: 16 }}
+              >
+                <View className="flex-row items-center">
+                  <View className="mr-4 rounded-2xl p-3" style={{ backgroundColor: "#00FF8820" }}>
+                    <Shield size={24} color="#00FF88" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-lg font-black text-emerald-400">
+                      Verified by {VERIFICATION_LABEL}
+                    </Text>
+                    <Text className="mt-1 text-sm font-medium text-gray-400">
+                      Βαθμός: {gradeLabels[listing.grade]?.label ?? listing.grade} • Checklist ολοκληρώθηκε
+                    </Text>
+                    {listing.inspectionDate && (
+                      <Text className="mt-1 text-xs font-medium text-gray-500">
+                        Ελέγχθηκε: {new Date(listing.inspectionDate).toLocaleDateString("el-GR")}
+                      </Text>
+                    )}
+                  </View>
+                </View>
+              </LinearGradient>
+            </View>
+          )}
 
           {/* Description */}
           <View className="mb-5">

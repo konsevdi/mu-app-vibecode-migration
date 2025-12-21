@@ -10,36 +10,13 @@ import {
 const listingsRouter = new Hono<AppType>();
 
 // Helper to transform DB listing to API response
-const transformListing = (listing: {
-  id: string;
-  title: string;
-  description: string;
-  price: number;
-  category: string;
-  condition: string;
-  brand: string | null;
-  model: string | null;
-  images: string;
-  location: string | null;
-  city: string;
-  isActive: boolean;
-  isFeatured: boolean;
-  views: number;
-  createdAt: Date;
-  updatedAt: Date;
-  sellerId: string;
-  seller?: {
-    id: string;
-    name: string | null;
-    email: string;
-    image: string | null;
-    defaultCity: string | null;
-  };
-}) => ({
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const transformListing = (listing: any) => ({
   ...listing,
   images: JSON.parse(listing.images) as string[],
   createdAt: listing.createdAt.toISOString(),
   updatedAt: listing.updatedAt.toISOString(),
+  inspectionDate: listing.inspectionDate?.toISOString() ?? null,
 });
 
 // GET /api/listings - Get all listings with filters
@@ -73,7 +50,7 @@ listingsRouter.get("/", async (c) => {
         where,
         include: {
           seller: {
-            select: { id: true, name: true, email: true, image: true, defaultCity: true },
+            select: { id: true, name: true, email: true, image: true, defaultCity: true, trustEventCount: true },
           },
         },
         orderBy: [{ isFeatured: "desc" }, { createdAt: "desc" }],
@@ -102,7 +79,7 @@ listingsRouter.get("/:id", async (c) => {
       where: { id },
       include: {
         seller: {
-          select: { id: true, name: true, email: true, image: true, defaultCity: true },
+          select: { id: true, name: true, email: true, image: true, defaultCity: true, trustEventCount: true },
         },
       },
     });
@@ -151,7 +128,7 @@ listingsRouter.post("/", async (c) => {
       },
       include: {
         seller: {
-          select: { id: true, name: true, email: true, image: true, defaultCity: true },
+          select: { id: true, name: true, email: true, image: true, defaultCity: true, trustEventCount: true },
         },
       },
     });
@@ -201,7 +178,7 @@ listingsRouter.put("/:id", async (c) => {
       data: updateData,
       include: {
         seller: {
-          select: { id: true, name: true, email: true, image: true, defaultCity: true },
+          select: { id: true, name: true, email: true, image: true, defaultCity: true, trustEventCount: true },
         },
       },
     });

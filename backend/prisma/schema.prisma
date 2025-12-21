@@ -18,6 +18,8 @@ model User {
   emailVerified Boolean   @default(false)
   image         String?
   defaultCity   String?   // "rhodes" or other city
+  // Trust events count (verified after 2+)
+  trustEventCount Int     @default(0)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now()) @updatedAt
   sessions      Session[]
@@ -93,6 +95,10 @@ model Listing {
   images      String   // JSON array of image URLs
   location    String?
   city        String   // Required: "rhodes" etc.
+  // Inspection grade: A (Excellent), B (Good), C (Fair), D (Parts)
+  grade            String?
+  checklistComplete Boolean @default(false)
+  inspectionDate   DateTime?
   isActive    Boolean  @default(true)
   isFeatured  Boolean  @default(false)
   views       Int      @default(0)

@@ -18,6 +18,12 @@ export type Condition = z.infer<typeof conditionSchema>;
 export const citySchema = z.enum(["rhodes"]);
 export type City = z.infer<typeof citySchema>;
 
+export const gradeSchema = z.enum(["A", "B", "C", "D"]);
+export type Grade = z.infer<typeof gradeSchema>;
+
+// V1: Configurable label for white-label support
+export const VERIFICATION_LABEL = "iRepair";
+
 export const listingSchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -30,6 +36,10 @@ export const listingSchema = z.object({
   images: z.array(z.string()),
   location: z.string().nullable(),
   city: citySchema,
+  // Inspection verification
+  grade: gradeSchema.nullable(),
+  checklistComplete: z.boolean(),
+  inspectionDate: z.string().nullable(),
   // V1: All private listings are PICKUP ONLY (shipping disabled)
   isActive: z.boolean(),
   isFeatured: z.boolean(),
@@ -43,6 +53,7 @@ export const listingSchema = z.object({
     email: z.string(),
     image: z.string().nullable(),
     defaultCity: z.string().nullable(),
+    trustEventCount: z.number(),
   }).optional(),
 });
 export type Listing = z.infer<typeof listingSchema>;

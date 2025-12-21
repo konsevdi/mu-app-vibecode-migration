@@ -23,10 +23,13 @@ import {
   Zap,
 } from "lucide-react-native";
 import { api } from "@/lib/api";
-import { type GetListingsResponse, type Listing } from "@/shared/contracts";
+import { type GetListingsResponse, type Listing, VERIFICATION_LABEL } from "@/shared/contracts";
 
 const { width } = Dimensions.get("window");
 const CARD_WIDTH = width * 0.75;
+
+// Helper to check if listing is verified (has grade + checklist)
+const isListingVerified = (listing: Listing) => listing.grade && listing.checklistComplete;
 
 const categories = [
   { id: "phone", name: "Κινητά", icon: Smartphone, color: "#FF00FF", bgColor: "#FF00FF20" },
@@ -75,6 +78,12 @@ function FeaturedListingCard({ listing }: { listing: Listing }) {
               <View className="flex-row items-center rounded-full bg-yellow-400/20 px-3 py-1.5" style={{ borderWidth: 1, borderColor: "#FFD700" }}>
                 <Sparkles size={12} color="#FFD700" />
                 <Text className="ml-1 text-xs font-bold uppercase text-yellow-400">Top</Text>
+              </View>
+            )}
+            {isListingVerified(listing) && (
+              <View className="flex-row items-center rounded-full bg-emerald-400/20 px-3 py-1.5" style={{ borderWidth: 1, borderColor: "#00FF88" }}>
+                <Shield size={12} color="#00FF88" />
+                <Text className="ml-1 text-xs font-bold text-emerald-400">Verified</Text>
               </View>
             )}
           </View>

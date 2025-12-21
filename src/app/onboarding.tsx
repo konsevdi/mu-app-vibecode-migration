@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, Pressable } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter, Href } from "expo-router";
+import { Redirect, useRouter, Href } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import { MapPin, Check } from "lucide-react-native";
 import { useCityStore } from "@/lib/cityStore";
@@ -9,7 +9,13 @@ import type { City } from "@/shared/contracts";
 
 export default function OnboardingScreen() {
   const router = useRouter();
+  const defaultCity = useCityStore((s) => s.defaultCity);
   const setDefaultCity = useCityStore((s) => s.setDefaultCity);
+
+  // If city already set, skip onboarding
+  if (defaultCity) {
+    return <Redirect href="/(tabs)" />;
+  }
 
   const handleSelectCity = (city: City) => {
     setDefaultCity(city);

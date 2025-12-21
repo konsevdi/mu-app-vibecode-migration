@@ -18,29 +18,34 @@ import {
   Camera,
   Smartphone,
   Tablet,
+  Laptop,
   Headphones,
   Check,
   X,
   ImagePlus,
   Zap,
   Sparkles,
+  ExternalLink,
 } from "lucide-react-native";
 import { api } from "@/lib/api";
 import { authClient } from "@/lib/authClient";
-import { type CreateListingRequest, type CreateListingResponse, type Category, type Condition, type City } from "@/shared/contracts";
+import { type CreateListingRequest, type CreateListingResponse, type Category, type Condition, type City, PRICING_BANDS, PANDAS_PRICING_URL } from "@/shared/contracts";
 import { useCityStore } from "@/lib/cityStore";
+import * as WebBrowser from "expo-web-browser";
 
 const categories: { id: Category; name: string; icon: React.ComponentType<{ size: number; color: string }>; color: string }[] = [
   { id: "phone", name: "Κινητό", icon: Smartphone, color: "#FF00FF" },
   { id: "tablet", name: "Tablet", icon: Tablet, color: "#00FF88" },
+  { id: "laptop", name: "Laptop", icon: Laptop, color: "#00BFFF" },
   { id: "accessory", name: "Αξεσουάρ", icon: Headphones, color: "#FFD700" },
 ];
 
-const conditions: { id: Condition; name: string; description: string; color: string }[] = [
-  { id: "new", name: "Καινούργιο", description: "Αχρησιμοποίητο", color: "#00FF88" },
-  { id: "like_new", name: "Σαν Καινούργιο", description: "Ελάχιστη χρήση", color: "#00BFFF" },
-  { id: "good", name: "Καλό", description: "Μικρά σημάδια χρήσης", color: "#FFD700" },
-  { id: "fair", name: "Μέτριο", description: "Φανερή χρήση, λειτουργικό", color: "#FF6B6B" },
+const conditions: { id: Condition; name: string; description: string; color: string; band: string }[] = [
+  { id: "new", name: "Καινούργιο", description: "Αχρησιμοποίητο", color: "#00FF88", band: "85-95%" },
+  { id: "like_new", name: "Σαν Καινούργιο", description: "Ελάχιστη χρήση", color: "#00BFFF", band: "75-88%" },
+  { id: "good", name: "Καλό", description: "Μικρά σημάδια χρήσης", color: "#FFD700", band: "60-75%" },
+  { id: "fair", name: "Μέτριο", description: "Φανερή χρήση, λειτουργικό", color: "#FF6B6B", band: "40-60%" },
+  { id: "parts", name: "Ανταλλακτικά", description: "Για επισκευή μόνο", color: "#888888", band: "10-35%" },
 ];
 
 const placeholderImages = [
@@ -71,9 +76,11 @@ export default function SellScreen() {
       api.post<CreateListingResponse>("/api/listings", data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["listings"] });
-      Alert.alert("Επιτυχία!", "Η αγγελία σου δημιουργήθηκε!", [
-        { text: "OK", onPress: () => router.push("/" as Href) },
-      ]);
+      Alert.alert(
+        "Υποβλήθηκε για Έγκριση",
+        "Η αγγελία σου υποβλήθηκε και θα εγκριθεί σύντομα από τη διαχείριση.\n\nYour listing is pending approval.",
+        [{ text: "OK", onPress: () => router.push("/" as Href) }]
+      );
       // Reset form
       setTitle("");
       setDescription("");
@@ -102,6 +109,11 @@ export default function SellScreen() {
       return;
     }
 
+    if (images.length < 3) {
+      Alert.alert("Απαιτούνται Φωτογραφίες", "Πρόσθεσε τουλάχιστον 3 φωτογραφίες.\n\nMinimum 3 photos required.");
+      return;
+    }
+
     const listingImages = images.length > 0 ? images : [placeholderImages[Math.floor(Math.random() * placeholderImages.length)] ?? placeholderImages[0]];
 
     createMutation.mutate({
@@ -119,7 +131,7 @@ export default function SellScreen() {
   };
 
   const addPlaceholderImage = () => {
-    if (images.length < 5) {
+    if (images.length < 10) {
       const randomImage = placeholderImages[Math.floor(Math.random() * placeholderImages.length)] ?? placeholderImages[0];
       setImages([...images, randomImage]);
     }
@@ -193,7 +205,10 @@ export default function SellScreen() {
             {/* Images */}
             <View className="mb-6 px-5">
               <Text className="mb-3 text-base font-bold uppercase tracking-wider text-white">
-                Φωτογραφίες (έως 5)
+                Φωτογραφίες (3-10) *
+              </Text>
+              <Text className="mb-3 text-sm font-medium text-gray-400">
+                Ελάχιστο 3 φωτογραφίες / Minimum 3 photos required
               </Text>
               <ScrollView
                 horizontal
@@ -217,14 +232,16 @@ export default function SellScreen() {
                     </Pressable>
                   </View>
                 ))}
-                {images.length < 5 && (
+                {images.length < 10 && (
                   <Pressable
                     onPress={addPlaceholderImage}
                     className="h-28 w-28 items-center justify-center rounded-2xl"
-                    style={{ borderWidth: 2, borderColor: "#FF00FF", borderStyle: "dashed", backgroundColor: "#FF00FF10" }}
+                    style={{ borderWidth: 2, borderColor: images.length < 3 ? "#FF6B6B" : "#FF00FF", borderStyle: "dashed", backgroundColor: images.length < 3 ? "#FF6B6B10" : "#FF00FF10" }}
                   >
-                    <ImagePlus size={32} color="#FF00FF" />
-                    <Text className="mt-2 text-xs font-bold text-fuchsia-400">Προσθήκη</Text>
+                    <ImagePlus size={32} color={images.length < 3 ? "#FF6B6B" : "#FF00FF"} />
+                    <Text className={`mt-2 text-xs font-bold ${images.length < 3 ? "text-red-400" : "text-fuchsia-400"}`}>
+                      {images.length < 3 ? `${3 - images.length} ακόμα` : "Προσθήκη"}
+                    </Text>
                   </Pressable>
                 )}
               </ScrollView>
@@ -303,18 +320,57 @@ export default function SellScreen() {
                         style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 10 }}
                       >
                         {isSelected && <Check size={16} color="#000" />}
-                        <Text
-                          className={`${isSelected ? "ml-1" : ""} text-sm font-bold ${
-                            isSelected ? "text-black" : "text-white"
-                          }`}
-                        >
-                          {cond.name}
-                        </Text>
+                        <View className={isSelected ? "ml-1" : ""}>
+                          <Text
+                            className={`text-sm font-bold ${
+                              isSelected ? "text-black" : "text-white"
+                            }`}
+                          >
+                            {cond.name}
+                          </Text>
+                          <Text
+                            className={`text-xs ${
+                              isSelected ? "text-black/70" : "text-gray-400"
+                            }`}
+                          >
+                            {cond.band}
+                          </Text>
+                        </View>
                       </LinearGradient>
                     </Pressable>
                   );
                 })}
               </View>
+              {/* Pricing Guidance */}
+              {condition && (
+                <View className="mt-2 rounded-xl p-3" style={{ backgroundColor: "#FFD70020", borderWidth: 1, borderColor: "#FFD700" }}>
+                  <Text className="text-xs font-bold text-amber-400">
+                    ΟΔΗΓΟΣ ΤΙΜΟΛΟΓΗΣΗΣ / PRICING GUIDE
+                  </Text>
+                  <Text className="mt-1 text-sm font-medium text-gray-300">
+                    {conditions.find((c) => c.id === condition)?.name}: {conditions.find((c) => c.id === condition)?.band} της τιμής καινούργιου
+                  </Text>
+                  <Text className="mt-1 text-xs text-gray-400">
+                    Χωρίς ΦΠΑ για μεταχειρισμένα / VAT-free for used items
+                  </Text>
+                </View>
+              )}
+              {/* Pandas Pricing Link */}
+              <Pressable
+                onPress={() => WebBrowser.openBrowserAsync(PANDAS_PRICING_URL)}
+                className="mt-3 flex-row items-center justify-center overflow-hidden rounded-xl"
+                style={{ borderWidth: 1, borderColor: "#00BFFF" }}
+              >
+                <LinearGradient
+                  colors={["#00BFFF20", "#00BFFF10"]}
+                  style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 12, width: "100%", justifyContent: "center" }}
+                >
+                  <ExternalLink size={16} color="#00BFFF" />
+                  <Text className="ml-2 text-sm font-bold text-sky-400">
+                    Δες Τιμές Αγοράς Pandas / Check Pandas Pricing
+                  </Text>
+                </LinearGradient>
+              </Pressable>
             </View>
 
             {/* City */}

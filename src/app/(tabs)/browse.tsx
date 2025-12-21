@@ -16,11 +16,13 @@ import {
   Search,
   Smartphone,
   Tablet,
+  Laptop,
   Headphones,
   X,
   MapPin,
   SlidersHorizontal,
   Zap,
+  Shield,
 } from "lucide-react-native";
 import { api } from "@/lib/api";
 import { type GetListingsResponse, type Listing, type Category } from "@/shared/contracts";
@@ -29,6 +31,7 @@ const categories: { id: Category | "all"; name: string; icon: React.ComponentTyp
   { id: "all", name: "Όλα", icon: SlidersHorizontal, color: "#FF00FF" },
   { id: "phone", name: "Κινητά", icon: Smartphone, color: "#FF00FF" },
   { id: "tablet", name: "Tablets", icon: Tablet, color: "#00FF88" },
+  { id: "laptop", name: "Laptops", icon: Laptop, color: "#00BFFF" },
   { id: "accessory", name: "Αξεσουάρ", icon: Headphones, color: "#FFD700" },
 ];
 
@@ -37,6 +40,7 @@ const conditionLabels: Record<string, { label: string; color: string }> = {
   like_new: { label: "Σαν Καινούργιο", color: "#00BFFF" },
   good: { label: "Καλό", color: "#FFD700" },
   fair: { label: "Μέτριο", color: "#FF6B6B" },
+  parts: { label: "Ανταλλακτικά", color: "#888888" },
 };
 
 function ListingCard({ listing }: { listing: Listing }) {
@@ -94,6 +98,7 @@ export default function BrowseScreen() {
     (params.category as Category) ?? "all"
   );
   const [searchQuery, setSearchQuery] = useState("");
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
 
   const buildQueryString = useCallback(() => {
     const queryParams: string[] = [];
@@ -103,12 +108,15 @@ export default function BrowseScreen() {
     if (searchQuery.trim()) {
       queryParams.push(`search=${encodeURIComponent(searchQuery.trim())}`);
     }
+    if (verifiedOnly) {
+      queryParams.push("verifiedOnly=true");
+    }
     queryParams.push("limit=50");
     return queryParams.length > 0 ? `?${queryParams.join("&")}` : "";
-  }, [selectedCategory, searchQuery]);
+  }, [selectedCategory, searchQuery, verifiedOnly]);
 
   const { data, isLoading, refetch, isRefetching } = useQuery({
-    queryKey: ["listings", "browse", selectedCategory, searchQuery],
+    queryKey: ["listings", "browse", selectedCategory, searchQuery, verifiedOnly],
     queryFn: () => api.get<GetListingsResponse>(`/api/listings${buildQueryString()}`),
   });
 
@@ -190,6 +198,25 @@ export default function BrowseScreen() {
               );
             })}
           </ScrollView>
+        </View>
+
+        {/* Verified Only Filter */}
+        <View className="mx-5 mb-4">
+          <Pressable
+            onPress={() => setVerifiedOnly(!verifiedOnly)}
+            className="flex-row items-center overflow-hidden rounded-xl"
+            style={{ borderWidth: 2, borderColor: verifiedOnly ? "#00FF88" : "#333" }}
+          >
+            <LinearGradient
+              colors={verifiedOnly ? ["#00FF8820", "#0f0f23"] : ["#1a1a2e", "#0f0f23"]}
+              style={{ flex: 1, flexDirection: "row", alignItems: "center", paddingHorizontal: 14, paddingVertical: 10 }}
+            >
+              <Shield size={18} color={verifiedOnly ? "#00FF88" : "#666"} />
+              <Text className={`ml-2 text-sm font-bold ${verifiedOnly ? "text-emerald-400" : "text-gray-500"}`}>
+                Μόνο πιστοποιημένα / Verified only
+              </Text>
+            </LinearGradient>
+          </Pressable>
         </View>
 
         {/* Results */}

@@ -3,7 +3,7 @@ import { View, Text, ScrollView, Pressable, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams, useRouter } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
-import { Calendar, Sun, Moon, Check, ExternalLink } from "lucide-react-native";
+import { Calendar, Sun, Moon, Check, ExternalLink, Euro, Info } from "lucide-react-native";
 import { useMutation } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import * as WebBrowser from "expo-web-browser";
@@ -72,6 +72,29 @@ export default function BookAppointmentScreen() {
           <View className="mb-6">
             <Text className="text-2xl font-black text-white">Βαθμολόγηση στο iRepair</Text>
             <Text className="mt-1 text-base text-gray-400">Get your device graded at iRepair Rhodes</Text>
+          </View>
+
+          {/* Diagnostic Fee Banner */}
+          <View className="mb-6 overflow-hidden rounded-xl" style={{ borderWidth: 2, borderColor: "#00FF88" }}>
+            <LinearGradient colors={["#00FF8820", "#0f0f23"]} style={{ padding: 16 }}>
+              <View className="flex-row items-center">
+                <View className="mr-3 rounded-full p-2" style={{ backgroundColor: "#00FF88" }}>
+                  <Euro size={20} color="#000" />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-lg font-black text-emerald-400">€10 ΔΙΑΓΝΩΣΤΙΚΟ / DIAGNOSTIC FEE</Text>
+                  <Text className="mt-1 text-sm text-gray-300">
+                    Επιστρέφεται αν αγοράσετε / Refunded on purchase
+                  </Text>
+                </View>
+              </View>
+              <View className="mt-3 flex-row items-start">
+                <Info size={14} color="#888" style={{ marginTop: 2 }} />
+                <Text className="ml-2 flex-1 text-xs text-gray-400">
+                  Το διαγνωστικό τέλος καλύπτει τον έλεγχο της συσκευής και την έκδοση βαθμολογίας. Επιστρέφεται πλήρως εάν πουλήσετε τη συσκευή μέσω Mobile Unit.
+                </Text>
+              </View>
+            </LinearGradient>
           </View>
 
           {/* Date Selection */}

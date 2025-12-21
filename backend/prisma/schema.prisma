@@ -94,24 +94,26 @@ model Listing {
   title       String
   description String
   price       Float
-  category    String   // "phone", "tablet", "accessory"
-  condition   String   // "new", "like_new", "good", "fair"
+  category    String   // "phone", "tablet", "laptop", "accessory"
+  condition   String   // "new", "like_new", "good", "fair", "parts"
   brand       String?
   model       String?
-  images      String   // JSON array of image URLs
+  images      String   // JSON array of image URLs (min 3)
   location    String?
   city        String   // Required: "rhodes" etc.
   // Inspection grade: A (Excellent), B (Good), C (Fair), D (Parts)
   grade            String?
   checklistComplete Boolean @default(false)
   inspectionDate   DateTime?
+  // Approval workflow
+  status      String   @default("pending") // "pending", "approved", "rejected"
   isActive    Boolean  @default(true)
   isFeatured  Boolean  @default(false)
   views       Int      @default(0)
   // Fraud system
   fraudScore  Int      @default(0)  // 0-100
   isHeld      Boolean  @default(false)
-  isStore     Boolean  @default(false)  // Store vs private listing
+  isStore     Boolean  @default(false)  // "Sold by iRepair" listings
   reportCount24h Int   @default(0)
   lastReportAt DateTime?
   createdAt   DateTime @default(now())
@@ -123,6 +125,7 @@ model Listing {
   @@index([category])
   @@index([sellerId])
   @@index([city])
+  @@index([status])
   @@map("listing")
 }
 

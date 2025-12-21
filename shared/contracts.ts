@@ -9,10 +9,10 @@ import { z } from "zod";
 // Listing Types
 // ============================================
 
-export const categorySchema = z.enum(["phone", "tablet", "accessory"]);
+export const categorySchema = z.enum(["phone", "tablet", "laptop", "accessory"]);
 export type Category = z.infer<typeof categorySchema>;
 
-export const conditionSchema = z.enum(["new", "like_new", "good", "fair"]);
+export const conditionSchema = z.enum(["new", "like_new", "good", "fair", "parts"]);
 export type Condition = z.infer<typeof conditionSchema>;
 
 export const citySchema = z.enum(["rhodes"]);
@@ -23,6 +23,30 @@ export type Grade = z.infer<typeof gradeSchema>;
 
 // V1: Configurable label for white-label support
 export const VERIFICATION_LABEL = "iRepair";
+
+// Pricing bands by condition (% of new price)
+export const PRICING_BANDS = {
+  new: { min: 85, max: 95 },
+  like_new: { min: 75, max: 88 },
+  good: { min: 60, max: 75 },
+  fair: { min: 40, max: 60 },
+  parts: { min: 10, max: 35 },
+} as const;
+
+// Grade multipliers (admin-configurable)
+export const GRADE_MULTIPLIERS = {
+  A: 1.00,
+  B: 0.93,
+  C: 0.85,
+  D: 0.60,
+} as const;
+
+// Pandas pricing link
+export const PANDAS_PRICING_URL = "https://pricing-v2.pandas.io/el-GR/irepair/smartphone";
+
+// Listing approval status
+export const listingStatusSchema = z.enum(["pending", "approved", "rejected"]);
+export type ListingStatus = z.infer<typeof listingStatusSchema>;
 
 export const listingSchema = z.object({
   id: z.string(),
@@ -40,9 +64,12 @@ export const listingSchema = z.object({
   grade: gradeSchema.nullable(),
   checklistComplete: z.boolean(),
   inspectionDate: z.string().nullable(),
+  // Approval workflow
+  status: listingStatusSchema.default("pending"),
   // V1: All private listings are PICKUP ONLY (shipping disabled)
   isActive: z.boolean(),
   isFeatured: z.boolean(),
+  isStore: z.boolean().default(false), // "Sold by iRepair" listings
   views: z.number(),
   createdAt: z.string(),
   updatedAt: z.string(),
@@ -66,6 +93,7 @@ export const getListingsQuerySchema = z.object({
   minPrice: z.coerce.number().optional(),
   maxPrice: z.coerce.number().optional(),
   featured: z.coerce.boolean().optional(),
+  verifiedOnly: z.coerce.boolean().optional(), // Filter for verified listings only
   sellerId: z.string().optional(),
   limit: z.coerce.number().default(20),
   offset: z.coerce.number().default(0),
@@ -91,7 +119,7 @@ export const createListingRequestSchema = z.object({
   condition: conditionSchema,
   brand: z.string().optional(),
   model: z.string().optional(),
-  images: z.array(z.string()).min(1).max(5),
+  images: z.array(z.string()).min(3).max(10), // Min 3 photos required
   location: z.string().optional(),
   city: citySchema,
   // V1: Private listings are PICKUP ONLY. Shipping disabled until V2.

@@ -31,14 +31,19 @@ const transformListing = (listing: any) => ({
 listingsRouter.get("/", async (c) => {
   try {
     const query = getListingsQuerySchema.parse(c.req.query());
-    const { category, condition, search, minPrice, maxPrice, featured, sellerId, limit, offset } = query;
+    const { category, condition, search, minPrice, maxPrice, featured, verifiedOnly, sellerId, limit, offset } = query;
 
-    const where: Record<string, unknown> = { isActive: true, isHeld: false };
+    const where: Record<string, unknown> = { isActive: true, isHeld: false, status: "approved" };
 
     if (category) where.category = category;
     if (condition) where.condition = condition;
     if (featured) where.isFeatured = true;
     if (sellerId) where.sellerId = sellerId;
+    // Verified only filter: has grade + checklistComplete
+    if (verifiedOnly) {
+      where.grade = { not: null };
+      where.checklistComplete = true;
+    }
     if (minPrice !== undefined || maxPrice !== undefined) {
       where.price = {};
       if (minPrice !== undefined) (where.price as Record<string, number>).gte = minPrice;

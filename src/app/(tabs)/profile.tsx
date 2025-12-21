@@ -21,10 +21,13 @@ import {
   Sparkles,
   FileText,
   HelpCircle,
+  Globe,
 } from "lucide-react-native";
 import { api } from "@/lib/api";
 import { authClient } from "@/lib/authClient";
 import { type GetListingsResponse, type Listing } from "@/shared/contracts";
+import { LanguageToggle } from "@/components/LanguageToggle";
+import { useTranslation } from "@/lib/languageStore";
 
 const conditionLabels: Record<string, { label: string; color: string }> = {
   new: { label: "Καινούργιο", color: "#00FF88" },
@@ -89,6 +92,7 @@ function MyListingCard({ listing }: { listing: Listing }) {
 export default function ProfileScreen() {
   const router = useRouter();
   const { data: session, isPending: isSessionLoading } = authClient.useSession();
+  const { t, language } = useTranslation();
 
   const { data: myListings, refetch, isRefetching } = useQuery({
     queryKey: ["listings", "my", session?.user?.id],
@@ -105,7 +109,7 @@ export default function ProfileScreen() {
   if (isSessionLoading) {
     return (
       <View className="flex-1 items-center justify-center bg-black">
-        <Text className="text-lg font-bold text-gray-500">Φόρτωση...</Text>
+        <Text className="text-lg font-bold text-gray-500">{t("loading")}</Text>
       </View>
     );
   }
@@ -118,14 +122,20 @@ export default function ProfileScreen() {
           style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
         />
         <SafeAreaView edges={["top"]} className="flex-1 items-center justify-center px-8">
+          {/* Language Toggle for non-logged-in users */}
+          <View className="absolute right-5 top-4">
+            <LanguageToggle compact />
+          </View>
           <View className="mb-6 rounded-3xl p-8" style={{ backgroundColor: "#FF00FF20", borderWidth: 2, borderColor: "#FF00FF" }}>
             <User size={72} color="#FF00FF" />
           </View>
           <Text className="text-center text-3xl font-black text-white">
-            Συνδέσου στο προφίλ σου
+            {t("sign_in_to_profile")}
           </Text>
           <Text className="mt-3 text-center text-base font-medium text-gray-400">
-            Διαχειρίσου τις αγγελίες και τις ρυθμίσεις του λογαριασμού σου
+            {language === "el"
+              ? "Διαχειρίσου τις αγγελίες και τις ρυθμίσεις του λογαριασμού σου"
+              : "Manage your listings and account settings"}
           </Text>
           <Pressable
             onPress={() => router.push("/login" as Href)}
@@ -136,7 +146,7 @@ export default function ProfileScreen() {
               colors={["#FF00FF", "#CC00CC"]}
               style={{ paddingHorizontal: 40, paddingVertical: 18 }}
             >
-              <Text className="text-xl font-black uppercase text-white">Σύνδεση</Text>
+              <Text className="text-xl font-black uppercase text-white">{t("sign_in")}</Text>
             </LinearGradient>
           </Pressable>
         </SafeAreaView>
@@ -195,14 +205,14 @@ export default function ProfileScreen() {
                 <Text className="text-4xl font-black text-fuchsia-400">
                   {myListings?.total ?? 0}
                 </Text>
-                <Text className="mt-1 text-sm font-bold uppercase tracking-wider text-gray-400">Αγγελίες</Text>
+                <Text className="mt-1 text-sm font-bold uppercase tracking-wider text-gray-400">{t("listings_count")}</Text>
               </View>
               <View className="mx-4 w-0.5 bg-gray-700" />
               <View className="flex-1 items-center">
                 <Text className="text-4xl font-black text-emerald-400">
                   {myListings?.listings?.reduce((sum, l) => sum + l.views, 0) ?? 0}
                 </Text>
-                <Text className="mt-1 text-sm font-bold uppercase tracking-wider text-gray-400">Προβολές</Text>
+                <Text className="mt-1 text-sm font-bold uppercase tracking-wider text-gray-400">{t("views_count")}</Text>
               </View>
             </LinearGradient>
           </View>
@@ -222,7 +232,7 @@ export default function ProfileScreen() {
                   <Package size={28} color="#000" />
                 </View>
                 <Text className="flex-1 text-lg font-black uppercase text-black">
-                  Δημιούργησε Νέα Αγγελία
+                  {t("create_new")}
                 </Text>
                 <ChevronRight size={24} color="#000" />
               </LinearGradient>
@@ -234,7 +244,7 @@ export default function ProfileScreen() {
             <View className="mb-4 flex-row items-center">
               <Sparkles size={20} color="#FFD700" />
               <Text className="ml-2 text-xl font-black uppercase tracking-wider text-white">
-                Οι Αγγελίες μου
+                {t("my_listings")}
               </Text>
             </View>
             {myListings?.listings && myListings.listings.length > 0 ? (
@@ -249,7 +259,7 @@ export default function ProfileScreen() {
                 >
                   <Package size={48} color="#666" />
                   <Text className="mt-4 text-lg font-bold text-gray-400">
-                    Δεν έχεις ακόμα αγγελίες
+                    {t("no_listings_yet")}
                   </Text>
                   <Pressable
                     onPress={() => router.push("/sell" as Href)}
@@ -261,7 +271,7 @@ export default function ProfileScreen() {
                       style={{ paddingHorizontal: 24, paddingVertical: 12 }}
                     >
                       <Text className="font-bold uppercase text-fuchsia-400">
-                        Δημιούργησε την πρώτη σου
+                        {t("create_first")}
                       </Text>
                     </LinearGradient>
                   </Pressable>
@@ -270,9 +280,17 @@ export default function ProfileScreen() {
             )}
           </View>
 
+          {/* Language Toggle */}
+          <View className="mx-5 mb-4 mt-6">
+            <Text className="mb-3 text-sm font-bold uppercase tracking-wider text-gray-500">
+              {language === "el" ? "ΓΛΩΣΣΑ / LANGUAGE" : "LANGUAGE / ΓΛΩΣΣΑ"}
+            </Text>
+            <LanguageToggle />
+          </View>
+
           {/* Settings Links */}
-          <View className="mx-5 mb-6 mt-6">
-            <Text className="mb-3 text-sm font-bold uppercase tracking-wider text-gray-500">Ρυθμίσεις</Text>
+          <View className="mx-5 mb-6">
+            <Text className="mb-3 text-sm font-bold uppercase tracking-wider text-gray-500">{t("settings")}</Text>
             <View className="overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#333" }}>
               <Pressable
                 onPress={() => router.push("/support" as Href)}
@@ -281,7 +299,7 @@ export default function ProfileScreen() {
                 <View className="mr-3 rounded-lg p-2" style={{ backgroundColor: "#00FF8820" }}>
                   <HelpCircle size={20} color="#00FF88" />
                 </View>
-                <Text className="flex-1 text-base font-semibold text-white">Υποστήριξη / Support</Text>
+                <Text className="flex-1 text-base font-semibold text-white">{t("support")}</Text>
                 <ChevronRight size={20} color="#666" />
               </Pressable>
               <Pressable
@@ -291,14 +309,14 @@ export default function ProfileScreen() {
                 <View className="mr-3 rounded-lg p-2" style={{ backgroundColor: "#FFD70020" }}>
                   <FileText size={20} color="#FFD700" />
                 </View>
-                <Text className="flex-1 text-base font-semibold text-white">Νομικά / Legal</Text>
+                <Text className="flex-1 text-base font-semibold text-white">{t("legal")}</Text>
                 <ChevronRight size={20} color="#666" />
               </Pressable>
             </View>
           </View>
 
           {/* Sign Out */}
-          <View className="mx-5 mb-8 mt-8">
+          <View className="mx-5 mb-8 mt-4">
             <Pressable
               onPress={handleSignOut}
               className="flex-row items-center justify-center overflow-hidden rounded-2xl py-4"
@@ -306,7 +324,7 @@ export default function ProfileScreen() {
             >
               <LogOut size={22} color="#FF6B6B" />
               <Text className="ml-2 text-lg font-black uppercase text-red-400">
-                Αποσύνδεση
+                {t("sign_out")}
               </Text>
             </Pressable>
           </View>

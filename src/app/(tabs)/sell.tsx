@@ -29,7 +29,8 @@ import {
 } from "lucide-react-native";
 import { api } from "@/lib/api";
 import { authClient } from "@/lib/authClient";
-import { type CreateListingRequest, type CreateListingResponse, type Category, type Condition, type City, PRICING_BANDS, PANDAS_PRICING_URL } from "@/shared/contracts";
+import { type CreateListingRequest, type CreateListingResponse, type Category, type Condition, type City } from "@/shared/contracts";
+import { PANDAS_PRICING_URL } from "@/lib/constants";
 import { useCityStore } from "@/lib/cityStore";
 import * as WebBrowser from "expo-web-browser";
 

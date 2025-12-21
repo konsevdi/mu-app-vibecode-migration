@@ -30,6 +30,7 @@ export const listingSchema = z.object({
   images: z.array(z.string()),
   location: z.string().nullable(),
   city: citySchema,
+  // V1: All private listings are PICKUP ONLY (shipping disabled)
   isActive: z.boolean(),
   isFeatured: z.boolean(),
   views: z.number(),
@@ -82,6 +83,8 @@ export const createListingRequestSchema = z.object({
   images: z.array(z.string()).min(1).max(5),
   location: z.string().optional(),
   city: citySchema,
+  // V1: Private listings are PICKUP ONLY. Shipping disabled until V2.
+  // shippingEnabled: z.boolean().optional(), // V2: Uncomment for shipping support
 });
 export type CreateListingRequest = z.infer<typeof createListingRequestSchema>;
 

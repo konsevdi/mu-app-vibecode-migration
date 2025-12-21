@@ -185,6 +185,11 @@ export default function ListingDetailScreen() {
 
           {/* Meta Info */}
           <View className="mb-5 flex-row flex-wrap">
+            {/* V1: Pickup Only badge */}
+            <View className="mb-2 mr-4 flex-row items-center rounded-full px-3 py-2" style={{ backgroundColor: "#FF00FF20" }}>
+              <MapPin size={16} color="#FF00FF" />
+              <Text className="ml-2 text-sm font-bold text-fuchsia-400">ΠΑΡΑΛΑΒΗ ΜΟΝΟ</Text>
+            </View>
             {listing.location && (
               <View className="mb-2 mr-4 flex-row items-center rounded-full bg-gray-800 px-3 py-2">
                 <MapPin size={16} color="#FF00FF" />

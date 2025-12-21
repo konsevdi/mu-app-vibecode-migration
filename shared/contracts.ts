@@ -15,6 +15,9 @@ export type Category = z.infer<typeof categorySchema>;
 export const conditionSchema = z.enum(["new", "like_new", "good", "fair"]);
 export type Condition = z.infer<typeof conditionSchema>;
 
+export const citySchema = z.enum(["rhodes"]);
+export type City = z.infer<typeof citySchema>;
+
 export const listingSchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -26,6 +29,7 @@ export const listingSchema = z.object({
   model: z.string().nullable(),
   images: z.array(z.string()),
   location: z.string().nullable(),
+  city: citySchema,
   isActive: z.boolean(),
   isFeatured: z.boolean(),
   views: z.number(),
@@ -37,6 +41,7 @@ export const listingSchema = z.object({
     name: z.string().nullable(),
     email: z.string(),
     image: z.string().nullable(),
+    defaultCity: z.string().nullable(),
   }).optional(),
 });
 export type Listing = z.infer<typeof listingSchema>;
@@ -76,6 +81,7 @@ export const createListingRequestSchema = z.object({
   model: z.string().optional(),
   images: z.array(z.string()).min(1).max(5),
   location: z.string().optional(),
+  city: citySchema,
 });
 export type CreateListingRequest = z.infer<typeof createListingRequestSchema>;
 

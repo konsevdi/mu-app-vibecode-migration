@@ -27,7 +27,8 @@ import {
 } from "lucide-react-native";
 import { api } from "@/lib/api";
 import { authClient } from "@/lib/authClient";
-import { type CreateListingRequest, type CreateListingResponse, type Category, type Condition } from "@/shared/contracts";
+import { type CreateListingRequest, type CreateListingResponse, type Category, type Condition, type City } from "@/shared/contracts";
+import { useCityStore } from "@/lib/cityStore";
 
 const categories: { id: Category; name: string; icon: React.ComponentType<{ size: number; color: string }>; color: string }[] = [
   { id: "phone", name: "Κινητό", icon: Smartphone, color: "#FF00FF" },
@@ -52,6 +53,7 @@ export default function SellScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const { data: session } = authClient.useSession();
+  const defaultCity = useCityStore((s) => s.defaultCity);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -62,6 +64,7 @@ export default function SellScreen() {
   const [model, setModel] = useState("");
   const [location, setLocation] = useState("");
   const [images, setImages] = useState<string[]>([]);
+  const [city, setCity] = useState<City | null>(defaultCity);
 
   const createMutation = useMutation({
     mutationFn: (data: CreateListingRequest) =>
@@ -94,7 +97,7 @@ export default function SellScreen() {
       return;
     }
 
-    if (!title.trim() || !description.trim() || !price || !category || !condition) {
+    if (!title.trim() || !description.trim() || !price || !category || !condition || !city) {
       Alert.alert("Λείπουν Στοιχεία", "Συμπλήρωσε όλα τα υποχρεωτικά πεδία.");
       return;
     }
@@ -111,6 +114,7 @@ export default function SellScreen() {
       model: model.trim() || undefined,
       location: location.trim() || undefined,
       images: listingImages,
+      city,
     });
   };
 
@@ -311,6 +315,28 @@ export default function SellScreen() {
                   );
                 })}
               </View>
+            </View>
+
+            {/* City */}
+            <View className="mb-5 px-5">
+              <Text className="mb-3 text-base font-bold uppercase tracking-wider text-white">
+                ΠΟΛΗ *
+              </Text>
+              <Pressable
+                onPress={() => setCity("rhodes")}
+                className="overflow-hidden rounded-2xl"
+                style={{ borderWidth: 2, borderColor: city === "rhodes" ? "#00FF88" : "#333" }}
+              >
+                <LinearGradient
+                  colors={city === "rhodes" ? ["#00FF88", "#00CC6A"] : ["#1a1a2e", "#0f0f23"]}
+                  style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 14 }}
+                >
+                  {city === "rhodes" && <Check size={18} color="#000" />}
+                  <Text className={`${city === "rhodes" ? "ml-2 text-black" : "text-white"} text-base font-bold`}>
+                    ΡΟΔΟΣ
+                  </Text>
+                </LinearGradient>
+              </Pressable>
             </View>
 
             {/* Price */}

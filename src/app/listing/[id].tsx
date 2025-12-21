@@ -22,9 +22,11 @@ import {
   Shield,
   Share2,
   Zap,
+  Store,
 } from "lucide-react-native";
 import { api } from "@/lib/api";
 import { type GetListingResponse } from "@/shared/contracts";
+import { useCityStore } from "@/lib/cityStore";
 
 const { width } = Dimensions.get("window");
 
@@ -44,6 +46,7 @@ const categoryLabels: Record<string, string> = {
 export default function ListingDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const viewerCity = useCityStore((s) => s.defaultCity);
 
   const { data: listing, isLoading } = useQuery({
     queryKey: ["listing", id],
@@ -318,6 +321,39 @@ export default function ListingDetailScreen() {
               </View>
             </LinearGradient>
           </Pressable>
+
+          {/* Safe Meetup Suggestion */}
+          {viewerCity === "rhodes" && listing.city === "rhodes" ? (
+            <View className="mb-6 overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#FFD700" }}>
+              <LinearGradient
+                colors={["#1a1a2e", "#0f0f23"]}
+                style={{ padding: 16, flexDirection: "row", alignItems: "center" }}
+              >
+                <View className="mr-4 rounded-xl p-3" style={{ backgroundColor: "#FFD70020" }}>
+                  <Store size={24} color="#FFD700" />
+                </View>
+                <View className="flex-1">
+                  <Text className="text-base font-black text-white">
+                    ΑΣΦΑΛΗΣ ΣΥΝΑΝΤΗΣΗ
+                  </Text>
+                  <Text className="mt-1 text-sm font-medium text-gray-400">
+                    iRepair Ρόδος - Αμμοχώστου 18
+                  </Text>
+                </View>
+              </LinearGradient>
+            </View>
+          ) : !viewerCity ? (
+            <View className="mb-6 overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#666" }}>
+              <LinearGradient
+                colors={["#1a1a2e", "#0f0f23"]}
+                style={{ padding: 16 }}
+              >
+                <Text className="text-sm font-medium text-gray-400">
+                  Επίλεξε την πόλη σου για να δεις προτάσεις ασφαλούς συνάντησης.
+                </Text>
+              </LinearGradient>
+            </View>
+          ) : null}
 
           {/* Spacer for bottom button */}
           <View className="h-28" />

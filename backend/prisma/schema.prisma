@@ -17,6 +17,7 @@ model User {
   name          String?
   emailVerified Boolean   @default(false)
   image         String?
+  defaultCity   String?   // "rhodes" or other city
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now()) @updatedAt
   sessions      Session[]
@@ -91,6 +92,7 @@ model Listing {
   model       String?
   images      String   // JSON array of image URLs
   location    String?
+  city        String   // Required: "rhodes" etc.
   isActive    Boolean  @default(true)
   isFeatured  Boolean  @default(false)
   views       Int      @default(0)
@@ -102,5 +104,6 @@ model Listing {
 
   @@index([category])
   @@index([sellerId])
+  @@index([city])
   @@map("listing")
 }

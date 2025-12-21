@@ -21,6 +21,7 @@ const transformListing = (listing: {
   model: string | null;
   images: string;
   location: string | null;
+  city: string;
   isActive: boolean;
   isFeatured: boolean;
   views: number;
@@ -32,6 +33,7 @@ const transformListing = (listing: {
     name: string | null;
     email: string;
     image: string | null;
+    defaultCity: string | null;
   };
 }) => ({
   ...listing,
@@ -71,7 +73,7 @@ listingsRouter.get("/", async (c) => {
         where,
         include: {
           seller: {
-            select: { id: true, name: true, email: true, image: true },
+            select: { id: true, name: true, email: true, image: true, defaultCity: true },
           },
         },
         orderBy: [{ isFeatured: "desc" }, { createdAt: "desc" }],
@@ -100,7 +102,7 @@ listingsRouter.get("/:id", async (c) => {
       where: { id },
       include: {
         seller: {
-          select: { id: true, name: true, email: true, image: true },
+          select: { id: true, name: true, email: true, image: true, defaultCity: true },
         },
       },
     });
@@ -144,11 +146,12 @@ listingsRouter.post("/", async (c) => {
         model: data.model ?? null,
         images: JSON.stringify(data.images),
         location: data.location ?? null,
+        city: data.city,
         sellerId: user.id,
       },
       include: {
         seller: {
-          select: { id: true, name: true, email: true, image: true },
+          select: { id: true, name: true, email: true, image: true, defaultCity: true },
         },
       },
     });
@@ -191,13 +194,14 @@ listingsRouter.put("/:id", async (c) => {
     if (data.model !== undefined) updateData.model = data.model;
     if (data.images !== undefined) updateData.images = JSON.stringify(data.images);
     if (data.location !== undefined) updateData.location = data.location;
+    if (data.city !== undefined) updateData.city = data.city;
 
     const listing = await db.listing.update({
       where: { id },
       data: updateData,
       include: {
         seller: {
-          select: { id: true, name: true, email: true, image: true },
+          select: { id: true, name: true, email: true, image: true, defaultCity: true },
         },
       },
     });

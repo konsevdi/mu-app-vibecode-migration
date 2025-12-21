@@ -10,23 +10,25 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, Href } from "expo-router";
 import { useQuery } from "@tanstack/react-query";
+import { LinearGradient } from "expo-linear-gradient";
 import {
   User,
-  Settings,
   Package,
   LogOut,
   ChevronRight,
-  MapPin,
+  Zap,
+  Eye,
+  Sparkles,
 } from "lucide-react-native";
 import { api } from "@/lib/api";
 import { authClient } from "@/lib/authClient";
 import { type GetListingsResponse, type Listing } from "@/shared/contracts";
 
 const conditionLabels: Record<string, { label: string; color: string }> = {
-  new: { label: "New", color: "#22C55E" },
-  like_new: { label: "Like New", color: "#06B6D4" },
-  good: { label: "Good", color: "#F59E0B" },
-  fair: { label: "Fair", color: "#94A3B8" },
+  new: { label: "Καινούργιο", color: "#00FF88" },
+  like_new: { label: "Σαν Καινούργιο", color: "#00BFFF" },
+  good: { label: "Καλό", color: "#FFD700" },
+  fair: { label: "Μέτριο", color: "#FF6B6B" },
 };
 
 function MyListingCard({ listing }: { listing: Listing }) {
@@ -36,39 +38,48 @@ function MyListingCard({ listing }: { listing: Listing }) {
   return (
     <Pressable
       onPress={() => router.push(`/listing/${listing.id}` as Href)}
-      className="mb-3 flex-row overflow-hidden rounded-xl bg-slate-800"
+      className="mb-3 flex-row overflow-hidden rounded-2xl"
+      style={{ borderWidth: 2, borderColor: "#333" }}
     >
-      <Image
-        source={{
-          uri: listing.images[0] ?? "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400",
-        }}
-        className="h-24 w-24"
-        resizeMode="cover"
-      />
-      <View className="flex-1 justify-center p-3">
-        <View className="mb-1 flex-row items-center">
-          <View
-            className="rounded-full px-2 py-0.5"
-            style={{ backgroundColor: `${condition.color}20` }}
-          >
-            <Text style={{ color: condition.color }} className="text-xs font-medium">
-              {condition.label}
-            </Text>
+      <LinearGradient
+        colors={["#1a1a2e", "#0f0f23"]}
+        style={{ flex: 1, flexDirection: "row" }}
+      >
+        <Image
+          source={{
+            uri: listing.images[0] ?? "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400",
+          }}
+          className="h-24 w-24"
+          resizeMode="cover"
+        />
+        <View className="flex-1 justify-center p-3">
+          <View className="mb-1 flex-row items-center">
+            <View
+              className="rounded-full px-2 py-0.5"
+              style={{ backgroundColor: `${condition.color}20`, borderWidth: 1, borderColor: condition.color }}
+            >
+              <Text style={{ color: condition.color }} className="text-xs font-bold uppercase">
+                {condition.label}
+              </Text>
+            </View>
+            <View className="ml-2 flex-row items-center">
+              <Eye size={12} color="#FF00FF" />
+              <Text className="ml-1 text-xs font-semibold text-gray-400">
+                {listing.views}
+              </Text>
+            </View>
           </View>
-          <Text className="ml-2 text-xs text-slate-500">
-            {listing.views} views
+          <Text className="text-sm font-bold text-white" numberOfLines={1}>
+            {listing.title}
+          </Text>
+          <Text className="mt-1 text-lg font-black text-fuchsia-400">
+            €{listing.price.toFixed(0)}
           </Text>
         </View>
-        <Text className="text-sm font-semibold text-white" numberOfLines={1}>
-          {listing.title}
-        </Text>
-        <Text className="mt-1 text-base font-bold text-cyan-400">
-          €{listing.price.toFixed(0)}
-        </Text>
-      </View>
-      <View className="items-center justify-center pr-4">
-        <ChevronRight size={20} color="#64748B" />
-      </View>
+        <View className="items-center justify-center pr-4">
+          <ChevronRight size={22} color="#FF00FF" />
+        </View>
+      </LinearGradient>
     </Pressable>
   );
 }
@@ -91,28 +102,40 @@ export default function ProfileScreen() {
 
   if (isSessionLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-slate-900">
-        <Text className="text-slate-400">Loading...</Text>
+      <View className="flex-1 items-center justify-center bg-black">
+        <Text className="text-lg font-bold text-gray-500">Φόρτωση...</Text>
       </View>
     );
   }
 
   if (!session?.user) {
     return (
-      <View className="flex-1 bg-slate-900">
+      <View className="flex-1 bg-black">
+        <LinearGradient
+          colors={["#0a0a0a", "#1a1a2e", "#0a0a0a"]}
+          style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
+        />
         <SafeAreaView edges={["top"]} className="flex-1 items-center justify-center px-8">
-          <User size={64} color="#334155" />
-          <Text className="mt-6 text-center text-xl font-bold text-white">
-            Sign in to view your profile
+          <View className="mb-6 rounded-3xl p-8" style={{ backgroundColor: "#FF00FF20", borderWidth: 2, borderColor: "#FF00FF" }}>
+            <User size={72} color="#FF00FF" />
+          </View>
+          <Text className="text-center text-3xl font-black text-white">
+            Συνδέσου στο προφίλ σου
           </Text>
-          <Text className="mt-2 text-center text-sm text-slate-400">
-            Manage your listings and account settings
+          <Text className="mt-3 text-center text-base font-medium text-gray-400">
+            Διαχειρίσου τις αγγελίες και τις ρυθμίσεις του λογαριασμού σου
           </Text>
           <Pressable
             onPress={() => router.push("/login" as Href)}
-            className="mt-8 rounded-full bg-cyan-500 px-8 py-4"
+            className="mt-8 overflow-hidden rounded-full"
+            style={{ borderWidth: 2, borderColor: "#FF00FF" }}
           >
-            <Text className="text-lg font-semibold text-white">Sign In</Text>
+            <LinearGradient
+              colors={["#FF00FF", "#CC00CC"]}
+              style={{ paddingHorizontal: 40, paddingVertical: 18 }}
+            >
+              <Text className="text-xl font-black uppercase text-white">Σύνδεση</Text>
+            </LinearGradient>
           </Pressable>
         </SafeAreaView>
       </View>
@@ -120,7 +143,11 @@ export default function ProfileScreen() {
   }
 
   return (
-    <View className="flex-1 bg-slate-900">
+    <View className="flex-1 bg-black">
+      <LinearGradient
+        colors={["#0a0a0a", "#1a1a2e", "#0a0a0a"]}
+        style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
+      />
       <SafeAreaView edges={["top"]} className="flex-1">
         <ScrollView
           className="flex-1"
@@ -129,84 +156,114 @@ export default function ProfileScreen() {
             <RefreshControl
               refreshing={isRefetching}
               onRefresh={refetch}
-              tintColor="#06B6D4"
+              tintColor="#FF00FF"
             />
           }
         >
           {/* Profile Header */}
           <View className="items-center px-5 pb-6 pt-8">
-            <View className="h-24 w-24 items-center justify-center rounded-full bg-slate-700">
+            <View
+              className="h-28 w-28 items-center justify-center rounded-full"
+              style={{ borderWidth: 3, borderColor: "#FF00FF", backgroundColor: "#FF00FF20" }}
+            >
               {session.user.image ? (
                 <Image
                   source={{ uri: session.user.image }}
                   className="h-24 w-24 rounded-full"
                 />
               ) : (
-                <User size={40} color="#94A3B8" />
+                <User size={48} color="#FF00FF" />
               )}
             </View>
-            <Text className="mt-4 text-xl font-bold text-white">
-              {session.user.name ?? "User"}
+            <Text className="mt-5 text-2xl font-black text-white">
+              {session.user.name ?? "Χρήστης"}
             </Text>
-            <Text className="mt-1 text-sm text-slate-400">
+            <Text className="mt-1 text-base font-medium text-gray-400">
               {session.user.email}
             </Text>
           </View>
 
           {/* Stats */}
-          <View className="mx-5 mb-6 flex-row rounded-xl bg-slate-800 p-4">
-            <View className="flex-1 items-center">
-              <Text className="text-2xl font-bold text-cyan-400">
-                {myListings?.total ?? 0}
-              </Text>
-              <Text className="mt-1 text-xs text-slate-400">Listings</Text>
-            </View>
-            <View className="mx-4 w-px bg-slate-700" />
-            <View className="flex-1 items-center">
-              <Text className="text-2xl font-bold text-cyan-400">
-                {myListings?.listings?.reduce((sum, l) => sum + l.views, 0) ?? 0}
-              </Text>
-              <Text className="mt-1 text-xs text-slate-400">Total Views</Text>
-            </View>
+          <View className="mx-5 mb-6 overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#333" }}>
+            <LinearGradient
+              colors={["#1a1a2e", "#0f0f23"]}
+              style={{ flexDirection: "row", padding: 20 }}
+            >
+              <View className="flex-1 items-center">
+                <Text className="text-4xl font-black text-fuchsia-400">
+                  {myListings?.total ?? 0}
+                </Text>
+                <Text className="mt-1 text-sm font-bold uppercase tracking-wider text-gray-400">Αγγελίες</Text>
+              </View>
+              <View className="mx-4 w-0.5 bg-gray-700" />
+              <View className="flex-1 items-center">
+                <Text className="text-4xl font-black text-emerald-400">
+                  {myListings?.listings?.reduce((sum, l) => sum + l.views, 0) ?? 0}
+                </Text>
+                <Text className="mt-1 text-sm font-bold uppercase tracking-wider text-gray-400">Προβολές</Text>
+              </View>
+            </LinearGradient>
           </View>
 
           {/* Quick Actions */}
           <View className="mx-5 mb-6">
             <Pressable
               onPress={() => router.push("/sell" as Href)}
-              className="mb-3 flex-row items-center rounded-xl bg-cyan-500 p-4"
+              className="overflow-hidden rounded-2xl"
+              style={{ borderWidth: 2, borderColor: "#00FF88" }}
             >
-              <Package size={24} color="#FFFFFF" />
-              <Text className="ml-3 flex-1 text-base font-semibold text-white">
-                Create New Listing
-              </Text>
-              <ChevronRight size={20} color="#FFFFFF" />
+              <LinearGradient
+                colors={["#00FF88", "#00CC6A"]}
+                style={{ flexDirection: "row", alignItems: "center", padding: 18 }}
+              >
+                <View className="mr-4 rounded-xl bg-black/20 p-3">
+                  <Package size={28} color="#000" />
+                </View>
+                <Text className="flex-1 text-lg font-black uppercase text-black">
+                  Δημιούργησε Νέα Αγγελία
+                </Text>
+                <ChevronRight size={24} color="#000" />
+              </LinearGradient>
             </Pressable>
           </View>
 
           {/* My Listings */}
           <View className="px-5">
-            <Text className="mb-4 text-lg font-bold text-white">
-              My Listings
-            </Text>
+            <View className="mb-4 flex-row items-center">
+              <Sparkles size={20} color="#FFD700" />
+              <Text className="ml-2 text-xl font-black uppercase tracking-wider text-white">
+                Οι Αγγελίες μου
+              </Text>
+            </View>
             {myListings?.listings && myListings.listings.length > 0 ? (
               myListings.listings.map((listing: Listing) => (
                 <MyListingCard key={listing.id} listing={listing} />
               ))
             ) : (
-              <View className="items-center rounded-xl bg-slate-800/50 py-8">
-                <Package size={40} color="#334155" />
-                <Text className="mt-3 text-slate-400">
-                  No listings yet
-                </Text>
-                <Pressable
-                  onPress={() => router.push("/sell" as Href)}
-                  className="mt-4 rounded-full bg-cyan-500/20 px-6 py-2"
+              <View className="items-center overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#333" }}>
+                <LinearGradient
+                  colors={["#1a1a2e", "#0f0f23"]}
+                  style={{ padding: 32, alignItems: "center", width: "100%" }}
                 >
-                  <Text className="font-semibold text-cyan-400">
-                    Create your first listing
+                  <Package size={48} color="#666" />
+                  <Text className="mt-4 text-lg font-bold text-gray-400">
+                    Δεν έχεις ακόμα αγγελίες
                   </Text>
-                </Pressable>
+                  <Pressable
+                    onPress={() => router.push("/sell" as Href)}
+                    className="mt-4 overflow-hidden rounded-full"
+                    style={{ borderWidth: 2, borderColor: "#FF00FF" }}
+                  >
+                    <LinearGradient
+                      colors={["#FF00FF20", "#CC00CC20"]}
+                      style={{ paddingHorizontal: 24, paddingVertical: 12 }}
+                    >
+                      <Text className="font-bold uppercase text-fuchsia-400">
+                        Δημιούργησε την πρώτη σου
+                      </Text>
+                    </LinearGradient>
+                  </Pressable>
+                </LinearGradient>
               </View>
             )}
           </View>
@@ -215,11 +272,12 @@ export default function ProfileScreen() {
           <View className="mx-5 mb-8 mt-8">
             <Pressable
               onPress={handleSignOut}
-              className="flex-row items-center justify-center rounded-xl bg-red-500/10 py-4"
+              className="flex-row items-center justify-center overflow-hidden rounded-2xl py-4"
+              style={{ backgroundColor: "#FF6B6B20", borderWidth: 2, borderColor: "#FF6B6B" }}
             >
-              <LogOut size={20} color="#EF4444" />
-              <Text className="ml-2 text-base font-semibold text-red-500">
-                Sign Out
+              <LogOut size={22} color="#FF6B6B" />
+              <Text className="ml-2 text-lg font-black uppercase text-red-400">
+                Αποσύνδεση
               </Text>
             </Pressable>
           </View>

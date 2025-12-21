@@ -21,6 +21,7 @@ import {
   MessageCircle,
   Shield,
   Share2,
+  Zap,
 } from "lucide-react-native";
 import { api } from "@/lib/api";
 import { type GetListingResponse } from "@/shared/contracts";
@@ -28,16 +29,16 @@ import { type GetListingResponse } from "@/shared/contracts";
 const { width } = Dimensions.get("window");
 
 const conditionLabels: Record<string, { label: string; color: string; description: string }> = {
-  new: { label: "New", color: "#22C55E", description: "Brand new, never used" },
-  like_new: { label: "Like New", color: "#06B6D4", description: "Barely used, perfect condition" },
-  good: { label: "Good", color: "#F59E0B", description: "Minor signs of wear" },
-  fair: { label: "Fair", color: "#94A3B8", description: "Visible wear, fully functional" },
+  new: { label: "Καινούργιο", color: "#00FF88", description: "Αχρησιμοποίητο, στην αρχική συσκευασία" },
+  like_new: { label: "Σαν Καινούργιο", color: "#00BFFF", description: "Ελάχιστη χρήση, άριστη κατάσταση" },
+  good: { label: "Καλό", color: "#FFD700", description: "Μικρά σημάδια χρήσης" },
+  fair: { label: "Μέτριο", color: "#FF6B6B", description: "Φανερή χρήση, πλήρως λειτουργικό" },
 };
 
 const categoryLabels: Record<string, string> = {
-  phone: "Phone",
+  phone: "Κινητό",
   tablet: "Tablet",
-  accessory: "Accessory",
+  accessory: "Αξεσουάρ",
 };
 
 export default function ListingDetailScreen() {
@@ -54,13 +55,13 @@ export default function ListingDetailScreen() {
 
   const handleContact = () => {
     if (listing?.seller?.email) {
-      Linking.openURL(`mailto:${listing.seller.email}?subject=Inquiry about ${listing.title}`);
+      Linking.openURL(`mailto:${listing.seller.email}?subject=Ενδιαφέρομαι για ${listing.title}`);
     }
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-GB", {
+    return date.toLocaleDateString("el-GR", {
       day: "numeric",
       month: "short",
       year: "numeric",
@@ -69,28 +70,40 @@ export default function ListingDetailScreen() {
 
   if (isLoading) {
     return (
-      <View className="flex-1 items-center justify-center bg-slate-900">
-        <Text className="text-slate-400">Loading...</Text>
+      <View className="flex-1 items-center justify-center bg-black">
+        <Text className="text-lg font-bold text-gray-500">Φόρτωση...</Text>
       </View>
     );
   }
 
   if (!listing) {
     return (
-      <View className="flex-1 items-center justify-center bg-slate-900">
-        <Text className="text-slate-400">Listing not found</Text>
-        <Pressable
-          onPress={() => router.back()}
-          className="mt-4 rounded-full bg-cyan-500 px-6 py-3"
-        >
-          <Text className="font-semibold text-white">Go Back</Text>
-        </Pressable>
+      <View className="flex-1 bg-black">
+        <LinearGradient
+          colors={["#0a0a0a", "#1a1a2e", "#0a0a0a"]}
+          style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
+        />
+        <SafeAreaView className="flex-1 items-center justify-center px-8">
+          <Text className="text-xl font-black text-white">Η αγγελία δεν βρέθηκε</Text>
+          <Pressable
+            onPress={() => router.back()}
+            className="mt-6 overflow-hidden rounded-full"
+            style={{ borderWidth: 2, borderColor: "#FF00FF" }}
+          >
+            <LinearGradient
+              colors={["#FF00FF", "#CC00CC"]}
+              style={{ paddingHorizontal: 32, paddingVertical: 16 }}
+            >
+              <Text className="font-black uppercase text-white">Πίσω</Text>
+            </LinearGradient>
+          </Pressable>
+        </SafeAreaView>
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-slate-900">
+    <View className="flex-1 bg-black">
       <Stack.Screen
         options={{
           headerShown: false,
@@ -124,55 +137,64 @@ export default function ListingDetailScreen() {
         <View className="flex-row items-center justify-between px-4 py-2">
           <Pressable
             onPress={() => router.back()}
-            className="h-10 w-10 items-center justify-center rounded-full bg-black/50"
+            className="h-12 w-12 items-center justify-center rounded-full"
+            style={{ backgroundColor: "rgba(0,0,0,0.7)", borderWidth: 2, borderColor: "#FF00FF" }}
           >
-            <ArrowLeft size={24} color="#FFFFFF" />
+            <ArrowLeft size={24} color="#FF00FF" />
           </Pressable>
-          <Pressable className="h-10 w-10 items-center justify-center rounded-full bg-black/50">
-            <Share2 size={20} color="#FFFFFF" />
+          <Pressable
+            className="h-12 w-12 items-center justify-center rounded-full"
+            style={{ backgroundColor: "rgba(0,0,0,0.7)", borderWidth: 2, borderColor: "#00FF88" }}
+          >
+            <Share2 size={20} color="#00FF88" />
           </Pressable>
         </View>
       </SafeAreaView>
 
       {/* Content */}
       <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
-        <View className="-mt-6 rounded-t-3xl bg-slate-900 px-5 pt-6">
+        <LinearGradient
+          colors={["#0a0a0a", "#1a1a2e", "#0a0a0a"]}
+          style={{ marginTop: -24, borderTopLeftRadius: 32, borderTopRightRadius: 32, paddingTop: 28, paddingHorizontal: 20 }}
+        >
           {/* Price & Title */}
-          <View className="mb-4">
-            <View className="mb-2 flex-row items-center">
+          <View className="mb-5">
+            <View className="mb-3 flex-row items-center">
               <View
-                className="rounded-full px-3 py-1"
-                style={{ backgroundColor: `${condition.color}20` }}
+                className="rounded-full px-4 py-2"
+                style={{ backgroundColor: `${condition.color}20`, borderWidth: 1, borderColor: condition.color }}
               >
-                <Text style={{ color: condition.color }} className="text-sm font-semibold">
+                <Text style={{ color: condition.color }} className="text-sm font-bold uppercase">
                   {condition.label}
                 </Text>
               </View>
-              <Text className="ml-3 text-sm text-slate-400">
-                {categoryLabels[listing.category] ?? listing.category}
-              </Text>
+              <View className="ml-3 rounded-full bg-gray-800 px-3 py-2">
+                <Text className="text-sm font-bold text-gray-400">
+                  {categoryLabels[listing.category] ?? listing.category}
+                </Text>
+              </View>
             </View>
-            <Text className="text-2xl font-bold text-white">{listing.title}</Text>
-            <Text className="mt-2 text-3xl font-bold text-cyan-400">
+            <Text className="text-3xl font-black text-white">{listing.title}</Text>
+            <Text className="mt-3 text-4xl font-black text-fuchsia-400">
               €{listing.price.toFixed(0)}
             </Text>
           </View>
 
           {/* Meta Info */}
-          <View className="mb-4 flex-row flex-wrap">
+          <View className="mb-5 flex-row flex-wrap">
             {listing.location && (
-              <View className="mb-2 mr-4 flex-row items-center">
-                <MapPin size={16} color="#64748B" />
-                <Text className="ml-1 text-sm text-slate-400">{listing.location}</Text>
+              <View className="mb-2 mr-4 flex-row items-center rounded-full bg-gray-800 px-3 py-2">
+                <MapPin size={16} color="#FF00FF" />
+                <Text className="ml-2 text-sm font-semibold text-gray-300">{listing.location}</Text>
               </View>
             )}
-            <View className="mb-2 mr-4 flex-row items-center">
-              <Eye size={16} color="#64748B" />
-              <Text className="ml-1 text-sm text-slate-400">{listing.views} views</Text>
+            <View className="mb-2 mr-4 flex-row items-center rounded-full bg-gray-800 px-3 py-2">
+              <Eye size={16} color="#00FF88" />
+              <Text className="ml-2 text-sm font-semibold text-gray-300">{listing.views} προβολές</Text>
             </View>
-            <View className="mb-2 flex-row items-center">
-              <Calendar size={16} color="#64748B" />
-              <Text className="ml-1 text-sm text-slate-400">
+            <View className="mb-2 flex-row items-center rounded-full bg-gray-800 px-3 py-2">
+              <Calendar size={16} color="#FFD700" />
+              <Text className="ml-2 text-sm font-semibold text-gray-300">
                 {formatDate(listing.createdAt)}
               </Text>
             </View>
@@ -180,101 +202,126 @@ export default function ListingDetailScreen() {
 
           {/* Brand & Model */}
           {(listing.brand ?? listing.model) && (
-            <View className="mb-4 flex-row rounded-xl bg-slate-800 p-4">
-              {listing.brand && (
-                <View className="flex-1">
-                  <Text className="text-xs text-slate-500">Brand</Text>
-                  <Text className="text-sm font-semibold text-white">{listing.brand}</Text>
-                </View>
-              )}
-              {listing.model && (
-                <View className="flex-1">
-                  <Text className="text-xs text-slate-500">Model</Text>
-                  <Text className="text-sm font-semibold text-white">{listing.model}</Text>
-                </View>
-              )}
+            <View className="mb-5 flex-row overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#333" }}>
+              <LinearGradient
+                colors={["#1a1a2e", "#0f0f23"]}
+                style={{ flex: 1, flexDirection: "row", padding: 16 }}
+              >
+                {listing.brand && (
+                  <View className="flex-1">
+                    <Text className="text-xs font-bold uppercase tracking-wider text-gray-500">Μάρκα</Text>
+                    <Text className="mt-1 text-base font-bold text-white">{listing.brand}</Text>
+                  </View>
+                )}
+                {listing.model && (
+                  <View className="flex-1">
+                    <Text className="text-xs font-bold uppercase tracking-wider text-gray-500">Μοντέλο</Text>
+                    <Text className="mt-1 text-base font-bold text-white">{listing.model}</Text>
+                  </View>
+                )}
+              </LinearGradient>
             </View>
           )}
 
           {/* Condition Details */}
-          <View className="mb-4 rounded-xl bg-slate-800 p-4">
-            <Text className="mb-2 text-sm font-semibold text-white">Condition</Text>
-            <View className="flex-row items-center">
-              <View
-                className="mr-3 rounded-full p-2"
-                style={{ backgroundColor: `${condition.color}20` }}
-              >
-                <Shield size={20} color={condition.color} />
+          <View className="mb-5 overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: condition.color }}>
+            <LinearGradient
+              colors={["#1a1a2e", "#0f0f23"]}
+              style={{ padding: 16 }}
+            >
+              <Text className="mb-3 text-base font-bold uppercase tracking-wider text-white">Κατάσταση</Text>
+              <View className="flex-row items-center">
+                <View
+                  className="mr-4 rounded-2xl p-3"
+                  style={{ backgroundColor: `${condition.color}20` }}
+                >
+                  <Shield size={24} color={condition.color} />
+                </View>
+                <View className="flex-1">
+                  <Text style={{ color: condition.color }} className="text-lg font-black">
+                    {condition.label}
+                  </Text>
+                  <Text className="mt-1 text-sm font-medium text-gray-400">{condition.description}</Text>
+                </View>
               </View>
-              <View>
-                <Text style={{ color: condition.color }} className="font-semibold">
-                  {condition.label}
-                </Text>
-                <Text className="text-sm text-slate-400">{condition.description}</Text>
-              </View>
-            </View>
+            </LinearGradient>
           </View>
 
           {/* Description */}
-          <View className="mb-4">
-            <Text className="mb-2 text-sm font-semibold text-white">Description</Text>
-            <Text className="text-sm leading-6 text-slate-300">
-              {listing.description}
-            </Text>
+          <View className="mb-5">
+            <Text className="mb-3 text-base font-bold uppercase tracking-wider text-white">Περιγραφή</Text>
+            <View className="overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#333" }}>
+              <LinearGradient
+                colors={["#1a1a2e", "#0f0f23"]}
+                style={{ padding: 16 }}
+              >
+                <Text className="text-base font-medium leading-7 text-gray-300">
+                  {listing.description}
+                </Text>
+              </LinearGradient>
+            </View>
           </View>
 
           {/* Seller Info */}
           {listing.seller && (
-            <View className="mb-6 rounded-xl bg-slate-800 p-4">
-              <Text className="mb-3 text-sm font-semibold text-white">Seller</Text>
-              <View className="flex-row items-center">
-                <View className="h-12 w-12 items-center justify-center rounded-full bg-slate-700">
-                  {listing.seller.image ? (
-                    <Image
-                      source={{ uri: listing.seller.image }}
-                      className="h-12 w-12 rounded-full"
-                    />
-                  ) : (
-                    <User size={24} color="#94A3B8" />
-                  )}
+            <View className="mb-6 overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#FF00FF" }}>
+              <LinearGradient
+                colors={["#1a1a2e", "#0f0f23"]}
+                style={{ padding: 16 }}
+              >
+                <Text className="mb-3 text-base font-bold uppercase tracking-wider text-white">Πωλητής</Text>
+                <View className="flex-row items-center">
+                  <View
+                    className="h-14 w-14 items-center justify-center rounded-full"
+                    style={{ borderWidth: 2, borderColor: "#FF00FF", backgroundColor: "#FF00FF20" }}
+                  >
+                    {listing.seller.image ? (
+                      <Image
+                        source={{ uri: listing.seller.image }}
+                        className="h-12 w-12 rounded-full"
+                      />
+                    ) : (
+                      <User size={28} color="#FF00FF" />
+                    )}
+                  </View>
+                  <View className="ml-4 flex-1">
+                    <Text className="text-lg font-black text-white">
+                      {listing.seller.name ?? "Χρήστης"}
+                    </Text>
+                    <Text className="text-sm font-medium text-gray-400">
+                      Μέλος από {formatDate(listing.createdAt)}
+                    </Text>
+                  </View>
                 </View>
-                <View className="ml-3 flex-1">
-                  <Text className="font-semibold text-white">
-                    {listing.seller.name ?? "User"}
-                  </Text>
-                  <Text className="text-sm text-slate-400">
-                    Member since {formatDate(listing.createdAt)}
-                  </Text>
-                </View>
-              </View>
+              </LinearGradient>
             </View>
           )}
 
           {/* iRepair Rhodes Banner */}
-          <Pressable className="mb-6 overflow-hidden rounded-xl">
+          <Pressable className="mb-6 overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#00FF88" }}>
             <LinearGradient
-              colors={["#06B6D4", "#0891B2"]}
+              colors={["#00FF88", "#00CC6A"]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
-              style={{ padding: 16, flexDirection: "row", alignItems: "center" }}
+              style={{ padding: 20, flexDirection: "row", alignItems: "center" }}
             >
-              <View className="mr-3 rounded-lg bg-white/20 p-2">
-                <Shield size={24} color="#FFFFFF" />
+              <View className="mr-4 rounded-xl bg-black/20 p-3">
+                <Shield size={28} color="#000" />
               </View>
               <View className="flex-1">
-                <Text className="font-bold text-white">
-                  Get this device verified
+                <Text className="text-lg font-black text-black">
+                  Πιστοποίησε τη συσκευή
                 </Text>
-                <Text className="mt-0.5 text-xs text-cyan-100">
-                  Visit iRepair Rhodes for full diagnostics
+                <Text className="mt-1 text-sm font-semibold text-black/70">
+                  Επίσκεψη στο iRepair Ρόδος για διαγνωστικά
                 </Text>
               </View>
             </LinearGradient>
           </Pressable>
 
           {/* Spacer for bottom button */}
-          <View className="h-24" />
-        </View>
+          <View className="h-28" />
+        </LinearGradient>
       </ScrollView>
 
       {/* Contact Button */}
@@ -283,17 +330,23 @@ export default function ListingDetailScreen() {
         className="absolute bottom-0 left-0 right-0"
       >
         <LinearGradient
-          colors={["transparent", "#0F172A"]}
-          style={{ paddingTop: 20, paddingHorizontal: 20, paddingBottom: 20 }}
+          colors={["transparent", "#0a0a0a", "#0a0a0a"]}
+          style={{ paddingTop: 24, paddingHorizontal: 20, paddingBottom: 20 }}
         >
           <Pressable
             onPress={handleContact}
-            className="flex-row items-center justify-center rounded-xl bg-cyan-500 py-4"
+            className="overflow-hidden rounded-2xl"
+            style={{ borderWidth: 2, borderColor: "#FF00FF" }}
           >
-            <MessageCircle size={20} color="#FFFFFF" />
-            <Text className="ml-2 text-lg font-bold text-white">
-              Contact Seller
-            </Text>
+            <LinearGradient
+              colors={["#FF00FF", "#CC00CC"]}
+              style={{ flexDirection: "row", alignItems: "center", justifyContent: "center", paddingVertical: 18 }}
+            >
+              <MessageCircle size={24} color="#FFFFFF" />
+              <Text className="ml-3 text-xl font-black uppercase text-white">
+                Επικοινωνία με Πωλητή
+              </Text>
+            </LinearGradient>
           </Pressable>
         </LinearGradient>
       </SafeAreaView>

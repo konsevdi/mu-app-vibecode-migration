@@ -20,24 +20,25 @@ import {
   ChevronRight,
   Sparkles,
   Shield,
+  Zap,
 } from "lucide-react-native";
 import { api } from "@/lib/api";
 import { type GetListingsResponse, type Listing } from "@/shared/contracts";
 
 const { width } = Dimensions.get("window");
-const CARD_WIDTH = width * 0.7;
+const CARD_WIDTH = width * 0.75;
 
 const categories = [
-  { id: "phone", name: "Phones", icon: Smartphone, color: "#06B6D4" },
-  { id: "tablet", name: "Tablets", icon: Tablet, color: "#8B5CF6" },
-  { id: "accessory", name: "Accessories", icon: Headphones, color: "#F97316" },
+  { id: "phone", name: "Κινητά", icon: Smartphone, color: "#FF00FF", bgColor: "#FF00FF20" },
+  { id: "tablet", name: "Tablets", icon: Tablet, color: "#00FF88", bgColor: "#00FF8820" },
+  { id: "accessory", name: "Αξεσουάρ", icon: Headphones, color: "#FFD700", bgColor: "#FFD70020" },
 ];
 
 const conditionLabels: Record<string, { label: string; color: string }> = {
-  new: { label: "New", color: "#22C55E" },
-  like_new: { label: "Like New", color: "#06B6D4" },
-  good: { label: "Good", color: "#F59E0B" },
-  fair: { label: "Fair", color: "#94A3B8" },
+  new: { label: "Καινούργιο", color: "#00FF88" },
+  like_new: { label: "Σαν Καινούργιο", color: "#00BFFF" },
+  good: { label: "Καλό", color: "#FFD700" },
+  fair: { label: "Μέτριο", color: "#FF6B6B" },
 };
 
 function FeaturedListingCard({ listing }: { listing: Listing }) {
@@ -47,44 +48,50 @@ function FeaturedListingCard({ listing }: { listing: Listing }) {
   return (
     <Pressable
       onPress={() => router.push(`/listing/${listing.id}` as Href)}
-      className="mr-4 overflow-hidden rounded-2xl bg-slate-800"
+      className="mr-4 overflow-hidden rounded-3xl"
       style={{ width: CARD_WIDTH }}
     >
-      <Image
-        source={{ uri: listing.images[0] ?? "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400" }}
-        className="h-44 w-full"
-        resizeMode="cover"
-      />
-      <View className="p-4">
-        <View className="mb-2 flex-row items-center">
-          <View
-            className="mr-2 rounded-full px-2 py-1"
-            style={{ backgroundColor: `${condition.color}20` }}
-          >
-            <Text style={{ color: condition.color }} className="text-xs font-semibold">
-              {condition.label}
-            </Text>
+      <LinearGradient
+        colors={["#1a1a2e", "#16213e"]}
+        style={{ borderRadius: 24 }}
+      >
+        <Image
+          source={{ uri: listing.images[0] ?? "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400" }}
+          className="h-48 w-full"
+          style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
+          resizeMode="cover"
+        />
+        <View className="p-5">
+          <View className="mb-3 flex-row items-center">
+            <View
+              className="mr-2 rounded-full px-3 py-1.5"
+              style={{ backgroundColor: `${condition.color}25`, borderWidth: 1, borderColor: condition.color }}
+            >
+              <Text style={{ color: condition.color }} className="text-xs font-bold uppercase">
+                {condition.label}
+              </Text>
+            </View>
+            {listing.isFeatured && (
+              <View className="flex-row items-center rounded-full bg-yellow-400/20 px-3 py-1.5" style={{ borderWidth: 1, borderColor: "#FFD700" }}>
+                <Sparkles size={12} color="#FFD700" />
+                <Text className="ml-1 text-xs font-bold uppercase text-yellow-400">Top</Text>
+              </View>
+            )}
           </View>
-          {listing.isFeatured && (
-            <View className="flex-row items-center rounded-full bg-amber-500/20 px-2 py-1">
-              <Sparkles size={12} color="#F59E0B" />
-              <Text className="ml-1 text-xs font-semibold text-amber-500">Featured</Text>
+          <Text className="text-xl font-extrabold text-white" numberOfLines={1}>
+            {listing.title}
+          </Text>
+          <Text className="mt-2 text-3xl font-black text-fuchsia-400">
+            €{listing.price.toFixed(0)}
+          </Text>
+          {listing.location && (
+            <View className="mt-3 flex-row items-center">
+              <MapPin size={14} color="#FF00FF" />
+              <Text className="ml-1 text-sm font-medium text-gray-400">{listing.location}</Text>
             </View>
           )}
         </View>
-        <Text className="text-lg font-bold text-white" numberOfLines={1}>
-          {listing.title}
-        </Text>
-        <Text className="mt-1 text-2xl font-bold text-cyan-400">
-          {listing.price.toFixed(0)}
-        </Text>
-        {listing.location && (
-          <View className="mt-2 flex-row items-center">
-            <MapPin size={14} color="#64748B" />
-            <Text className="ml-1 text-sm text-slate-400">{listing.location}</Text>
-          </View>
-        )}
-      </View>
+      </LinearGradient>
     </Pressable>
   );
 }
@@ -92,7 +99,7 @@ function FeaturedListingCard({ listing }: { listing: Listing }) {
 function CategoryCard({
   category,
 }: {
-  category: { id: string; name: string; icon: React.ComponentType<{ size: number; color: string }>; color: string };
+  category: { id: string; name: string; icon: React.ComponentType<{ size: number; color: string }>; color: string; bgColor: string };
 }) {
   const router = useRouter();
   const Icon = category.icon;
@@ -100,15 +107,21 @@ function CategoryCard({
   return (
     <Pressable
       onPress={() => router.push({ pathname: "/browse", params: { category: category.id } } as Href)}
-      className="mr-3 items-center rounded-2xl bg-slate-800/80 px-6 py-4"
+      className="mr-4 items-center overflow-hidden rounded-2xl"
+      style={{ borderWidth: 2, borderColor: category.color }}
     >
-      <View
-        className="mb-2 rounded-xl p-3"
-        style={{ backgroundColor: `${category.color}20` }}
+      <LinearGradient
+        colors={["#1a1a2e", "#0f0f23"]}
+        style={{ paddingHorizontal: 28, paddingVertical: 20, alignItems: "center" }}
       >
-        <Icon size={28} color={category.color} />
-      </View>
-      <Text className="text-sm font-semibold text-white">{category.name}</Text>
+        <View
+          className="mb-3 rounded-2xl p-4"
+          style={{ backgroundColor: category.bgColor }}
+        >
+          <Icon size={32} color={category.color} />
+        </View>
+        <Text className="text-base font-bold text-white">{category.name}</Text>
+      </LinearGradient>
     </Pressable>
   );
 }
@@ -127,10 +140,10 @@ export default function HomeScreen() {
   });
 
   return (
-    <View className="flex-1 bg-slate-900">
+    <View className="flex-1 bg-black">
       <LinearGradient
-        colors={["#0F172A", "#1E293B", "#0F172A"]}
-        style={{ position: "absolute", left: 0, right: 0, top: 0, height: 300 }}
+        colors={["#0a0a0a", "#1a1a2e", "#0a0a0a"]}
+        style={{ position: "absolute", left: 0, right: 0, top: 0, height: 350 }}
       />
       <SafeAreaView edges={["top"]} className="flex-1">
         <ScrollView
@@ -139,45 +152,48 @@ export default function HomeScreen() {
             <RefreshControl
               refreshing={isRefetching}
               onRefresh={refetch}
-              tintColor="#06B6D4"
+              tintColor="#FF00FF"
             />
           }
         >
           {/* Header */}
-          <View className="px-5 pb-4 pt-4">
-            <Text className="text-3xl font-bold text-white">Mobile Unit</Text>
-            <Text className="mt-1 text-base text-slate-400">
-              Buy & sell devices in Greece
+          <View className="px-5 pb-6 pt-4">
+            <View className="flex-row items-center">
+              <Zap size={28} color="#FF00FF" fill="#FF00FF" />
+              <Text className="ml-2 text-4xl font-black text-white">Mobile Unit</Text>
+            </View>
+            <Text className="mt-2 text-lg font-semibold text-gray-400">
+              Αγορά & Πώληση συσκευών στην Ελλάδα
             </Text>
           </View>
 
           {/* iRepair Rhodes Banner */}
-          <Pressable className="mx-5 mb-6 overflow-hidden rounded-2xl">
+          <Pressable className="mx-5 mb-8 overflow-hidden rounded-3xl" style={{ borderWidth: 2, borderColor: "#00FF88" }}>
             <LinearGradient
-              colors={["#06B6D4", "#0891B2"]}
+              colors={["#00FF88", "#00CC6A"]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
-              style={{ padding: 20, flexDirection: "row", alignItems: "center" }}
+              style={{ padding: 24, flexDirection: "row", alignItems: "center" }}
             >
-              <View className="mr-4 rounded-xl bg-white/20 p-3">
-                <Shield size={28} color="#FFFFFF" />
+              <View className="mr-4 rounded-2xl bg-black/20 p-4">
+                <Shield size={32} color="#000000" />
               </View>
               <View className="flex-1">
-                <Text className="text-lg font-bold text-white">
-                  iRepair Rhodes
+                <Text className="text-xl font-black text-black">
+                  iRepair Ρόδος
                 </Text>
-                <Text className="mt-1 text-sm text-cyan-100">
-                  Get your device verified with our diagnostics
+                <Text className="mt-1 text-base font-semibold text-black/70">
+                  Πιστοποίηση & Διαγνωστικά συσκευών
                 </Text>
               </View>
-              <ChevronRight size={24} color="#FFFFFF" />
+              <ChevronRight size={28} color="#000000" />
             </LinearGradient>
           </Pressable>
 
           {/* Categories */}
-          <View className="mb-6">
-            <View className="mb-4 flex-row items-center justify-between px-5">
-              <Text className="text-xl font-bold text-white">Categories</Text>
+          <View className="mb-8">
+            <View className="mb-5 flex-row items-center justify-between px-5">
+              <Text className="text-2xl font-black uppercase tracking-wider text-white">Κατηγορίες</Text>
             </View>
             <ScrollView
               horizontal
@@ -192,22 +208,26 @@ export default function HomeScreen() {
           </View>
 
           {/* Featured Listings */}
-          <View className="mb-6">
-            <View className="mb-4 flex-row items-center justify-between px-5">
-              <Text className="text-xl font-bold text-white">Featured</Text>
+          <View className="mb-8">
+            <View className="mb-5 flex-row items-center justify-between px-5">
+              <View className="flex-row items-center">
+                <Sparkles size={22} color="#FFD700" />
+                <Text className="ml-2 text-2xl font-black uppercase tracking-wider text-white">Προτεινόμενα</Text>
+              </View>
               <Pressable
                 onPress={() => router.push("/browse" as Href)}
-                className="flex-row items-center"
+                className="flex-row items-center rounded-full bg-fuchsia-500/20 px-4 py-2"
+                style={{ borderWidth: 1, borderColor: "#FF00FF" }}
               >
-                <Text className="mr-1 text-sm font-semibold text-cyan-400">
-                  See All
+                <Text className="mr-1 text-sm font-bold uppercase text-fuchsia-400">
+                  Όλα
                 </Text>
-                <ChevronRight size={16} color="#06B6D4" />
+                <ChevronRight size={16} color="#FF00FF" />
               </Pressable>
             </View>
             {isLoading ? (
               <View className="h-64 items-center justify-center">
-                <Text className="text-slate-400">Loading...</Text>
+                <Text className="text-lg font-bold text-gray-500">Φόρτωση...</Text>
               </View>
             ) : data?.listings && data.listings.length > 0 ? (
               <ScrollView
@@ -221,32 +241,45 @@ export default function HomeScreen() {
                 ))}
               </ScrollView>
             ) : (
-              <View className="mx-5 rounded-2xl bg-slate-800/50 p-8">
-                <Text className="text-center text-slate-400">
-                  No featured listings yet. Be the first to sell!
-                </Text>
-                <Pressable
-                  onPress={() => router.push("/sell" as Href)}
-                  className="mt-4 self-center rounded-full bg-cyan-500 px-6 py-3"
+              <View className="mx-5 overflow-hidden rounded-3xl" style={{ borderWidth: 2, borderColor: "#333" }}>
+                <LinearGradient
+                  colors={["#1a1a2e", "#0f0f23"]}
+                  style={{ padding: 32, alignItems: "center" }}
                 >
-                  <Text className="font-semibold text-white">Start Selling</Text>
-                </Pressable>
+                  <Sparkles size={48} color="#666" />
+                  <Text className="mt-4 text-center text-lg font-bold text-gray-400">
+                    Δεν υπάρχουν ακόμα προτεινόμενα. Γίνε ο πρώτος!
+                  </Text>
+                  <Pressable
+                    onPress={() => router.push("/sell" as Href)}
+                    className="mt-6 overflow-hidden rounded-full"
+                    style={{ borderWidth: 2, borderColor: "#FF00FF" }}
+                  >
+                    <LinearGradient
+                      colors={["#FF00FF", "#CC00CC"]}
+                      style={{ paddingHorizontal: 32, paddingVertical: 16 }}
+                    >
+                      <Text className="text-lg font-black uppercase text-white">Πούλησε Τώρα</Text>
+                    </LinearGradient>
+                  </Pressable>
+                </LinearGradient>
               </View>
             )}
           </View>
 
           {/* Recent Listings */}
           <View className="mb-8 px-5">
-            <View className="mb-4 flex-row items-center justify-between">
-              <Text className="text-xl font-bold text-white">Recently Added</Text>
+            <View className="mb-5 flex-row items-center justify-between">
+              <Text className="text-2xl font-black uppercase tracking-wider text-white">Πρόσφατα</Text>
               <Pressable
                 onPress={() => router.push("/browse" as Href)}
-                className="flex-row items-center"
+                className="flex-row items-center rounded-full bg-emerald-500/20 px-4 py-2"
+                style={{ borderWidth: 1, borderColor: "#00FF88" }}
               >
-                <Text className="mr-1 text-sm font-semibold text-cyan-400">
-                  See All
+                <Text className="mr-1 text-sm font-bold uppercase text-emerald-400">
+                  Όλα
                 </Text>
-                <ChevronRight size={16} color="#06B6D4" />
+                <ChevronRight size={16} color="#00FF88" />
               </Pressable>
             </View>
             {recentData?.listings && recentData.listings.length > 0 ? (
@@ -255,36 +288,46 @@ export default function HomeScreen() {
                   <Pressable
                     key={listing.id}
                     onPress={() => router.push(`/listing/${listing.id}` as Href)}
-                    className="mb-4 w-[48%] overflow-hidden rounded-xl bg-slate-800"
+                    className="mb-4 w-[48%] overflow-hidden rounded-2xl"
+                    style={{ borderWidth: 2, borderColor: "#333" }}
                   >
-                    <Image
-                      source={{
-                        uri:
-                          listing.images[0] ??
-                          "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400",
-                      }}
-                      className="h-28 w-full"
-                      resizeMode="cover"
-                    />
-                    <View className="p-3">
-                      <Text
-                        className="text-sm font-semibold text-white"
-                        numberOfLines={1}
-                      >
-                        {listing.title}
-                      </Text>
-                      <Text className="mt-1 text-base font-bold text-cyan-400">
-                        {listing.price.toFixed(0)}
-                      </Text>
-                    </View>
+                    <LinearGradient
+                      colors={["#1a1a2e", "#0f0f23"]}
+                    >
+                      <Image
+                        source={{
+                          uri:
+                            listing.images[0] ??
+                            "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400",
+                        }}
+                        className="h-32 w-full"
+                        resizeMode="cover"
+                      />
+                      <View className="p-4">
+                        <Text
+                          className="text-sm font-bold text-white"
+                          numberOfLines={1}
+                        >
+                          {listing.title}
+                        </Text>
+                        <Text className="mt-2 text-xl font-black text-fuchsia-400">
+                          €{listing.price.toFixed(0)}
+                        </Text>
+                      </View>
+                    </LinearGradient>
                   </Pressable>
                 ))}
               </View>
             ) : (
-              <View className="rounded-2xl bg-slate-800/50 p-6">
-                <Text className="text-center text-slate-400">
-                  No listings yet
-                </Text>
+              <View className="overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#333" }}>
+                <LinearGradient
+                  colors={["#1a1a2e", "#0f0f23"]}
+                  style={{ padding: 24, alignItems: "center" }}
+                >
+                  <Text className="text-center font-bold text-gray-500">
+                    Δεν υπάρχουν ακόμα αγγελίες
+                  </Text>
+                </LinearGradient>
               </View>
             )}
           </View>

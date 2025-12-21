@@ -1,56 +1,65 @@
 # Mobile Unit
 
-A marketplace app for buying and selling mobile phones, tablets, and accessories in Greece.
+Μια marketplace εφαρμογή για αγορά και πώληση κινητών τηλεφώνων, tablets και αξεσουάρ στην Ελλάδα.
 
-## Features
+## Χαρακτηριστικά
 
-### For Buyers
-- **Browse Listings** - Search and filter devices by category (phones, tablets, accessories)
-- **View Details** - See full device information, condition, seller details
-- **Contact Sellers** - Reach out directly via email
+### Για Αγοραστές
+- **Περιήγηση Αγγελιών** - Αναζήτηση και φιλτράρισμα συσκευών ανά κατηγορία (κινητά, tablets, αξεσουάρ)
+- **Προβολή Λεπτομερειών** - Δες πλήρεις πληροφορίες συσκευής, κατάσταση, στοιχεία πωλητή
+- **Επικοινωνία με Πωλητές** - Επικοινώνησε απευθείας μέσω email
 
-### For Sellers
-- **Create Listings** - List your devices with photos, descriptions, and pricing
-- **Manage Listings** - View your active listings and track views
-- **Get Verified** - Visit iRepair Rhodes for device diagnostics
+### Για Πωλητές
+- **Δημιουργία Αγγελιών** - Καταχώρησε τις συσκευές σου με φωτογραφίες, περιγραφές και τιμές
+- **Διαχείριση Αγγελιών** - Δες τις ενεργές αγγελίες σου και παρακολούθησε τις προβολές
+- **Πιστοποίηση** - Επίσκεψη στο iRepair Ρόδος για διαγνωστικά συσκευών
 
-### Categories
-- **Phones** - Mobile phones from all brands
-- **Tablets** - iPads, Android tablets, and more
-- **Accessories** - Cases, chargers, headphones, etc.
+### Κατηγορίες
+- **Κινητά** - Τηλέφωνα από όλες τις μάρκες
+- **Tablets** - iPads, Android tablets και άλλα
+- **Αξεσουάρ** - Θήκες, φορτιστές, ακουστικά κ.λπ.
 
-### Condition Grades
-- **New** - Brand new, unused
-- **Like New** - Barely used, perfect condition
-- **Good** - Minor signs of wear
-- **Fair** - Visible wear, fully functional
+### Βαθμολογίες Κατάστασης
+- **Καινούργιο** - Ολοκαίνουργιο, αχρησιμοποίητο
+- **Σαν Καινούργιο** - Ελάχιστη χρήση, τέλεια κατάσταση
+- **Καλό** - Μικρά σημάδια χρήσης
+- **Μέτριο** - Ορατή χρήση, πλήρως λειτουργικό
 
-## Local Service
+## Τοπική Υπηρεσία
 
-**iRepair Rhodes** - Our partner location in Rhodes, Greece for device verification and diagnostics. Get your device certified before selling to build buyer trust.
+**iRepair Ρόδος** - Ο συνεργάτης μας στη Ρόδο για πιστοποίηση και διαγνωστικά συσκευών. Πιστοποίησε τη συσκευή σου πριν την πώληση για μεγαλύτερη αξιοπιστία.
+
+## Design
+
+Η εφαρμογή διαθέτει ένα **funky, neon-inspired design** με:
+- **Κύριο Χρώμα**: Neon Magenta (#FF00FF)
+- **Accent**: Electric Lime (#00FF88)
+- **Επισήμανση**: Gold (#FFD700)
+- **Φόντο**: Deep Black με dark gradients
+- **Στυλ**: Bold typography, glowing borders, neon accents
 
 ## Tech Stack
 
 - **Frontend**: React Native + Expo SDK 53
-- **Styling**: NativeWind (TailwindCSS)
+- **Styling**: NativeWind (TailwindCSS) με Linear Gradients
 - **Navigation**: Expo Router
 - **State**: React Query + Zustand
 - **Backend**: Hono + Prisma + SQLite
 - **Auth**: Better Auth
 
-## App Structure
+## Δομή Εφαρμογής
 
 ```
 src/
 ├── app/
 │   ├── (tabs)/
-│   │   ├── index.tsx      # Home screen
-│   │   ├── browse.tsx     # Browse/search listings
-│   │   ├── sell.tsx       # Create listing
-│   │   └── profile.tsx    # User profile
+│   │   ├── index.tsx      # Αρχική οθόνη
+│   │   ├── browse.tsx     # Αναζήτηση αγγελιών
+│   │   ├── sell.tsx       # Δημιουργία αγγελίας
+│   │   └── profile.tsx    # Προφίλ χρήστη
 │   ├── listing/
-│   │   └── [id].tsx       # Listing detail
-│   └── login.tsx          # Authentication
+│   │   └── [id].tsx       # Λεπτομέρειες αγγελίας
+│   └── login.tsx          # Σύνδεση/Εγγραφή
 ├── components/
 │   └── LoginWithEmailPassword.tsx
 ├── lib/
@@ -60,17 +69,17 @@ src/
     └── contracts.ts       # API types
 ```
 
-## Monetization Plan (Future Growth)
+## Γλώσσα
 
-1. **Featured Listings** - Pay to boost visibility
-2. **Premium Sellers** - More listings, analytics dashboard
-3. **Transaction Fees** - Small percentage on completed sales
-4. **Verified Badges** - Trust certification via iRepair diagnostics
-5. **In-app Booking** - Schedule diagnostic appointments
+Η εφαρμογή είναι πλήρως μεταφρασμένη στα **Ελληνικά** με:
+- Αρχική, Αναζήτηση, Πώληση, Προφίλ tabs
+- Όλα τα labels και μηνύματα στα Ελληνικά
+- Ελληνική μορφοποίηση ημερομηνιών (el-GR)
 
-## Colors
+## Σχέδιο Μελλοντικής Ανάπτυξης
 
-- **Primary**: Deep navy (#0F172A)
-- **Accent**: Electric teal (#06B6D4)
-- **CTA**: Coral (#F97316)
-- **Background**: Slate (#1E293B)
+1. **Προωθημένες Αγγελίες** - Πληρωμή για αυξημένη ορατότητα
+2. **Premium Πωλητές** - Περισσότερες αγγελίες, analytics
+3. **Χρεώσεις Συναλλαγών** - Μικρό ποσοστό στις ολοκληρωμένες πωλήσεις
+4. **Verified Badges** - Πιστοποίηση μέσω iRepair διαγνωστικών
+5. **Κρατήσεις In-app** - Κλείσε ραντεβού για διαγνωστικά

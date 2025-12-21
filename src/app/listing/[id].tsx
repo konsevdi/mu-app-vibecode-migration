@@ -149,7 +149,7 @@ export default function ListingDetailScreen() {
         className="h-80"
         style={{ flexGrow: 0 }}
       >
-        {listing.images.map((image, index) => (
+        {listing.images.map((image: string, index: number) => (
           <Image
             key={index}
             source={{ uri: image }}

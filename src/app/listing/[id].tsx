@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -7,10 +7,11 @@ import {
   Image,
   Dimensions,
   Linking,
+  Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { Stack, useLocalSearchParams, useRouter, Href } from "expo-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { LinearGradient } from "expo-linear-gradient";
 import {
   ArrowLeft,
@@ -23,6 +24,7 @@ import {
   Share2,
   Zap,
   Store,
+  Flag,
 } from "lucide-react-native";
 import { api } from "@/lib/api";
 import { type GetListingResponse } from "@/shared/contracts";
@@ -92,6 +94,31 @@ export default function ListingDetailScreen() {
         Linking.openURL(googleMapsUrl);
       }
     });
+  };
+
+  const reportMutation = useMutation({
+    mutationFn: () => api.post(`/api/listings/${id}/report`, {}),
+    onSuccess: () => {
+      Alert.alert(
+        "Αναφορά Υποβλήθηκε",
+        "Ευχαριστούμε για την αναφορά. Θα εξετάσουμε την αγγελία.\n\nReport submitted. We'll review this listing.",
+        [{ text: "OK" }]
+      );
+    },
+    onError: () => {
+      Alert.alert("Σφάλμα", "Δοκιμάστε ξανά αργότερα.");
+    },
+  });
+
+  const handleReport = () => {
+    Alert.alert(
+      "Αναφορά Αγγελίας",
+      "Θέλετε να αναφέρετε αυτή την αγγελία ως ύποπτη;\n\nReport this listing as suspicious?",
+      [
+        { text: "Άκυρο", style: "cancel" },
+        { text: "Αναφορά", style: "destructive", onPress: () => reportMutation.mutate() },
+      ]
+    );
   };
 
   if (isLoading) {
@@ -168,12 +195,21 @@ export default function ListingDetailScreen() {
           >
             <ArrowLeft size={24} color="#FF00FF" />
           </Pressable>
-          <Pressable
-            className="h-12 w-12 items-center justify-center rounded-full"
-            style={{ backgroundColor: "rgba(0,0,0,0.7)", borderWidth: 2, borderColor: "#00FF88" }}
-          >
-            <Share2 size={20} color="#00FF88" />
-          </Pressable>
+          <View className="flex-row">
+            <Pressable
+              onPress={handleReport}
+              className="mr-2 h-12 w-12 items-center justify-center rounded-full"
+              style={{ backgroundColor: "rgba(0,0,0,0.7)", borderWidth: 2, borderColor: "#FF6B6B" }}
+            >
+              <Flag size={20} color="#FF6B6B" />
+            </Pressable>
+            <Pressable
+              className="h-12 w-12 items-center justify-center rounded-full"
+              style={{ backgroundColor: "rgba(0,0,0,0.7)", borderWidth: 2, borderColor: "#00FF88" }}
+            >
+              <Share2 size={20} color="#00FF88" />
+            </Pressable>
+          </View>
         </View>
       </SafeAreaView>
 

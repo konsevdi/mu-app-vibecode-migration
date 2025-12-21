@@ -24,7 +24,7 @@ import {
   Globe,
 } from "lucide-react-native";
 import { useCityStore } from "@/lib/cityStore";
-import { useOnboardingStore, CITIES, getAllCities } from "@/lib/onboardingStore";
+import { useOnboardingStore, useOnboardingHydrated, CITIES, getAllCities } from "@/lib/onboardingStore";
 import { useTranslation } from "@/lib/languageStore";
 import { LanguageToggle } from "@/components/LanguageToggle";
 
@@ -49,22 +49,62 @@ export default function OnboardingScreen() {
   const setOnboardingCompleted = useOnboardingStore((s) => s.setOnboardingCompleted);
   const setIsEligibleCity = useOnboardingStore((s) => s.setIsEligibleCity);
   const setSelectedCity = useOnboardingStore((s) => s.setSelectedCity);
+  const isHydrated = useOnboardingHydrated();
 
   const [currentView, setCurrentView] = useState<OnboardingView>("welcome");
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
   const scrollRef = useRef<ScrollView>(null);
 
-  // If onboarding completed and eligible, go to main app
-  if (onboardingCompleted && isEligibleCity && defaultCity) {
-    router.replace("/(tabs)" as Href);
-    return null;
+  // Wait for store hydration before making redirect decisions
+  React.useEffect(() => {
+    if (!isHydrated) return;
+
+    // If onboarding completed and eligible, go to main app
+    if (onboardingCompleted && isEligibleCity && defaultCity) {
+      router.replace("/(tabs)" as Href);
+      return;
+    }
+
+    // If onboarding completed but not eligible, go to demo
+    if (onboardingCompleted && !isEligibleCity) {
+      router.replace("/demo-browse" as Href);
+      return;
+    }
+  }, [isHydrated, onboardingCompleted, isEligibleCity, defaultCity, router]);
+
+  // Show loading while hydrating
+  if (!isHydrated) {
+    return (
+      <View className="flex-1 bg-black items-center justify-center">
+        <LinearGradient
+          colors={["#0a0a0a", "#1a1a2e", "#0a0a0a"]}
+          style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
+        />
+        <Image
+          source={MU_LOGO_DARK}
+          style={{ width: 100, height: 100, borderRadius: 24 }}
+          resizeMode="contain"
+        />
+      </View>
+    );
   }
 
-  // If onboarding completed but not eligible, go to demo
-  if (onboardingCompleted && !isEligibleCity) {
-    router.replace("/demo-browse" as Href);
-    return null;
+  // If redirecting, show nothing
+  if (onboardingCompleted) {
+    return (
+      <View className="flex-1 bg-black items-center justify-center">
+        <LinearGradient
+          colors={["#0a0a0a", "#1a1a2e", "#0a0a0a"]}
+          style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
+        />
+        <Image
+          source={MU_LOGO_DARK}
+          style={{ width: 100, height: 100, borderRadius: 24 }}
+          resizeMode="contain"
+        />
+      </View>
+    );
   }
 
   const handleSelectRhodes = () => {

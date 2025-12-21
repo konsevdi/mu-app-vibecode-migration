@@ -26,6 +26,7 @@ import {
   Zap,
   Sparkles,
   ExternalLink,
+  ChevronDown,
 } from "lucide-react-native";
 import { api } from "@/lib/api";
 import { authClient } from "@/lib/authClient";
@@ -49,6 +50,23 @@ const conditions: { id: Condition; name: string; description: string; color: str
   { id: "parts", name: "ΑΝΤΑΛΛΑΚΤΙΚΑ", description: "Για επισκευη μονο", color: "#888888", band: "10-35%" },
 ];
 
+// Brand options per category
+const brandOptions: Record<Category, string[]> = {
+  phone: ["Apple", "Samsung", "Xiaomi", "OnePlus", "Google", "Huawei", "OPPO", "Realme", "Sony", "Nokia", "Motorola", "Nothing", "Αλλο"],
+  tablet: ["Apple", "Samsung", "Xiaomi", "Lenovo", "Huawei", "Microsoft", "Amazon", "Αλλο"],
+  laptop: ["Apple", "Lenovo", "HP", "Dell", "Asus", "Acer", "MSI", "Microsoft", "Razer", "Αλλο"],
+  accessory: ["Apple", "Samsung", "Sony", "JBL", "Bose", "Anker", "Belkin", "Αλλο"],
+};
+
+// Model options per brand (simplified)
+const modelOptions: Record<string, string[]> = {
+  Apple: ["iPhone 15 Pro Max", "iPhone 15 Pro", "iPhone 15 Plus", "iPhone 15", "iPhone 14 Pro Max", "iPhone 14 Pro", "iPhone 14 Plus", "iPhone 14", "iPhone 13 Pro Max", "iPhone 13 Pro", "iPhone 13", "iPhone 13 mini", "iPhone 12 Pro Max", "iPhone 12 Pro", "iPhone 12", "iPhone 12 mini", "iPhone SE (2022)", "iPhone SE (2020)", "iPhone 11 Pro Max", "iPhone 11 Pro", "iPhone 11", "iPad Pro 12.9", "iPad Pro 11", "iPad Air", "iPad mini", "iPad", "MacBook Pro 16", "MacBook Pro 14", "MacBook Pro 13", "MacBook Air M2", "MacBook Air M1", "AirPods Pro 2", "AirPods Pro", "AirPods 3", "AirPods 2", "AirPods Max", "Αλλο"],
+  Samsung: ["Galaxy S24 Ultra", "Galaxy S24+", "Galaxy S24", "Galaxy S23 Ultra", "Galaxy S23+", "Galaxy S23", "Galaxy Z Fold 5", "Galaxy Z Flip 5", "Galaxy Z Fold 4", "Galaxy Z Flip 4", "Galaxy A54", "Galaxy A34", "Galaxy Tab S9 Ultra", "Galaxy Tab S9+", "Galaxy Tab S9", "Galaxy Tab S8", "Galaxy Buds 2 Pro", "Galaxy Buds FE", "Αλλο"],
+  Xiaomi: ["14 Ultra", "14 Pro", "14", "13T Pro", "13T", "13 Pro", "13", "Redmi Note 13 Pro+", "Redmi Note 13 Pro", "Redmi Note 13", "Poco X6 Pro", "Poco X6", "Pad 6 Pro", "Pad 6", "Αλλο"],
+  OnePlus: ["12", "12R", "11", "Open", "Nord 3", "Nord CE 3", "Buds Pro 2", "Αλλο"],
+  Google: ["Pixel 8 Pro", "Pixel 8", "Pixel 7 Pro", "Pixel 7", "Pixel 7a", "Pixel Fold", "Pixel Buds Pro", "Αλλο"],
+};
+
 const placeholderImages = [
   "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400",
   "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400",
@@ -71,6 +89,8 @@ export default function SellScreen() {
   const [location, setLocation] = useState("");
   const [images, setImages] = useState<string[]>([]);
   const [city, setCity] = useState<City | null>(defaultCity);
+  const [showBrandPicker, setShowBrandPicker] = useState(false);
+  const [showModelPicker, setShowModelPicker] = useState(false);
 
   const createMutation = useMutation({
     mutationFn: (data: CreateListingRequest) =>
@@ -78,8 +98,8 @@ export default function SellScreen() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["listings"] });
       Alert.alert(
-        "Υποβλήθηκε για Έγκριση",
-        "Η αγγελία σου υποβλήθηκε και θα εγκριθεί σύντομα από τη διαχείριση.\n\nYour listing is pending approval.",
+        "Υποβληθηκε για Εγκριση",
+        "Η αγγελια σου υποβληθηκε και θα εγκριθει συντομα απο τη διαχειριση.\n\nYour listing is pending approval.",
         [{ text: "OK", onPress: () => router.push("/" as Href) }]
       );
       // Reset form
@@ -94,7 +114,7 @@ export default function SellScreen() {
       setImages([]);
     },
     onError: (error) => {
-      Alert.alert("Σφάλμα", "Αποτυχία δημιουργίας αγγελίας. Προσπάθησε ξανά.");
+      Alert.alert("Σφαλμα", "Αποτυχια δημιουργιας αγγελιας. Προσπαθησε ξανα.");
       console.error(error);
     },
   });
@@ -106,12 +126,12 @@ export default function SellScreen() {
     }
 
     if (!title.trim() || !description.trim() || !price || !category || !condition || !city) {
-      Alert.alert("Λείπουν Στοιχεία", "Συμπλήρωσε όλα τα υποχρεωτικά πεδία.");
+      Alert.alert("Λειπουν Στοιχεια", "Συμπληρωσε ολα τα υποχρεωτικα πεδια.");
       return;
     }
 
     if (images.length < 3) {
-      Alert.alert("Απαιτούνται Φωτογραφίες", "Πρόσθεσε τουλάχιστον 3 φωτογραφίες.\n\nMinimum 3 photos required.");
+      Alert.alert("Απαιτουνται Φωτογραφιες", "Προσθεσε τουλαχιστον 3 φωτογραφιες.\n\nMinimum 3 photos required.");
       return;
     }
 
@@ -154,10 +174,10 @@ export default function SellScreen() {
             <Camera size={72} color="#FF00FF" />
           </View>
           <Text className="text-center text-3xl font-black text-white">
-            Συνδέσου για να πουλήσεις
+            Συνδεσου για να πουλησεις
           </Text>
           <Text className="mt-3 text-center text-base font-medium text-gray-400">
-            Δημιούργησε λογαριασμό για να καταχωρήσεις τις συσκευές σου στο Mobile Unit
+            Δημιουργησε λογαριασμο για να καταχωρησεις τις συσκευες σου στο Mobile Unit
           </Text>
           <Pressable
             onPress={() => router.push("/login" as Href)}
@@ -168,7 +188,7 @@ export default function SellScreen() {
               colors={["#FF00FF", "#CC00CC"]}
               style={{ paddingHorizontal: 40, paddingVertical: 18 }}
             >
-              <Text className="text-xl font-black uppercase text-white">Σύνδεση</Text>
+              <Text className="text-xl font-black uppercase text-white">Συνδεση</Text>
             </LinearGradient>
           </Pressable>
         </SafeAreaView>
@@ -196,20 +216,20 @@ export default function SellScreen() {
             <View className="px-5 pb-6 pt-4">
               <View className="flex-row items-center">
                 <Sparkles size={24} color="#FFD700" />
-                <Text className="ml-2 text-3xl font-black text-white">Νέα Αγγελία</Text>
+                <Text className="ml-2 text-3xl font-black text-white">Νεα Αγγελια</Text>
               </View>
               <Text className="mt-1 text-base font-semibold text-gray-400">
-                Πούλησε τη συσκευή σου στο Mobile Unit
+                Πουλησε τη συσκευη σου στο Mobile Unit
               </Text>
             </View>
 
             {/* Images */}
             <View className="mb-6 px-5">
               <Text className="mb-3 text-base font-bold uppercase tracking-wider text-white">
-                Φωτογραφίες (3-10) *
+                ΦΩΤΟΓΡΑΦΙΕΣ (3-10) *
               </Text>
               <Text className="mb-3 text-sm font-medium text-gray-400">
-                Ελάχιστο 3 φωτογραφίες / Minimum 3 photos required
+                Ελαχιστο 3 φωτογραφιες / Minimum 3 photos required
               </Text>
               <ScrollView
                 horizontal
@@ -241,7 +261,7 @@ export default function SellScreen() {
                   >
                     <ImagePlus size={32} color={images.length < 3 ? "#FF6B6B" : "#FF00FF"} />
                     <Text className={`mt-2 text-xs font-bold ${images.length < 3 ? "text-red-400" : "text-fuchsia-400"}`}>
-                      {images.length < 3 ? `${3 - images.length} ακόμα` : "Προσθήκη"}
+                      {images.length < 3 ? `${3 - images.length} ακομα` : "Προσθηκη"}
                     </Text>
                   </Pressable>
                 )}
@@ -251,7 +271,7 @@ export default function SellScreen() {
             {/* Title */}
             <View className="mb-5 px-5">
               <Text className="mb-2 text-base font-bold uppercase tracking-wider text-white">
-                Τίτλος *
+                ΤΙΤΛΟΣ *
               </Text>
               <View className="overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#333" }}>
                 <LinearGradient colors={["#1a1a2e", "#0f0f23"]}>
@@ -269,7 +289,7 @@ export default function SellScreen() {
             {/* Category */}
             <View className="mb-5 px-5">
               <Text className="mb-3 text-base font-bold uppercase tracking-wider text-white">
-                Κατηγορία *
+                ΚΑΤΗΓΟΡΙΑ *
               </Text>
               <View className="flex-row">
                 {categories.map((cat) => {
@@ -304,7 +324,7 @@ export default function SellScreen() {
             {/* Condition */}
             <View className="mb-5 px-5">
               <Text className="mb-3 text-base font-bold uppercase tracking-wider text-white">
-                Κατάσταση *
+                ΚΑΤΑΣΤΑΣΗ *
               </Text>
               <View className="flex-row flex-wrap">
                 {conditions.map((cond) => {
@@ -349,10 +369,10 @@ export default function SellScreen() {
                     ΟΔΗΓΟΣ ΤΙΜΟΛΟΓΗΣΗΣ / PRICING GUIDE
                   </Text>
                   <Text className="mt-1 text-sm font-medium text-gray-300">
-                    {conditions.find((c) => c.id === condition)?.name}: {conditions.find((c) => c.id === condition)?.band} της τιμής καινούργιου
+                    {conditions.find((c) => c.id === condition)?.name}: {conditions.find((c) => c.id === condition)?.band} της τιμης καινουργιου
                   </Text>
                   <Text className="mt-1 text-xs text-gray-400">
-                    Χωρίς ΦΠΑ για μεταχειρισμένα / VAT-free for used items
+                    Χωρις ΦΠΑ για μεταχειρισμενα / VAT-free for used items
                   </Text>
                 </View>
               )}
@@ -399,7 +419,7 @@ export default function SellScreen() {
             {/* Price */}
             <View className="mb-5 px-5">
               <Text className="mb-2 text-base font-bold uppercase tracking-wider text-white">
-                Τιμή (€) *
+                ΤΙΜΗ (€) *
               </Text>
               <View className="overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#00FF88" }}>
                 <LinearGradient colors={["#1a1a2e", "#0f0f23"]}>
@@ -416,51 +436,116 @@ export default function SellScreen() {
             </View>
 
             {/* Brand & Model */}
-            <View className="mb-5 flex-row px-5">
-              <View className="mr-2 flex-1">
-                <Text className="mb-2 text-base font-bold uppercase tracking-wider text-white">
-                  Μάρκα
-                </Text>
-                <View className="overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#333" }}>
-                  <LinearGradient colors={["#1a1a2e", "#0f0f23"]}>
-                    <TextInput
-                      className="px-4 py-4 text-base font-semibold text-white"
-                      placeholder="π.χ. Apple"
-                      placeholderTextColor="#666"
-                      value={brand}
-                      onChangeText={setBrand}
-                    />
-                  </LinearGradient>
+            <View className="mb-5 px-5">
+              <Text className="mb-2 text-base font-bold uppercase tracking-wider text-white">
+                ΜΑΡΚΑ
+              </Text>
+              <Pressable
+                onPress={() => category && setShowBrandPicker(!showBrandPicker)}
+                className="overflow-hidden rounded-2xl"
+                style={{ borderWidth: 2, borderColor: showBrandPicker ? "#FF00FF" : "#333", opacity: category ? 1 : 0.5 }}
+              >
+                <LinearGradient colors={["#1a1a2e", "#0f0f23"]}>
+                  <View className="flex-row items-center justify-between px-4 py-4">
+                    <Text className={`text-base font-semibold ${brand ? "text-white" : "text-gray-500"}`}>
+                      {brand || (category ? "Επιλεξε μαρκα" : "Επιλεξε πρωτα κατηγορια")}
+                    </Text>
+                    <ChevronDown size={20} color="#666" />
+                  </View>
+                </LinearGradient>
+              </Pressable>
+
+              {/* Brand Picker */}
+              {showBrandPicker && category && (
+                <View className="mt-2 max-h-48 rounded-2xl" style={{ backgroundColor: "#1a1a2e", borderWidth: 1, borderColor: "#333" }}>
+                  <ScrollView nestedScrollEnabled showsVerticalScrollIndicator={false}>
+                    {brandOptions[category].map((b) => (
+                      <Pressable
+                        key={b}
+                        onPress={() => {
+                          setBrand(b);
+                          setModel(""); // Reset model when brand changes
+                          setShowBrandPicker(false);
+                        }}
+                        className="border-b border-gray-800 px-4 py-3"
+                      >
+                        <Text className={`text-base ${brand === b ? "font-bold text-fuchsia-400" : "text-white"}`}>
+                          {b}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </ScrollView>
                 </View>
-              </View>
-              <View className="ml-2 flex-1">
-                <Text className="mb-2 text-base font-bold uppercase tracking-wider text-white">
-                  Μοντέλο
-                </Text>
-                <View className="overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#333" }}>
+              )}
+            </View>
+
+            <View className="mb-5 px-5">
+              <Text className="mb-2 text-base font-bold uppercase tracking-wider text-white">
+                ΜΟΝΤΕΛΟ
+              </Text>
+              <Pressable
+                onPress={() => brand && modelOptions[brand] && setShowModelPicker(!showModelPicker)}
+                className="overflow-hidden rounded-2xl"
+                style={{ borderWidth: 2, borderColor: showModelPicker ? "#FF00FF" : "#333", opacity: brand && modelOptions[brand] ? 1 : 0.5 }}
+              >
+                <LinearGradient colors={["#1a1a2e", "#0f0f23"]}>
+                  <View className="flex-row items-center justify-between px-4 py-4">
+                    <Text className={`text-base font-semibold ${model ? "text-white" : "text-gray-500"}`}>
+                      {model || (brand ? (modelOptions[brand] ? "Επιλεξε μοντελο" : "Γραψε μοντελο") : "Επιλεξε πρωτα μαρκα")}
+                    </Text>
+                    <ChevronDown size={20} color="#666" />
+                  </View>
+                </LinearGradient>
+              </Pressable>
+
+              {/* Model Picker */}
+              {showModelPicker && brand && modelOptions[brand] && (
+                <View className="mt-2 max-h-48 rounded-2xl" style={{ backgroundColor: "#1a1a2e", borderWidth: 1, borderColor: "#333" }}>
+                  <ScrollView nestedScrollEnabled showsVerticalScrollIndicator={false}>
+                    {modelOptions[brand].map((m) => (
+                      <Pressable
+                        key={m}
+                        onPress={() => {
+                          setModel(m);
+                          setShowModelPicker(false);
+                        }}
+                        className="border-b border-gray-800 px-4 py-3"
+                      >
+                        <Text className={`text-base ${model === m ? "font-bold text-fuchsia-400" : "text-white"}`}>
+                          {m}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </ScrollView>
+                </View>
+              )}
+
+              {/* Manual input if brand has no predefined models */}
+              {brand && !modelOptions[brand] && (
+                <View className="mt-2 overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#333" }}>
                   <LinearGradient colors={["#1a1a2e", "#0f0f23"]}>
                     <TextInput
                       className="px-4 py-4 text-base font-semibold text-white"
-                      placeholder="π.χ. iPhone 14"
+                      placeholder="π.χ. Galaxy A54"
                       placeholderTextColor="#666"
                       value={model}
                       onChangeText={setModel}
                     />
                   </LinearGradient>
                 </View>
-              </View>
+              )}
             </View>
 
             {/* Location */}
             <View className="mb-5 px-5">
               <Text className="mb-2 text-base font-bold uppercase tracking-wider text-white">
-                Τοποθεσία
+                ΤΟΠΟΘΕΣΙΑ
               </Text>
               <View className="overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#333" }}>
                 <LinearGradient colors={["#1a1a2e", "#0f0f23"]}>
                   <TextInput
                     className="px-4 py-4 text-base font-semibold text-white"
-                    placeholder="π.χ. Ρόδος, Ελλάδα"
+                    placeholder="π.χ. Ροδος, Ελλαδα"
                     placeholderTextColor="#666"
                     value={location}
                     onChangeText={setLocation}
@@ -472,13 +557,13 @@ export default function SellScreen() {
             {/* Description */}
             <View className="mb-6 px-5">
               <Text className="mb-2 text-base font-bold uppercase tracking-wider text-white">
-                Περιγραφή *
+                ΠΕΡΙΓΡΑΦΗ *
               </Text>
               <View className="overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#333" }}>
                 <LinearGradient colors={["#1a1a2e", "#0f0f23"]}>
                   <TextInput
                     className="min-h-[140px] px-4 py-4 text-base font-semibold text-white"
-                    placeholder="Περίγραψε τη συσκευή σου, συμπεριλαμβανομένων τυχόν γρατζουνιών, αξεσουάρ, υγεία μπαταρίας κ.λπ."
+                    placeholder="Περιγραψε τη συσκευη σου, συμπεριλαμβανομενων τυχον γρατζουνιων, αξεσουαρ, υγεια μπαταριας κ.λπ."
                     placeholderTextColor="#666"
                     value={description}
                     onChangeText={setDescription}
@@ -502,7 +587,7 @@ export default function SellScreen() {
                   style={{ alignItems: "center", paddingVertical: 18 }}
                 >
                   <Text className="text-xl font-black uppercase text-white">
-                    {createMutation.isPending ? "Δημιουργία..." : "Δημοσίευση Αγγελίας"}
+                    {createMutation.isPending ? "Δημιουργια..." : "Δημοσιευση Αγγελιας"}
                   </Text>
                 </LinearGradient>
               </Pressable>

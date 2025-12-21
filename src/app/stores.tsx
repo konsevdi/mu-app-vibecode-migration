@@ -19,6 +19,8 @@ import {
   Shield,
   Star,
   Wrench,
+  Mail,
+  Globe,
 } from "lucide-react-native";
 
 // V1: Rhodes only stores
@@ -29,27 +31,32 @@ const STORES = [
     nameEl: "iRepair ΡΟΔΟΣ",
     address: "Αμμοχωστου 18, 85131, Ροδος, Ελλαδα",
     addressEn: "Ammochostou 18, 85131, Rhodes, Greece",
-    phone: "+30 22410 12345",
-    hours: "09:00 - 21:00",
-    hoursNote: "ΔΕΥΤΕΡΑ - ΣΑΒΒΑΤΟ",
-    hoursNoteEn: "MON - SAT",
+    phone: "+302241034175",
+    email: "rhodes@irepair.gr",
+    hours: "09:00 - 19:00",
+    hoursSat: "09:00 - 15:00",
+    hoursNote: "ΔΕΥ - ΠΑΡ 09:00-19:00, ΣΑΒ 09:00-15:00",
+    hoursNoteEn: "MON-FRI 09:00-19:00, SAT 09:00-15:00",
     isPrimary: true,
     coords: { lat: 36.4349, lng: 28.2176 },
     services: ["ΔΙΑΓΝΩΣΤΙΚΑ", "ΕΠΙΣΚΕΥΕΣ", "ΑΞΙΟΛΟΓΗΣΗ", "ΠΩΛΗΣΕΙΣ"],
+    website: "https://irepair.gr/rhodes",
   },
   {
     id: "irepair-spot",
     name: "iRepair Spot",
-    nameEl: "iRepair Spot (Public Νεα Μαρινα)",
+    nameEl: "iRepair Spot @ Public + home Νεα Μαρινα",
     address: "Αυστραλιας 84-86, 85100, Ροδος, Ελλαδα",
-    addressEn: "Australias 84-86, 85100, Rhodes, Greece",
-    phone: "+30 22410 67890",
-    hours: "10:00 - 22:00",
-    hoursNote: "ΚΑΘΗΜΕΡΙΝΑ",
-    hoursNoteEn: "DAILY",
+    addressEn: "Afstralias 84-86, 85100, Rhodes, Greece",
+    phone: "+302241077637",
+    email: "publicrhodes@irepair.gr",
+    hours: "09:00 - 17:00",
+    hoursNote: "ΔΕΥ - ΠΑΡ",
+    hoursNoteEn: "MON - FRI",
     isPrimary: false,
     coords: { lat: 36.4412, lng: 28.2234 },
     services: ["ΔΙΑΓΝΩΣΤΙΚΑ", "ΑΞΙΟΛΟΓΗΣΗ"],
+    website: "https://irepair.gr/rhodes",
   },
 ];
 
@@ -111,13 +118,13 @@ function StoreCard({ store }: { store: typeof STORES[0] }) {
         </Pressable>
 
         {/* Hours & Phone */}
-        <View className="mb-4 flex-row">
-          <View className="mr-2 flex-1 flex-row items-center rounded-xl bg-black/30 p-3">
-            <Clock size={16} color="#FFD700" />
-            <View className="ml-2">
-              <Text className="text-sm font-bold text-white">{store.hours}</Text>
-              <Text className="text-xs text-gray-500">{store.hoursNote}</Text>
+        <View className="mb-3 flex-row">
+          <View className="mr-2 flex-1 rounded-xl bg-black/30 p-3">
+            <View className="flex-row items-center">
+              <Clock size={16} color="#FFD700" />
+              <Text className="ml-2 text-xs font-bold text-gray-500">ΩΡΑΡΙΟ</Text>
             </View>
+            <Text className="mt-1 text-xs text-white">{store.hoursNote}</Text>
           </View>
           <Pressable
             onPress={() => Linking.openURL(`tel:${store.phone}`)}
@@ -127,6 +134,15 @@ function StoreCard({ store }: { store: typeof STORES[0] }) {
             <Text className="ml-2 text-sm font-bold text-sky-400">ΚΛΗΣΗ</Text>
           </Pressable>
         </View>
+
+        {/* Email */}
+        <Pressable
+          onPress={() => Linking.openURL(`mailto:${store.email}`)}
+          className="mb-4 flex-row items-center rounded-xl bg-black/30 p-3"
+        >
+          <Mail size={16} color="#FF00FF" />
+          <Text className="ml-2 text-sm text-gray-300">{store.email}</Text>
+        </Pressable>
 
         {/* Services */}
         <View className="mb-4">
@@ -173,6 +189,15 @@ function StoreCard({ store }: { store: typeof STORES[0] }) {
             </LinearGradient>
           </Pressable>
         </View>
+
+        {/* Website Link */}
+        <Pressable
+          onPress={() => Linking.openURL(store.website)}
+          className="mt-3 flex-row items-center justify-center rounded-xl bg-black/30 py-3"
+        >
+          <Globe size={16} color="#00BFFF" />
+          <Text className="ml-2 text-sm font-bold text-sky-400">irepair.gr/rhodes</Text>
+        </Pressable>
       </LinearGradient>
     </View>
   );

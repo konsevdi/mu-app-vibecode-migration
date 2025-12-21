@@ -1,3 +1,4 @@
+import React from "react";
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -89,6 +90,29 @@ export const useOnboardingStore = create<OnboardingState>()(
     }
   )
 );
+
+// Hook to check if the store has been hydrated from AsyncStorage
+export const useOnboardingHydrated = () => {
+  const [hydrated, setHydrated] = React.useState(false);
+
+  React.useEffect(() => {
+    // Check if already hydrated
+    const unsubFinishHydration = useOnboardingStore.persist.onFinishHydration(() => {
+      setHydrated(true);
+    });
+
+    // If the store was already hydrated before this component mounted
+    if (useOnboardingStore.persist.hasHydrated()) {
+      setHydrated(true);
+    }
+
+    return () => {
+      unsubFinishHydration();
+    };
+  }, []);
+
+  return hydrated;
+};
 
 // City data with eligibility
 export const CITIES = {

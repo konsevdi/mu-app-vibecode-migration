@@ -148,3 +148,56 @@ export const uploadImageResponseSchema = z.object({
   filename: z.string(),
 });
 export type UploadImageResponse = z.infer<typeof uploadImageResponseSchema>;
+
+// ============================================
+// Chat/Message Types
+// ============================================
+
+export const messageSchema = z.object({
+  id: z.string(),
+  conversationId: z.string(),
+  senderId: z.string(),
+  recipientId: z.string(),
+  content: z.string(),
+  imageUrl: z.string().nullable(),
+  isHidden: z.boolean(),
+  flaggedReason: z.string().nullable(),
+  createdAt: z.string(),
+});
+export type Message = z.infer<typeof messageSchema>;
+
+// POST /api/messages
+export const sendMessageRequestSchema = z.object({
+  recipientId: z.string(),
+  content: z.string().min(1).max(2000),
+  imageUrl: z.string().optional(),
+  imageHash: z.string().optional(),
+  listingId: z.string().optional(), // For context
+});
+export type SendMessageRequest = z.infer<typeof sendMessageRequestSchema>;
+
+export const sendMessageResponseSchema = z.object({
+  message: messageSchema,
+  showSenderTooltip: z.boolean(),
+  senderTooltip: z.string().optional(),
+});
+export type SendMessageResponse = z.infer<typeof sendMessageResponseSchema>;
+
+// GET /api/messages/:conversationId
+export const getMessagesResponseSchema = z.object({
+  messages: z.array(messageSchema),
+});
+export type GetMessagesResponse = z.infer<typeof getMessagesResponseSchema>;
+
+// POST /api/messages/report
+export const reportMessageRequestSchema = z.object({
+  messageId: z.string(),
+  reason: z.string().min(1).max(500),
+});
+export type ReportMessageRequest = z.infer<typeof reportMessageRequestSchema>;
+
+export const reportMessageResponseSchema = z.object({
+  success: z.boolean(),
+  message: z.string(),
+});
+export type ReportMessageResponse = z.infer<typeof reportMessageResponseSchema>;

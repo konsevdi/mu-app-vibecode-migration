@@ -113,3 +113,43 @@ model Listing {
   @@index([city])
   @@map("listing")
 }
+
+model Message {
+  id            String   @id @default(cuid())
+  conversationId String
+  senderId      String
+  recipientId   String
+  content       String
+  imageUrl      String?
+  imageHash     String?  // For spam detection
+  // Moderation
+  isHidden      Boolean  @default(false)  // Soft-hide for recipient
+  flaggedReason String?  // "url", "off_platform", "image_spam", "reported"
+  createdAt     DateTime @default(now())
+
+  @@index([conversationId])
+  @@index([senderId])
+  @@index([recipientId])
+  @@map("message")
+}
+
+model ChatReport {
+  id          String   @id @default(cuid())
+  messageId   String
+  reporterId  String
+  reason      String
+  createdAt   DateTime @default(now())
+
+  @@map("chat_report")
+}
+
+model UserStrike {
+  id        String   @id @default(cuid())
+  userId    String
+  reason    String
+  createdAt DateTime @default(now())
+  expiresAt DateTime // 90 days from creation
+
+  @@index([userId])
+  @@map("user_strike")
+}

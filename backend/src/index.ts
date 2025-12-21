@@ -11,6 +11,8 @@ import { sampleRouter } from "./routes/sample";
 import { listingsRouter } from "./routes/listings";
 import { messagesRouter } from "./routes/messages";
 import { appointmentsRouter } from "./routes/appointments";
+import { waitlistRouter } from "./routes/waitlist";
+import { usersRouter } from "./routes/users";
 import { type AppType } from "./types";
 import { db } from "./db";
 
@@ -78,6 +80,12 @@ app.route("/api/messages", messagesRouter);
 
 console.log("📅 Mounting appointments routes at /api/appointments");
 app.route("/api/appointments", appointmentsRouter);
+
+console.log("📋 Mounting waitlist routes at /api/waitlist");
+app.route("/api/waitlist", waitlistRouter);
+
+console.log("👤 Mounting users routes at /api/users");
+app.route("/api/users", usersRouter);
 
 // Health check endpoint
 // Used by load balancers and monitoring tools to verify service is running

@@ -18,6 +18,12 @@ model User {
   emailVerified Boolean   @default(false)
   image         String?
   defaultCity   String?   // "rhodes" or other city
+  // Onboarding flags
+  onboardingCompleted Boolean @default(false)
+  selectedCity        String?
+  selectedCountry     String?
+  isEligibleCity      Boolean @default(false)
+  languagePref        String  @default("el")
   // Trust events count (verified after 2+)
   trustEventCount Int     @default(0)
   // Fraud system
@@ -353,4 +359,27 @@ model ModerationConfig {
   updatedAt             DateTime @updatedAt
 
   @@map("moderation_config")
+}
+
+// Waitlist signups for cities not yet available
+model WaitlistSignup {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  city            String
+  country         String
+  interestType    String   // "buyer", "seller", "both"
+  consent         Boolean
+  phone           String?
+  socialHandle    String?
+  notes           String?
+  languagePref    String   @default("el")
+  referralCode    String   @unique  // Generated unique code for this signup
+  referredByCode  String?  // Referral code that brought this user
+  referralCount   Int      @default(0)  // How many people used this user's code
+  positionScore   Int      @default(0)  // Queue position boost from referrals
+  createdAt       DateTime @default(now())
+
+  @@index([referralCode])
+  @@index([referredByCode])
+  @@map("waitlist_signup")
 }

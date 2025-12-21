@@ -229,3 +229,92 @@ export const reportMessageResponseSchema = z.object({
   message: z.string(),
 });
 export type ReportMessageResponse = z.infer<typeof reportMessageResponseSchema>;
+
+// ============================================
+// Waitlist Types
+// ============================================
+
+export const interestTypeSchema = z.enum(["buyer", "seller", "both"]);
+export type InterestType = z.infer<typeof interestTypeSchema>;
+
+export const languageSchema = z.enum(["el", "en"]);
+export type Language = z.infer<typeof languageSchema>;
+
+// POST /api/waitlist
+export const createWaitlistSignupRequestSchema = z.object({
+  email: z.string().email(),
+  city: z.string().min(1),
+  country: z.string().min(1),
+  interestType: interestTypeSchema,
+  consent: z.boolean().refine((val) => val === true, {
+    message: "Consent is required",
+  }),
+  phone: z.string().optional(),
+  socialHandle: z.string().optional(),
+  notes: z.string().max(500).optional(),
+  languagePref: languageSchema.default("el"),
+  referredByCode: z.string().optional(),
+});
+export type CreateWaitlistSignupRequest = z.infer<typeof createWaitlistSignupRequestSchema>;
+
+export const waitlistSignupSchema = z.object({
+  id: z.string(),
+  email: z.string(),
+  city: z.string(),
+  country: z.string(),
+  interestType: interestTypeSchema,
+  referralCode: z.string(),
+  referredByCode: z.string().nullable(),
+  referralCount: z.number(),
+  positionScore: z.number(),
+  languagePref: languageSchema,
+  createdAt: z.string(),
+});
+export type WaitlistSignup = z.infer<typeof waitlistSignupSchema>;
+
+export const createWaitlistSignupResponseSchema = z.object({
+  success: z.boolean(),
+  signup: waitlistSignupSchema,
+});
+export type CreateWaitlistSignupResponse = z.infer<typeof createWaitlistSignupResponseSchema>;
+
+// GET /api/waitlist/check/:email
+export const checkWaitlistResponseSchema = z.object({
+  exists: z.boolean(),
+  signup: waitlistSignupSchema.optional(),
+});
+export type CheckWaitlistResponse = z.infer<typeof checkWaitlistResponseSchema>;
+
+// GET /api/waitlist/referral/:code
+export const validateReferralResponseSchema = z.object({
+  valid: z.boolean(),
+  referrerEmail: z.string().optional(),
+});
+export type ValidateReferralResponse = z.infer<typeof validateReferralResponseSchema>;
+
+// ============================================
+// User/Profile Types
+// ============================================
+
+export const updateUserOnboardingRequestSchema = z.object({
+  onboardingCompleted: z.boolean().optional(),
+  selectedCity: z.string().optional(),
+  selectedCountry: z.string().optional(),
+  isEligibleCity: z.boolean().optional(),
+  languagePref: languageSchema.optional(),
+});
+export type UpdateUserOnboardingRequest = z.infer<typeof updateUserOnboardingRequestSchema>;
+
+export const updateUserOnboardingResponseSchema = z.object({
+  success: z.boolean(),
+  user: z.object({
+    id: z.string(),
+    email: z.string(),
+    onboardingCompleted: z.boolean(),
+    selectedCity: z.string().nullable(),
+    selectedCountry: z.string().nullable(),
+    isEligibleCity: z.boolean(),
+    languagePref: z.string(),
+  }),
+});
+export type UpdateUserOnboardingResponse = z.infer<typeof updateUserOnboardingResponseSchema>;

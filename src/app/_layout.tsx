@@ -31,6 +31,9 @@ function RootLayoutNav({ colorScheme }: { colorScheme: 'light' | 'dark' | null |
         <Stack.Screen name="book-appointment" options={{ headerShown: true }} />
         <Stack.Screen name="stores" options={{ headerShown: true }} />
         <Stack.Screen name="token" options={{ headerShown: true }} />
+        <Stack.Screen name="waitlist" options={{ headerShown: false }} />
+        <Stack.Screen name="waitlist-success" options={{ headerShown: false }} />
+        <Stack.Screen name="demo-browse" options={{ headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );

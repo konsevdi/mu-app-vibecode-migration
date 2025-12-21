@@ -4,6 +4,19 @@
 
 ## Χαρακτηριστικα
 
+### Onboarding & City Gate
+- **Welcome Screen** - Καλως ηρθες στο Mobile Unit με animated logo
+- **Value Carousel** - 3 slides: Approved Listings, Safe Pickup, Inspection & Grading
+- **City Gate** - Επιλογη πολης με Rhodes διαθεσιμο τωρα
+- **Language Toggle** - EL/EN visible σε ολες τις onboarding οθονες (top-right)
+- **Demo Mode** - Περιηγηση αγγελιων για μη-eligible πολεις (actions locked)
+
+### Waitlist System
+- **Waitlist Signup** - Email, city, country, interest type (buyer/seller/both)
+- **Referral System** - Μοναδικος κωδικος MU XXXXXX, +3 θεσεις ανα referral
+- **iOS Native Share** - Share sheet με referral link
+- **Deep Links** - mobileunit://waitlist?ref=REFCODE
+
 ### Για Αγοραστες
 - **Περιηγηση Αγγελιων** - Αναζητηση και φιλτραρισμα συσκευων ανα κατηγορια
 - **Φιλτρο Πιστοποιημενων** - Δες μονο πιστοποιημενες αγγελιες με βαθμολογηση iRepair
@@ -114,6 +127,10 @@ src/
 │   │   ├── browse.tsx     # Αναζητηση αγγελιων
 │   │   ├── sell.tsx       # Δημιουργια αγγελιας
 │   │   └── profile.tsx    # Προφιλ χρηστη
+│   ├── onboarding.tsx     # Welcome + Carousel + City Gate
+│   ├── waitlist.tsx       # Waitlist signup form
+│   ├── waitlist-success.tsx # Success + referral share
+│   ├── demo-browse.tsx    # Demo mode (locked actions)
 │   ├── listing/[id].tsx   # Λεπτομερειες αγγελιας
 │   ├── book-appointment.tsx # Κλεισε ραντεβου
 │   ├── stores.tsx         # Καταστηματα + Maps
@@ -122,12 +139,13 @@ src/
 │   ├── support.tsx        # Υποστηριξη
 │   └── login.tsx          # Συνδεση/Εγγραφη
 ├── components/
-│   ├── LanguageToggle.tsx # EL/EN toggle
+│   ├── LanguageToggle.tsx # EL/EN toggle (normal + compact)
 │   ├── SafetyTips.tsx     # Bilingual safety tips
 │   └── LoginWithEmailPassword.tsx
 ├── lib/
 │   ├── api.ts             # API client
 │   ├── languageStore.ts   # i18n store (Greek ALL CAPS no accents)
+│   ├── onboardingStore.ts # Onboarding state + city data
 │   ├── constants.ts       # Pricing bands, URLs
 │   └── cityStore.ts       # City selection
 └── shared/
@@ -140,7 +158,8 @@ src/
 backend/prisma/schema.prisma
 
 Models:
-- User (fraud score, restricted mode, trust events)
+- User (fraud score, restricted mode, trust events, onboarding flags)
+- WaitlistSignup (email, city, country, referral code, referral count)
 - Listing (status workflow, grade, fraud score)
 - Message (moderation, flags)
 - Store (V1: Rhodes 2 points, multi-store ready)
@@ -153,6 +172,17 @@ Models:
 - GradeConfig (admin-configurable multipliers)
 - ModerationConfig (thresholds, cooldowns)
 ```
+
+## API Endpoints
+
+### Waitlist
+- `POST /api/waitlist` - Signup for waitlist
+- `GET /api/waitlist/check/:email` - Check if already on waitlist
+- `GET /api/waitlist/referral/:code` - Validate referral code
+
+### Users
+- `GET /api/users/me` - Get current user info
+- `PATCH /api/users/onboarding` - Update onboarding status
 
 ## Σχεδιο Μελλοντικης Αναπτυξης
 

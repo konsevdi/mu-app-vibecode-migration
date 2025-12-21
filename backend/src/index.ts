@@ -10,6 +10,7 @@ import { uploadRouter } from "./routes/upload";
 import { sampleRouter } from "./routes/sample";
 import { listingsRouter } from "./routes/listings";
 import { messagesRouter } from "./routes/messages";
+import { appointmentsRouter } from "./routes/appointments";
 import { type AppType } from "./types";
 import { db } from "./db";
 
@@ -74,6 +75,9 @@ app.route("/api/listings", listingsRouter);
 
 console.log("💬 Mounting messages routes at /api/messages");
 app.route("/api/messages", messagesRouter);
+
+console.log("📅 Mounting appointments routes at /api/appointments");
+app.route("/api/appointments", appointmentsRouter);
 
 // Health check endpoint
 // Used by load balancers and monitoring tools to verify service is running

@@ -29,6 +29,7 @@ import { type GetListingResponse } from "@/shared/contracts";
 import { useCityStore } from "@/lib/cityStore";
 import { V1_STORES } from "@/lib/stores";
 import { VERIFICATION_LABEL, gradeLabels } from "@/lib/verification";
+import { SafetyTips } from "@/components/SafetyTips";
 import * as WebBrowser from "expo-web-browser";
 
 const { width } = Dimensions.get("window");
@@ -320,6 +321,45 @@ export default function ListingDetailScreen() {
               </LinearGradient>
             </View>
           </View>
+
+          {/* Safety Tips */}
+          <SafetyTips showIRepairSuggestion={viewerCity === "rhodes" && listing.city === "rhodes"} />
+
+          {/* Get Graded CTA - Only for private listings (not isStore) */}
+          {!listing.grade && (
+            <View className="mb-5">
+              <Pressable
+                onPress={() => router.push(`/book-appointment?listingId=${listing.id}` as Href)}
+                className="overflow-hidden rounded-2xl"
+                style={{ borderWidth: 2, borderColor: "#00FF88" }}
+              >
+                <LinearGradient
+                  colors={["#00FF88", "#00CC6A"]}
+                  style={{ padding: 16, flexDirection: "row", alignItems: "center" }}
+                >
+                  <View className="mr-4 rounded-xl bg-black/20 p-3">
+                    <Zap size={24} color="#000" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-lg font-black text-black">
+                      Βαθμολόγησε στο iRepair
+                    </Text>
+                    <Text className="mt-1 text-sm font-semibold text-black/70">
+                      Get graded at iRepair Rhodes
+                    </Text>
+                  </View>
+                </LinearGradient>
+              </Pressable>
+              <Pressable
+                onPress={() => WebBrowser.openBrowserAsync("https://public.irepair.gr/service-app")}
+                className="mt-2 rounded-xl bg-gray-800 px-4 py-3"
+              >
+                <Text className="text-center text-sm font-bold text-gray-400">
+                  Ή κλείσε ραντεβού online →
+                </Text>
+              </Pressable>
+            </View>
+          )}
 
           {/* Seller Info */}
           {listing.seller && (

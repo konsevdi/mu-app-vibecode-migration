@@ -180,3 +180,19 @@ model FraudHold {
   @@index([entityId])
   @@map("fraud_hold")
 }
+
+model Appointment {
+  id          String   @id @default(cuid())
+  userId      String
+  listingId   String?
+  date        DateTime
+  timeSlot    String   // "morning" or "afternoon"
+  status      String   @default("pending") // "pending", "confirmed", "completed", "cancelled"
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+  @@index([listingId])
+  @@map("appointment")
+}

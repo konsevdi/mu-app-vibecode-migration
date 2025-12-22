@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback, useEffect } from "react";
 import {
   View,
   Text,
@@ -7,26 +7,50 @@ import {
   Dimensions,
   Image,
   TextInput,
+  StyleSheet,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, Href } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, {
-  FadeInDown,
-  FadeInUp,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+  withDelay,
+  withSpring,
+  interpolate,
+  Extrapolation,
+  runOnJS,
   FadeIn,
+  FadeOut,
+  SlideInRight,
+  SlideOutLeft,
 } from "react-native-reanimated";
+import * as Haptics from "expo-haptics";
 import {
   MapPin,
   Check,
   ChevronRight,
   Search,
   Globe,
+  Wrench,
 } from "lucide-react-native";
 import { useCityStore } from "@/lib/cityStore";
-import { useOnboardingStore, useOnboardingHydrated, CITIES, getAllCities } from "@/lib/onboardingStore";
+import {
+  useOnboardingStore,
+  useOnboardingHydrated,
+  getAllCities,
+} from "@/lib/onboardingStore";
 import { useTranslation } from "@/lib/languageStore";
-import { LanguageToggle } from "@/components/LanguageToggle";
+import { LanguageTogglePill } from "@/components/LanguageTogglePill";
+import {
+  useReduceMotion,
+  TIMING,
+  EASE_PREMIUM,
+  EASE_OUT,
+  SPRING_RESPONSIVE,
+  getStaggerDelay,
+} from "@/lib/animations";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
@@ -39,14 +63,391 @@ const CHECKLIST_ICON = require("../../assets/image-1766354354.png");
 
 type OnboardingView = "welcome" | "carousel" | "city-gate";
 
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
+// ============================================================================
+// ANIMATED COMPONENTS
+// ============================================================================
+
+function AnimatedLogo({
+  reduceMotion,
+  delay = 0,
+}: {
+  reduceMotion: boolean;
+  delay?: number;
+}) {
+  const opacity = useSharedValue(0);
+  const scale = useSharedValue(reduceMotion ? 1 : 0.96);
+
+  useEffect(() => {
+    opacity.value = withDelay(
+      delay,
+      withTiming(1, { duration: TIMING.small, easing: EASE_OUT })
+    );
+    if (!reduceMotion) {
+      scale.value = withDelay(
+        delay,
+        withTiming(1, { duration: TIMING.small, easing: EASE_PREMIUM })
+      );
+    }
+  }, [delay, reduceMotion, opacity, scale]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ scale: scale.value }],
+  }));
+
+  return (
+    <Animated.View style={animatedStyle}>
+      <Image
+        source={MU_LOGO_DARK}
+        style={styles.logo}
+        resizeMode="contain"
+      />
+    </Animated.View>
+  );
+}
+
+function AnimatedText({
+  children,
+  delay = 0,
+  reduceMotion,
+  style,
+}: {
+  children: React.ReactNode;
+  delay?: number;
+  reduceMotion: boolean;
+  style?: object;
+}) {
+  const opacity = useSharedValue(0);
+  const translateY = useSharedValue(reduceMotion ? 0 : 10);
+
+  useEffect(() => {
+    opacity.value = withDelay(
+      delay,
+      withTiming(1, { duration: TIMING.small, easing: EASE_OUT })
+    );
+    if (!reduceMotion) {
+      translateY.value = withDelay(
+        delay,
+        withTiming(0, { duration: TIMING.small, easing: EASE_OUT })
+      );
+    }
+  }, [delay, reduceMotion, opacity, translateY]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ translateY: translateY.value }],
+  }));
+
+  return <Animated.Text style={[animatedStyle, style]}>{children}</Animated.Text>;
+}
+
+function AnimatedCTA({
+  onPress,
+  label,
+  delay = 0,
+  reduceMotion,
+  showChevron = true,
+}: {
+  onPress: () => void;
+  label: string;
+  delay?: number;
+  reduceMotion: boolean;
+  showChevron?: boolean;
+}) {
+  const opacity = useSharedValue(0);
+  const translateY = useSharedValue(reduceMotion ? 0 : 16);
+  const scale = useSharedValue(1);
+
+  useEffect(() => {
+    opacity.value = withDelay(
+      delay,
+      withTiming(1, { duration: TIMING.small, easing: EASE_OUT })
+    );
+    if (!reduceMotion) {
+      translateY.value = withDelay(
+        delay,
+        withTiming(0, { duration: TIMING.small, easing: EASE_OUT })
+      );
+    }
+  }, [delay, reduceMotion, opacity, translateY]);
+
+  const handlePressIn = useCallback(() => {
+    if (!reduceMotion) {
+      scale.value = withSpring(0.97, SPRING_RESPONSIVE);
+    }
+  }, [reduceMotion, scale]);
+
+  const handlePressOut = useCallback(() => {
+    scale.value = withSpring(1, SPRING_RESPONSIVE);
+  }, [scale]);
+
+  const handlePress = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onPress();
+  }, [onPress]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ translateY: translateY.value }, { scale: scale.value }],
+  }));
+
+  return (
+    <AnimatedPressable
+      onPress={handlePress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      style={[animatedStyle, styles.ctaContainer]}
+    >
+      <LinearGradient colors={["#00FF88", "#00CC6A"]} style={styles.ctaGradient}>
+        <Text style={styles.ctaText}>{label}</Text>
+        {showChevron && (
+          <ChevronRight size={24} color="#000" style={{ marginLeft: 8 }} />
+        )}
+      </LinearGradient>
+    </AnimatedPressable>
+  );
+}
+
+function AnimatedDot({
+  isActive,
+  reduceMotion,
+}: {
+  isActive: boolean;
+  reduceMotion: boolean;
+}) {
+  const width = useSharedValue(isActive ? 24 : 8);
+
+  useEffect(() => {
+    width.value = withTiming(isActive ? 24 : 8, {
+      duration: reduceMotion ? 0 : TIMING.micro,
+      easing: EASE_PREMIUM,
+    });
+  }, [isActive, reduceMotion, width]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    width: width.value,
+    height: 8,
+    borderRadius: 4,
+    marginHorizontal: 4,
+    backgroundColor: isActive ? "#00FF88" : "#333",
+  }));
+
+  return <Animated.View style={animatedStyle} />;
+}
+
+function CarouselSlide({
+  item,
+  index,
+  reduceMotion,
+}: {
+  item: {
+    icon: number;
+    title: string;
+    description: string;
+    color: string;
+  };
+  index: number;
+  reduceMotion: boolean;
+}) {
+  const iconOpacity = useSharedValue(0);
+  const iconScale = useSharedValue(reduceMotion ? 1 : 0.9);
+  const textOpacity = useSharedValue(0);
+  const textTranslateY = useSharedValue(reduceMotion ? 0 : 8);
+
+  useEffect(() => {
+    // Icon animation
+    iconOpacity.value = withDelay(
+      100,
+      withTiming(1, { duration: TIMING.small, easing: EASE_OUT })
+    );
+    if (!reduceMotion) {
+      iconScale.value = withDelay(
+        100,
+        withTiming(1, { duration: TIMING.small, easing: EASE_OUT })
+      );
+    }
+    // Text animation (staggered)
+    textOpacity.value = withDelay(
+      200,
+      withTiming(1, { duration: TIMING.small, easing: EASE_OUT })
+    );
+    if (!reduceMotion) {
+      textTranslateY.value = withDelay(
+        200,
+        withTiming(0, { duration: TIMING.small, easing: EASE_OUT })
+      );
+    }
+  }, [reduceMotion, iconOpacity, iconScale, textOpacity, textTranslateY]);
+
+  const iconAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: iconOpacity.value,
+    transform: [{ scale: iconScale.value }],
+  }));
+
+  const textAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: textOpacity.value,
+    transform: [{ translateY: textTranslateY.value }],
+  }));
+
+  return (
+    <View style={[styles.carouselSlide, { width: SCREEN_WIDTH }]}>
+      <Animated.View style={[iconAnimatedStyle, styles.carouselIconContainer]}>
+        <View
+          style={[
+            styles.carouselIconBg,
+            {
+              backgroundColor: `${item.color}15`,
+              borderColor: item.color,
+            },
+          ]}
+        >
+          <Image source={item.icon} style={styles.carouselIcon} resizeMode="contain" />
+        </View>
+      </Animated.View>
+
+      <Animated.View style={textAnimatedStyle}>
+        <Text style={styles.carouselTitle}>{item.title}</Text>
+        <Text style={styles.carouselDescription}>{item.description}</Text>
+      </Animated.View>
+    </View>
+  );
+}
+
+function CityChip({
+  label,
+  onPress,
+  delay,
+  reduceMotion,
+}: {
+  label: string;
+  onPress: () => void;
+  delay: number;
+  reduceMotion: boolean;
+}) {
+  const opacity = useSharedValue(0);
+  const scale = useSharedValue(1);
+
+  useEffect(() => {
+    opacity.value = withDelay(
+      delay,
+      withTiming(1, { duration: TIMING.micro, easing: EASE_OUT })
+    );
+  }, [delay, opacity]);
+
+  const handlePressIn = useCallback(() => {
+    if (!reduceMotion) {
+      scale.value = withSpring(0.95, SPRING_RESPONSIVE);
+    }
+  }, [reduceMotion, scale]);
+
+  const handlePressOut = useCallback(() => {
+    scale.value = withSpring(1, SPRING_RESPONSIVE);
+  }, [scale]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ scale: scale.value }],
+  }));
+
+  return (
+    <AnimatedPressable
+      onPress={onPress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      style={[animatedStyle, styles.cityChip]}
+    >
+      <Text style={styles.cityChipText}>{label}</Text>
+    </AnimatedPressable>
+  );
+}
+
+function RepairUpsellCard({
+  reduceMotion,
+  onPress,
+  language,
+}: {
+  reduceMotion: boolean;
+  onPress: () => void;
+  language: string;
+}) {
+  const opacity = useSharedValue(0);
+  const translateY = useSharedValue(reduceMotion ? 0 : 12);
+  const scale = useSharedValue(1);
+
+  useEffect(() => {
+    opacity.value = withDelay(
+      300,
+      withTiming(1, { duration: TIMING.small, easing: EASE_OUT })
+    );
+    if (!reduceMotion) {
+      translateY.value = withDelay(
+        300,
+        withTiming(0, { duration: TIMING.small, easing: EASE_OUT })
+      );
+    }
+  }, [reduceMotion, opacity, translateY]);
+
+  const handlePressIn = useCallback(() => {
+    if (!reduceMotion) {
+      scale.value = withSpring(0.98, SPRING_RESPONSIVE);
+    }
+  }, [reduceMotion, scale]);
+
+  const handlePressOut = useCallback(() => {
+    scale.value = withSpring(1, SPRING_RESPONSIVE);
+  }, [scale]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ translateY: translateY.value }, { scale: scale.value }],
+  }));
+
+  return (
+    <AnimatedPressable
+      onPress={onPress}
+      onPressIn={handlePressIn}
+      onPressOut={handlePressOut}
+      style={[animatedStyle, styles.repairCard]}
+    >
+      <View style={styles.repairCardContent}>
+        <View style={styles.repairIconContainer}>
+          <Wrench size={20} color="#FFD700" />
+        </View>
+        <View style={styles.repairTextContainer}>
+          <Text style={styles.repairTitle}>
+            {language === "el"
+              ? "Έχει θέμα η συσκευή σου;"
+              : "Device needs repair?"}
+          </Text>
+          <Text style={styles.repairSubtitle}>
+            {language === "el"
+              ? "Ζήτα προσφορά επισκευής"
+              : "Get a repair quote"}
+          </Text>
+        </View>
+        <ChevronRight size={18} color="#666" />
+      </View>
+    </AnimatedPressable>
+  );
+}
+
+// ============================================================================
+// MAIN COMPONENT
+// ============================================================================
+
 export default function OnboardingScreen() {
   const router = useRouter();
   const { t, language } = useTranslation();
+  const reduceMotion = useReduceMotion();
   const defaultCity = useCityStore((s) => s.defaultCity);
   const setDefaultCity = useCityStore((s) => s.setDefaultCity);
   const onboardingCompleted = useOnboardingStore((s) => s.onboardingCompleted);
   const isEligibleCity = useOnboardingStore((s) => s.isEligibleCity);
-  const setOnboardingCompleted = useOnboardingStore((s) => s.setOnboardingCompleted);
+  const setOnboardingCompleted = useOnboardingStore(
+    (s) => s.setOnboardingCompleted
+  );
   const setIsEligibleCity = useOnboardingStore((s) => s.setIsEligibleCity);
   const setSelectedCity = useOnboardingStore((s) => s.setSelectedCity);
   const isHydrated = useOnboardingHydrated();
@@ -56,36 +457,73 @@ export default function OnboardingScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const scrollRef = useRef<ScrollView>(null);
 
+  // Screen transition animation
+  const screenOpacity = useSharedValue(1);
+  const screenTranslateX = useSharedValue(0);
+
   // Wait for store hydration before making redirect decisions
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isHydrated) return;
 
-    // If onboarding completed and eligible, go to main app
     if (onboardingCompleted && isEligibleCity && defaultCity) {
       router.replace("/(tabs)" as Href);
       return;
     }
 
-    // If onboarding completed but not eligible, go to demo
     if (onboardingCompleted && !isEligibleCity) {
       router.replace("/demo-browse" as Href);
       return;
     }
   }, [isHydrated, onboardingCompleted, isEligibleCity, defaultCity, router]);
 
+  const transitionToView = useCallback(
+    (view: OnboardingView) => {
+      if (reduceMotion) {
+        setCurrentView(view);
+        return;
+      }
+
+      // Animate out
+      screenOpacity.value = withTiming(0, {
+        duration: TIMING.medium,
+        easing: EASE_PREMIUM,
+      });
+      screenTranslateX.value = withTiming(
+        -20,
+        { duration: TIMING.medium, easing: EASE_PREMIUM },
+        () => {
+          runOnJS(setCurrentView)(view);
+          // Reset position
+          screenTranslateX.value = 20;
+          // Animate in
+          screenOpacity.value = withTiming(1, {
+            duration: TIMING.medium,
+            easing: EASE_OUT,
+          });
+          screenTranslateX.value = withTiming(0, {
+            duration: TIMING.medium,
+            easing: EASE_OUT,
+          });
+        }
+      );
+    },
+    [reduceMotion, screenOpacity, screenTranslateX]
+  );
+
+  const screenAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: screenOpacity.value,
+    transform: [{ translateX: screenTranslateX.value }],
+  }));
+
   // Show loading while hydrating
   if (!isHydrated) {
     return (
-      <View className="flex-1 bg-black items-center justify-center">
+      <View style={styles.loadingContainer}>
         <LinearGradient
           colors={["#0a0a0a", "#1a1a2e", "#0a0a0a"]}
-          style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
+          style={StyleSheet.absoluteFill}
         />
-        <Image
-          source={MU_LOGO_DARK}
-          style={{ width: 100, height: 100, borderRadius: 24 }}
-          resizeMode="contain"
-        />
+        <Image source={MU_LOGO_DARK} style={styles.loadingLogo} resizeMode="contain" />
       </View>
     );
   }
@@ -93,21 +531,18 @@ export default function OnboardingScreen() {
   // If redirecting, show nothing
   if (onboardingCompleted) {
     return (
-      <View className="flex-1 bg-black items-center justify-center">
+      <View style={styles.loadingContainer}>
         <LinearGradient
           colors={["#0a0a0a", "#1a1a2e", "#0a0a0a"]}
-          style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
+          style={StyleSheet.absoluteFill}
         />
-        <Image
-          source={MU_LOGO_DARK}
-          style={{ width: 100, height: 100, borderRadius: 24 }}
-          resizeMode="contain"
-        />
+        <Image source={MU_LOGO_DARK} style={styles.loadingLogo} resizeMode="contain" />
       </View>
     );
   }
 
   const handleSelectRhodes = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setDefaultCity("rhodes");
     setSelectedCity({ name: "Rhodes", country: "Greece", isEligible: true });
     setIsEligibleCity(true);
@@ -115,12 +550,17 @@ export default function OnboardingScreen() {
     router.replace("/(tabs)" as Href);
   };
 
-  const handleSelectOtherCity = (city: { name: string; nameEl: string; country: string; countryEl: string }) => {
+  const handleSelectOtherCity = (city: {
+    name: string;
+    nameEl: string;
+    country: string;
+    countryEl: string;
+  }) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     const cityName = language === "el" ? city.nameEl : city.name;
     const countryName = language === "el" ? city.countryEl : city.country;
     setSelectedCity({ name: cityName, country: countryName, isEligible: false });
     setIsEligibleCity(false);
-    // Navigate to waitlist
     router.push({
       pathname: "/waitlist",
       params: { city: city.name, country: city.country },
@@ -128,11 +568,22 @@ export default function OnboardingScreen() {
   };
 
   const handleOtherLocation = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push("/waitlist" as Href);
   };
 
   const handleHaveAccount = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push("/login" as Href);
+  };
+
+  const handleRepairCTA = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    // Navigate to repair lead form or waitlist with repair intent
+    router.push({
+      pathname: "/waitlist",
+      params: { intent: "repair" },
+    });
   };
 
   const carouselData = [
@@ -170,177 +621,143 @@ export default function OnboardingScreen() {
   const greekCities = filteredCities.filter((c) => c.country === "Greece");
   const europeCities = filteredCities.filter((c) => c.country !== "Greece");
 
-  // Welcome Screen
+  // ============================================================================
+  // WELCOME SCREEN
+  // ============================================================================
   if (currentView === "welcome") {
     return (
-      <View className="flex-1 bg-black">
+      <View style={styles.container}>
         <LinearGradient
           colors={["#0a0a0a", "#1a1a2e", "#0a0a0a"]}
-          style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
+          style={StyleSheet.absoluteFill}
         />
-        <SafeAreaView className="flex-1">
-          {/* Language Toggle */}
-          <View className="absolute right-4 top-4 z-10">
-            <LanguageToggle />
+        <SafeAreaView style={styles.flex}>
+          {/* Language Toggle - top right floating pill */}
+          <View style={styles.languageToggleContainer}>
+            <LanguageTogglePill />
           </View>
 
-          <View className="flex-1 items-center justify-center px-6">
+          <Animated.View style={[styles.welcomeContent, screenAnimatedStyle]}>
             {/* Logo */}
-            <Animated.View entering={FadeInDown.delay(100).springify()}>
-              <Image
-                source={MU_LOGO_DARK}
-                style={{ width: 120, height: 120, borderRadius: 28 }}
-                resizeMode="contain"
-              />
-            </Animated.View>
+            <AnimatedLogo reduceMotion={reduceMotion} delay={100} />
 
             {/* Title */}
-            <Animated.Text
-              entering={FadeInDown.delay(200).springify()}
-              className="mt-8 text-center text-3xl font-black text-white"
+            <AnimatedText
+              delay={getStaggerDelay(1, 100)}
+              reduceMotion={reduceMotion}
+              style={styles.welcomeTitle}
             >
               {t("welcome_title")}
-            </Animated.Text>
+            </AnimatedText>
 
             {/* Subtitle */}
-            <Animated.Text
-              entering={FadeInDown.delay(300).springify()}
-              className="mt-4 text-center text-lg text-gray-400"
+            <AnimatedText
+              delay={getStaggerDelay(2, 100)}
+              reduceMotion={reduceMotion}
+              style={styles.welcomeSubtitle}
             >
               {t("welcome_subtitle")}
-            </Animated.Text>
-          </View>
+            </AnimatedText>
+          </Animated.View>
 
           {/* Buttons */}
-          <View className="px-6 pb-8">
-            <Animated.View entering={FadeInUp.delay(400).springify()}>
-              <Pressable
-                onPress={() => setCurrentView("carousel")}
-                className="overflow-hidden rounded-2xl"
-                style={{ borderWidth: 2, borderColor: "#00FF88" }}
-              >
-                <LinearGradient
-                  colors={["#00FF88", "#00CC6A"]}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    paddingVertical: 18,
-                  }}
-                >
-                  <Text className="text-xl font-black text-black">
-                    {t("get_started")}
-                  </Text>
-                  <ChevronRight size={24} color="#000" style={{ marginLeft: 8 }} />
-                </LinearGradient>
-              </Pressable>
-            </Animated.View>
+          <View style={styles.welcomeButtons}>
+            <AnimatedCTA
+              onPress={() => transitionToView("carousel")}
+              label={t("get_started")}
+              delay={getStaggerDelay(3, 100)}
+              reduceMotion={reduceMotion}
+            />
 
-            <Animated.View entering={FadeInUp.delay(500).springify()}>
-              <Pressable
-                onPress={handleHaveAccount}
-                className="mt-4 items-center py-4"
-              >
-                <Text className="text-base font-semibold text-gray-400">
-                  {t("have_account")}
-                </Text>
+            <AnimatedText
+              delay={getStaggerDelay(4, 100)}
+              reduceMotion={reduceMotion}
+              style={styles.haveAccountText}
+            >
+              <Pressable onPress={handleHaveAccount}>
+                <Text style={styles.haveAccountLink}>{t("have_account")}</Text>
               </Pressable>
-            </Animated.View>
+            </AnimatedText>
           </View>
         </SafeAreaView>
       </View>
     );
   }
 
-  // Value Carousel Screen
+  // ============================================================================
+  // VALUE CAROUSEL SCREEN
+  // ============================================================================
   if (currentView === "carousel") {
     return (
-      <View className="flex-1 bg-black">
+      <View style={styles.container}>
         <LinearGradient
           colors={["#0a0a0a", "#1a1a2e", "#0a0a0a"]}
-          style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
+          style={StyleSheet.absoluteFill}
         />
-        <SafeAreaView className="flex-1">
-          {/* Language Toggle + Skip */}
-          <View className="flex-row items-center justify-between px-4 pt-2">
-            <Pressable onPress={() => setCurrentView("city-gate")}>
-              <Text className="text-base font-medium text-gray-500">
-                {t("skip")}
-              </Text>
-            </Pressable>
-            <LanguageToggle />
-          </View>
-
-          {/* Carousel */}
-          <View className="flex-1 justify-center">
-            <ScrollView
-              ref={scrollRef}
-              horizontal
-              pagingEnabled
-              showsHorizontalScrollIndicator={false}
-              onMomentumScrollEnd={(e) => {
-                const index = Math.round(
-                  e.nativeEvent.contentOffset.x / SCREEN_WIDTH
-                );
-                setCarouselIndex(index);
-              }}
+        <SafeAreaView style={styles.flex}>
+          {/* Header: Skip + Language Toggle */}
+          <View style={styles.carouselHeader}>
+            <Pressable
+              onPress={() => transitionToView("city-gate")}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
             >
-              {carouselData.map((item, index) => (
-                <View
-                  key={index}
-                  style={{ width: SCREEN_WIDTH }}
-                  className="items-center justify-center px-8"
-                >
-                  <Animated.View
-                    entering={FadeIn.delay(200)}
-                    className="mb-8 items-center"
-                  >
-                    <View
-                      className="rounded-3xl p-6"
-                      style={{
-                        backgroundColor: `${item.color}20`,
-                        borderWidth: 2,
-                        borderColor: item.color,
-                      }}
-                    >
-                      <Image
-                        source={item.icon}
-                        style={{ width: 80, height: 80 }}
-                        resizeMode="contain"
-                      />
-                    </View>
-                  </Animated.View>
-
-                  <Text className="text-center text-2xl font-black text-white">
-                    {item.title}
-                  </Text>
-                  <Text className="mt-4 text-center text-base text-gray-400">
-                    {item.description}
-                  </Text>
-                </View>
-              ))}
-            </ScrollView>
-
-            {/* Dots */}
-            <View className="mt-8 flex-row items-center justify-center">
-              {carouselData.map((_, index) => (
-                <View
-                  key={index}
-                  className="mx-1 rounded-full"
-                  style={{
-                    width: carouselIndex === index ? 24 : 8,
-                    height: 8,
-                    backgroundColor:
-                      carouselIndex === index ? "#00FF88" : "#333",
-                  }}
-                />
-              ))}
-            </View>
+              <Text style={styles.skipText}>{t("skip")}</Text>
+            </Pressable>
+            <LanguageTogglePill />
           </View>
+
+          <Animated.View style={[styles.flex, screenAnimatedStyle]}>
+            {/* Carousel */}
+            <View style={styles.carouselContainer}>
+              <ScrollView
+                ref={scrollRef}
+                horizontal
+                pagingEnabled
+                showsHorizontalScrollIndicator={false}
+                decelerationRate="fast"
+                bounces={false}
+                onMomentumScrollEnd={(e) => {
+                  const index = Math.round(
+                    e.nativeEvent.contentOffset.x / SCREEN_WIDTH
+                  );
+                  setCarouselIndex(index);
+                }}
+              >
+                {carouselData.map((item, index) => (
+                  <CarouselSlide
+                    key={index}
+                    item={item}
+                    index={index}
+                    reduceMotion={reduceMotion}
+                  />
+                ))}
+              </ScrollView>
+
+              {/* Dots */}
+              <View style={styles.dotsContainer}>
+                {carouselData.map((_, index) => (
+                  <AnimatedDot
+                    key={index}
+                    isActive={carouselIndex === index}
+                    reduceMotion={reduceMotion}
+                  />
+                ))}
+              </View>
+            </View>
+
+            {/* Repair Upsell Card - subtle, after last carousel slide */}
+            {carouselIndex === carouselData.length - 1 && (
+              <RepairUpsellCard
+                reduceMotion={reduceMotion}
+                onPress={handleRepairCTA}
+                language={language}
+              />
+            )}
+          </Animated.View>
 
           {/* Next Button */}
-          <View className="px-6 pb-8">
-            <Pressable
+          <View style={styles.carouselButton}>
+            <AnimatedCTA
               onPress={() => {
                 if (carouselIndex < carouselData.length - 1) {
                   scrollRef.current?.scrollTo({
@@ -349,201 +766,485 @@ export default function OnboardingScreen() {
                   });
                   setCarouselIndex(carouselIndex + 1);
                 } else {
-                  setCurrentView("city-gate");
+                  transitionToView("city-gate");
                 }
               }}
-              className="overflow-hidden rounded-2xl"
-              style={{ borderWidth: 2, borderColor: "#00FF88" }}
-            >
-              <LinearGradient
-                colors={["#00FF88", "#00CC6A"]}
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  paddingVertical: 18,
-                }}
-              >
-                <Text className="text-xl font-black text-black">
-                  {carouselIndex < carouselData.length - 1
-                    ? t("next")
-                    : t("select_city")}
-                </Text>
-                <ChevronRight size={24} color="#000" style={{ marginLeft: 8 }} />
-              </LinearGradient>
-            </Pressable>
+              label={
+                carouselIndex < carouselData.length - 1
+                  ? t("next")
+                  : t("select_city")
+              }
+              delay={0}
+              reduceMotion={reduceMotion}
+            />
           </View>
         </SafeAreaView>
       </View>
     );
   }
 
-  // City Gate Screen
+  // ============================================================================
+  // CITY GATE SCREEN
+  // ============================================================================
   return (
-    <View className="flex-1 bg-black">
+    <View style={styles.container}>
       <LinearGradient
         colors={["#0a0a0a", "#1a1a2e", "#0a0a0a"]}
-        style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
+        style={StyleSheet.absoluteFill}
       />
-      <SafeAreaView className="flex-1">
+      <SafeAreaView style={styles.flex}>
         {/* Header */}
-        <View className="flex-row items-center justify-between px-4 pt-2">
-          <Pressable onPress={() => setCurrentView("carousel")}>
-            <Text className="text-base font-medium text-gray-500">
+        <View style={styles.carouselHeader}>
+          <Pressable
+            onPress={() => transitionToView("carousel")}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          >
+            <Text style={styles.skipText}>
               {language === "el" ? "Πίσω" : "Back"}
             </Text>
           </Pressable>
-          <LanguageToggle />
+          <LanguageTogglePill />
         </View>
 
-        {/* Title */}
-        <View className="items-center px-6 pt-4">
-          <View
-            className="mb-4 rounded-3xl p-4"
-            style={{ backgroundColor: "#FF00FF20", borderWidth: 2, borderColor: "#FF00FF" }}
-          >
-            <MapPin size={40} color="#FF00FF" />
+        <Animated.View style={[styles.flex, screenAnimatedStyle]}>
+          {/* Title */}
+          <View style={styles.cityGateHeader}>
+            <View style={styles.mapPinIcon}>
+              <MapPin size={32} color="#FF00FF" />
+            </View>
+            <Text style={styles.cityGateTitle}>{t("select_city")}</Text>
+            <Text style={styles.cityGateSubtitle}>{t("select_city_subtitle")}</Text>
           </View>
-          <Text className="text-center text-2xl font-black text-white">
-            {t("select_city")}
-          </Text>
-          <Text className="mt-2 text-center text-base text-gray-400">
-            {t("select_city_subtitle")}
-          </Text>
-        </View>
 
-        {/* Search */}
-        <View className="mx-6 mt-6">
-          <View
-            className="flex-row items-center rounded-xl px-4"
-            style={{ backgroundColor: "#1a1a2e", borderWidth: 1, borderColor: "#333" }}
-          >
-            <Search size={20} color="#666" />
-            <TextInput
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              placeholder={t("search_placeholder")}
-              placeholderTextColor="#666"
-              className="ml-3 flex-1 py-3 text-base text-white"
-              autoCapitalize="none"
-              autoCorrect={false}
-            />
-          </View>
-        </View>
-
-        {/* Rhodes Map Banner */}
-        <View className="mx-6 mt-6">
-          <Pressable
-            onPress={handleSelectRhodes}
-            className="overflow-hidden rounded-2xl"
-            style={{ borderWidth: 2, borderColor: "#00FF88" }}
-          >
-            <View className="relative">
-              <Image
-                source={RHODES_MAP}
-                style={{ width: "100%", height: 120 }}
-                resizeMode="cover"
+          {/* Search */}
+          <View style={styles.searchContainer}>
+            <View style={styles.searchInputWrapper}>
+              <Search size={20} color="#666" />
+              <TextInput
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                placeholder={t("search_placeholder")}
+                placeholderTextColor="#666"
+                style={styles.searchInput}
+                autoCapitalize="none"
+                autoCorrect={false}
               />
+            </View>
+          </View>
+
+          {/* Rhodes Map Banner */}
+          <Pressable onPress={handleSelectRhodes} style={styles.rhodesCard}>
+            <View style={styles.rhodesCardInner}>
+              <Image source={RHODES_MAP} style={styles.rhodesImage} resizeMode="cover" />
               <LinearGradient
                 colors={["transparent", "rgba(0,0,0,0.9)"]}
-                style={{
-                  position: "absolute",
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  height: 80,
-                }}
+                style={styles.rhodesGradient}
               />
-              <View className="absolute bottom-0 left-0 right-0 flex-row items-center justify-between p-4">
+              <View style={styles.rhodesContent}>
                 <View>
-                  <Text className="text-xl font-black text-white">
+                  <Text style={styles.rhodesTitle}>
                     {language === "el" ? "Ρόδος" : "Rhodes"}
                   </Text>
-                  <View className="mt-1 flex-row items-center">
-                    <View
-                      className="mr-2 rounded-full px-2 py-0.5"
-                      style={{ backgroundColor: "#00FF88" }}
-                    >
-                      <Text className="text-xs font-bold text-black">
-                        {t("available_now")}
-                      </Text>
-                    </View>
+                  <View style={styles.rhodesBadge}>
+                    <Text style={styles.rhodesBadgeText}>{t("available_now")}</Text>
                   </View>
                 </View>
-                <View
-                  className="rounded-full p-2"
-                  style={{ backgroundColor: "#00FF88" }}
-                >
+                <View style={styles.rhodesCheck}>
                   <Check size={24} color="#000" />
                 </View>
               </View>
             </View>
           </Pressable>
-        </View>
 
-        {/* City List */}
-        <ScrollView className="mt-4 flex-1 px-6" showsVerticalScrollIndicator={false}>
-          {/* Greek Cities */}
-          {greekCities.length > 0 && (
-            <View className="mb-4">
-              <Text className="mb-2 text-sm font-bold uppercase text-gray-500">
-                {language === "el" ? "Ελλάδα" : "Greece"}
-              </Text>
-              <View className="flex-row flex-wrap">
-                {greekCities
-                  .filter((c) => c.name !== "Rhodes")
-                  .map((city) => (
-                    <Pressable
-                      key={city.name}
-                      onPress={() => handleSelectOtherCity(city)}
-                      className="mb-2 mr-2 rounded-full px-4 py-2"
-                      style={{ backgroundColor: "#1a1a2e", borderWidth: 1, borderColor: "#333" }}
-                    >
-                      <Text className="text-sm font-medium text-white">
-                        {language === "el" ? city.nameEl : city.name}
-                      </Text>
-                    </Pressable>
-                  ))}
-              </View>
-            </View>
-          )}
-
-          {/* European Cities */}
-          {europeCities.length > 0 && (
-            <View className="mb-4">
-              <Text className="mb-2 text-sm font-bold uppercase text-gray-500">
-                {language === "el" ? "Ευρώπη" : "Europe"}
-              </Text>
-              <View className="flex-row flex-wrap">
-                {europeCities.map((city) => (
-                  <Pressable
-                    key={city.name}
-                    onPress={() => handleSelectOtherCity(city)}
-                    className="mb-2 mr-2 rounded-full px-4 py-2"
-                    style={{ backgroundColor: "#1a1a2e", borderWidth: 1, borderColor: "#333" }}
-                  >
-                    <Text className="text-sm font-medium text-white">
-                      {city.name}
-                    </Text>
-                  </Pressable>
-                ))}
-              </View>
-            </View>
-          )}
-
-          {/* Other Location */}
-          <Pressable
-            onPress={handleOtherLocation}
-            className="mb-8 flex-row items-center justify-center rounded-xl py-4"
-            style={{ backgroundColor: "#1a1a2e", borderWidth: 1, borderColor: "#333" }}
+          {/* City List */}
+          <ScrollView
+            style={styles.cityList}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
           >
-            <Globe size={20} color="#999" />
-            <Text className="ml-2 text-base font-medium text-gray-400">
-              {t("other_city")}
-            </Text>
-          </Pressable>
-        </ScrollView>
+            {/* Greek Cities */}
+            {greekCities.length > 0 && (
+              <View style={styles.citySection}>
+                <Text style={styles.citySectionTitle}>
+                  {language === "el" ? "Ελλάδα" : "Greece"}
+                </Text>
+                <View style={styles.cityChipsContainer}>
+                  {greekCities
+                    .filter((c) => c.name !== "Rhodes")
+                    .map((city, index) => (
+                      <CityChip
+                        key={city.name}
+                        label={language === "el" ? city.nameEl : city.name}
+                        onPress={() => handleSelectOtherCity(city)}
+                        delay={getStaggerDelay(index, 100)}
+                        reduceMotion={reduceMotion}
+                      />
+                    ))}
+                </View>
+              </View>
+            )}
+
+            {/* European Cities */}
+            {europeCities.length > 0 && (
+              <View style={styles.citySection}>
+                <Text style={styles.citySectionTitle}>
+                  {language === "el" ? "Ευρώπη" : "Europe"}
+                </Text>
+                <View style={styles.cityChipsContainer}>
+                  {europeCities.map((city, index) => (
+                    <CityChip
+                      key={city.name}
+                      label={city.name}
+                      onPress={() => handleSelectOtherCity(city)}
+                      delay={getStaggerDelay(index, 200)}
+                      reduceMotion={reduceMotion}
+                    />
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {/* Other Location */}
+            <Pressable onPress={handleOtherLocation} style={styles.otherLocationBtn}>
+              <Globe size={20} color="#999" />
+              <Text style={styles.otherLocationText}>{t("other_city")}</Text>
+            </Pressable>
+          </ScrollView>
+        </Animated.View>
       </SafeAreaView>
     </View>
   );
 }
+
+// ============================================================================
+// STYLES
+// ============================================================================
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#000",
+  },
+  flex: {
+    flex: 1,
+  },
+  loadingContainer: {
+    flex: 1,
+    backgroundColor: "#000",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  loadingLogo: {
+    width: 100,
+    height: 100,
+    borderRadius: 24,
+  },
+  logo: {
+    width: 120,
+    height: 120,
+    borderRadius: 28,
+  },
+  languageToggleContainer: {
+    position: "absolute",
+    right: 16,
+    top: 8,
+    zIndex: 10,
+  },
+  welcomeContent: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 24,
+  },
+  welcomeTitle: {
+    marginTop: 32,
+    textAlign: "center",
+    fontSize: 30,
+    fontWeight: "900",
+    color: "#fff",
+  },
+  welcomeSubtitle: {
+    marginTop: 16,
+    textAlign: "center",
+    fontSize: 18,
+    color: "#9ca3af",
+  },
+  welcomeButtons: {
+    paddingHorizontal: 24,
+    paddingBottom: 32,
+  },
+  haveAccountText: {
+    marginTop: 16,
+    textAlign: "center",
+  },
+  haveAccountLink: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: "#9ca3af",
+    textAlign: "center",
+    paddingVertical: 16,
+  },
+  ctaContainer: {
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: "#00FF88",
+    overflow: "hidden",
+  },
+  ctaGradient: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 18,
+  },
+  ctaText: {
+    fontSize: 20,
+    fontWeight: "900",
+    color: "#000",
+  },
+  carouselHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 16,
+    paddingTop: 8,
+  },
+  skipText: {
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#6b7280",
+  },
+  carouselContainer: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  carouselSlide: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 32,
+  },
+  carouselIconContainer: {
+    marginBottom: 32,
+    alignItems: "center",
+  },
+  carouselIconBg: {
+    borderRadius: 24,
+    padding: 24,
+    borderWidth: 1.5,
+  },
+  carouselIcon: {
+    width: 72,
+    height: 72,
+  },
+  carouselTitle: {
+    textAlign: "center",
+    fontSize: 24,
+    fontWeight: "900",
+    color: "#fff",
+  },
+  carouselDescription: {
+    marginTop: 16,
+    textAlign: "center",
+    fontSize: 16,
+    color: "#9ca3af",
+    lineHeight: 24,
+  },
+  dotsContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 32,
+  },
+  carouselButton: {
+    paddingHorizontal: 24,
+    paddingBottom: 32,
+  },
+  repairCard: {
+    marginHorizontal: 24,
+    marginBottom: 16,
+    backgroundColor: "rgba(26, 26, 46, 0.8)",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#333",
+  },
+  repairCardContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    padding: 16,
+  },
+  repairIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: "rgba(255, 215, 0, 0.15)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  repairTextContainer: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  repairTitle: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: "#fff",
+  },
+  repairSubtitle: {
+    fontSize: 12,
+    color: "#9ca3af",
+    marginTop: 2,
+  },
+  cityGateHeader: {
+    alignItems: "center",
+    paddingHorizontal: 24,
+    paddingTop: 16,
+  },
+  mapPinIcon: {
+    marginBottom: 16,
+    borderRadius: 24,
+    padding: 16,
+    backgroundColor: "rgba(255, 0, 255, 0.15)",
+    borderWidth: 1.5,
+    borderColor: "#FF00FF",
+  },
+  cityGateTitle: {
+    textAlign: "center",
+    fontSize: 24,
+    fontWeight: "900",
+    color: "#fff",
+  },
+  cityGateSubtitle: {
+    marginTop: 8,
+    textAlign: "center",
+    fontSize: 16,
+    color: "#9ca3af",
+  },
+  searchContainer: {
+    marginHorizontal: 24,
+    marginTop: 24,
+  },
+  searchInputWrapper: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    backgroundColor: "#1a1a2e",
+    borderWidth: 1,
+    borderColor: "#333",
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: 12,
+    paddingVertical: 14,
+    fontSize: 16,
+    color: "#fff",
+  },
+  rhodesCard: {
+    marginHorizontal: 24,
+    marginTop: 24,
+    borderRadius: 16,
+    borderWidth: 2,
+    borderColor: "#00FF88",
+    overflow: "hidden",
+  },
+  rhodesCardInner: {
+    position: "relative",
+  },
+  rhodesImage: {
+    width: "100%",
+    height: 120,
+  },
+  rhodesGradient: {
+    position: "absolute",
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 80,
+  },
+  rhodesContent: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 16,
+  },
+  rhodesTitle: {
+    fontSize: 20,
+    fontWeight: "900",
+    color: "#fff",
+  },
+  rhodesBadge: {
+    marginTop: 4,
+    backgroundColor: "#00FF88",
+    borderRadius: 999,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    alignSelf: "flex-start",
+  },
+  rhodesBadgeText: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#000",
+  },
+  rhodesCheck: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#00FF88",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  cityList: {
+    flex: 1,
+    marginTop: 16,
+    paddingHorizontal: 24,
+  },
+  citySection: {
+    marginBottom: 16,
+  },
+  citySectionTitle: {
+    marginBottom: 8,
+    fontSize: 12,
+    fontWeight: "700",
+    textTransform: "uppercase",
+    color: "#6b7280",
+  },
+  cityChipsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+  },
+  cityChip: {
+    marginBottom: 8,
+    marginRight: 8,
+    borderRadius: 999,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: "#1a1a2e",
+    borderWidth: 1,
+    borderColor: "#333",
+  },
+  cityChipText: {
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#fff",
+  },
+  otherLocationBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 32,
+    borderRadius: 12,
+    paddingVertical: 16,
+    backgroundColor: "#1a1a2e",
+    borderWidth: 1,
+    borderColor: "#333",
+  },
+  otherLocationText: {
+    marginLeft: 8,
+    fontSize: 16,
+    fontWeight: "500",
+    color: "#9ca3af",
+  },
+});

@@ -108,6 +108,19 @@
 - **Επισημανση**: Gold (#FFD700)
 - **Φοντο**: Deep Black με dark gradients
 
+### Premium Animation System
+Η εφαρμογη εχει Apple-level motion design με:
+- **Consistent Timing**: Micro (120ms), Small (200ms), Medium (280ms), Page (360ms)
+- **Premium Easing**: cubic-bezier(0.2, 0.8, 0.2, 1) για ομαλες μεταβασεις
+- **Reduce Motion Support**: Σεβεται την προσβασιμοτητα iOS/Android
+- **Staggered Animations**: 50ms μεταξυ στοιχειων για cascade effect
+- **Haptic Feedback**: Light/Medium feedback σε ολα τα interactions
+
+### Animation Files
+- `src/lib/animations.ts` - Animation utilities, timing, easing, hooks
+- `src/components/LanguageTogglePill.tsx` - Animated language toggle pill
+- `src/components/AnimatedButton.tsx` - Premium animated button component
+
 ## Tech Stack
 
 - **Frontend**: React Native + Expo SDK 53
@@ -139,11 +152,14 @@ src/
 │   ├── support.tsx        # Υποστηριξη
 │   └── login.tsx          # Συνδεση/Εγγραφη
 ├── components/
-│   ├── LanguageToggle.tsx # EL/EN toggle (normal + compact)
-│   ├── SafetyTips.tsx     # Bilingual safety tips
+│   ├── LanguageToggle.tsx      # EL/EN toggle (normal + compact)
+│   ├── LanguageTogglePill.tsx  # Floating pill toggle (premium)
+│   ├── AnimatedButton.tsx      # Premium animated button
+│   ├── SafetyTips.tsx          # Bilingual safety tips
 │   └── LoginWithEmailPassword.tsx
 ├── lib/
 │   ├── api.ts             # API client
+│   ├── animations.ts      # Premium animation system
 │   ├── languageStore.ts   # i18n store (Greek ALL CAPS no accents)
 │   ├── onboardingStore.ts # Onboarding state + city data
 │   ├── constants.ts       # Pricing bands, URLs

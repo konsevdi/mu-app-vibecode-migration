@@ -41,6 +41,8 @@ const STORES = [
     coords: { lat: 36.4349, lng: 28.2176 },
     services: ["ΔΙΑΓΝΩΣΤΙΚΑ", "ΕΠΙΣΚΕΥΕΣ", "ΑΞΙΟΛΟΓΗΣΗ", "ΠΩΛΗΣΕΙΣ"],
     website: "https://irepair.gr/rhodes",
+    appleMapsUrl: "https://maps.apple.com/?address=Ammochostou%2018,%2085131%20Rhodes,%20Greece&auid=14519752468660046668&ll=36.434900,28.217600&lsp=9902&q=iRepair%20Rhodes",
+    googleMapsUrl: "https://maps.app.goo.gl/34kjfjbVnCZSGNCc9",
   },
   {
     id: "irepair-spot",
@@ -57,26 +59,20 @@ const STORES = [
     coords: { lat: 36.4412, lng: 28.2234 },
     services: ["ΔΙΑΓΝΩΣΤΙΚΑ", "ΑΞΙΟΛΟΓΗΣΗ"],
     website: "https://irepair.gr/rhodes",
+    appleMapsUrl: "https://maps.apple.com/?address=Australias%2084-86,%2085100%20Rhodes,%20Greece&ll=36.441200,28.223400&q=iRepair%20Spot",
+    googleMapsUrl: "https://maps.app.goo.gl/S5tHHt7Lu6VBDT768",
   },
 ];
 
 function openMaps(store: typeof STORES[0]) {
-  const { lat, lng } = store.coords;
-  const address = encodeURIComponent(store.addressEn);
-  const label = encodeURIComponent(store.name);
-
   if (Platform.OS === "ios") {
-    // Apple Maps with address search for better accuracy
-    const appleMapsUrl = `maps://?q=${address}&sll=${lat},${lng}`;
-    Linking.openURL(appleMapsUrl).catch(() => {
-      // Fallback to Google Maps
-      const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${address}`;
-      Linking.openURL(googleMapsUrl);
+    // Use hardcoded Apple Maps link, fallback to Google Maps
+    Linking.openURL(store.appleMapsUrl).catch(() => {
+      Linking.openURL(store.googleMapsUrl);
     });
   } else {
-    // Google Maps with address for better accuracy
-    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${address}`;
-    Linking.openURL(googleMapsUrl);
+    // Use hardcoded Google Maps link
+    Linking.openURL(store.googleMapsUrl);
   }
 }
 

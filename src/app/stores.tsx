@@ -41,8 +41,8 @@ const STORES = [
     coords: { lat: 36.4349, lng: 28.2176 },
     services: ["ΔΙΑΓΝΩΣΤΙΚΑ", "ΕΠΙΣΚΕΥΕΣ", "ΑΞΙΟΛΟΓΗΣΗ", "ΠΩΛΗΣΕΙΣ"],
     website: "https://irepair.gr/rhodes",
-    // Deep link for Apple Maps app
-    appleMapsUrl: "maps://maps.apple.com/?daddr=iRepair+Rhodes,Ammochostou+18,Rhodes,Greece&dirflg=d",
+    // Apple Maps: use q= for search (shows place card), not daddr (directions)
+    appleMapsUrl: "https://maps.apple.com/?q=iRepair+Rhodes,+Ammochostou+18,+Rodos+851+31",
     googleMapsUrl: "https://maps.app.goo.gl/34kjfjbVnCZSGNCc9",
   },
   {
@@ -60,8 +60,8 @@ const STORES = [
     coords: { lat: 36.4412, lng: 28.2234 },
     services: ["ΔΙΑΓΝΩΣΤΙΚΑ", "ΑΞΙΟΛΟΓΗΣΗ"],
     website: "https://irepair.gr/rhodes",
-    // Deep link for Apple Maps app
-    appleMapsUrl: "maps://maps.apple.com/?daddr=Public+Home,Australias+84,Rhodes,Greece&dirflg=d",
+    // Apple Maps: exact search query from Google Maps redirect
+    appleMapsUrl: "https://maps.apple.com/?q=Public+home+Νέα+Μαρίνα+Ρόδου,+Afstralias+84-86,+Rodos+851+00",
     googleMapsUrl: "https://maps.app.goo.gl/S5tHHt7Lu6VBDT768",
   },
 ];

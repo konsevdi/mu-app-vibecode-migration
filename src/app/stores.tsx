@@ -62,17 +62,20 @@ const STORES = [
 
 function openMaps(store: typeof STORES[0]) {
   const { lat, lng } = store.coords;
+  const address = encodeURIComponent(store.addressEn);
   const label = encodeURIComponent(store.name);
 
-  // Try Apple Maps first on iOS, otherwise Google Maps
-  const appleMapsUrl = `maps:0,0?q=${label}@${lat},${lng}`;
-  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-
   if (Platform.OS === "ios") {
+    // Apple Maps with address search for better accuracy
+    const appleMapsUrl = `maps://?q=${address}&sll=${lat},${lng}`;
     Linking.openURL(appleMapsUrl).catch(() => {
+      // Fallback to Google Maps
+      const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${address}`;
       Linking.openURL(googleMapsUrl);
     });
   } else {
+    // Google Maps with address for better accuracy
+    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${address}`;
     Linking.openURL(googleMapsUrl);
   }
 }

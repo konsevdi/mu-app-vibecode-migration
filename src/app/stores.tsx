@@ -47,7 +47,7 @@ const STORES = [
     name: "iRepair Spot",
     nameEl: "iRepair Spot @ Public + home Νεα Μαρινα",
     address: "Αυστραλιας 84-86, 85100, Ροδος, Ελλαδα",
-    addressEn: "Afstralias 84-86, 85100, Rhodes, Greece",
+    addressEn: "Australias 84-86, 85100, Rhodes, Greece",
     phone: "+302241077637",
     email: "publicrhodes@irepair.gr",
     hours: "09:00 - 17:00",

@@ -9,7 +9,7 @@ import {
   TextInput,
   StyleSheet,
 } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 import { useRouter, Href } from "expo-router";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, {
@@ -441,6 +441,7 @@ export default function OnboardingScreen() {
   const router = useRouter();
   const { t, language } = useTranslation();
   const reduceMotion = useReduceMotion();
+  const insets = useSafeAreaInsets();
   const defaultCity = useCityStore((s) => s.defaultCity);
   const setDefaultCity = useCityStore((s) => s.setDefaultCity);
   const onboardingCompleted = useOnboardingStore((s) => s.onboardingCompleted);
@@ -455,6 +456,7 @@ export default function OnboardingScreen() {
   const [currentView, setCurrentView] = useState<OnboardingView>("welcome");
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isRedirecting, setIsRedirecting] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
 
   // Screen transition animation
@@ -466,11 +468,13 @@ export default function OnboardingScreen() {
     if (!isHydrated) return;
 
     if (onboardingCompleted && isEligibleCity && defaultCity) {
+      setIsRedirecting(true);
       router.replace("/(tabs)" as Href);
       return;
     }
 
     if (onboardingCompleted && !isEligibleCity) {
+      setIsRedirecting(true);
       router.replace("/demo-browse" as Href);
       return;
     }
@@ -515,21 +519,8 @@ export default function OnboardingScreen() {
     transform: [{ translateX: screenTranslateX.value }],
   }));
 
-  // Show loading while hydrating
-  if (!isHydrated) {
-    return (
-      <View style={styles.loadingContainer}>
-        <LinearGradient
-          colors={["#0a0a0a", "#1a1a2e", "#0a0a0a"]}
-          style={StyleSheet.absoluteFill}
-        />
-        <Image source={MU_LOGO_DARK} style={styles.loadingLogo} resizeMode="contain" />
-      </View>
-    );
-  }
-
-  // If redirecting, show nothing
-  if (onboardingCompleted) {
+  // Show loading while hydrating or redirecting
+  if (!isHydrated || isRedirecting) {
     return (
       <View style={styles.loadingContainer}>
         <LinearGradient
@@ -633,7 +624,7 @@ export default function OnboardingScreen() {
         />
         <SafeAreaView style={styles.flex}>
           {/* Language Toggle - top right floating pill */}
-          <View style={styles.languageToggleContainer}>
+          <View style={[styles.languageToggleContainer, { top: insets.top + 8 }]}>
             <LanguageTogglePill />
           </View>
 
@@ -947,7 +938,7 @@ const styles = StyleSheet.create({
   languageToggleContainer: {
     position: "absolute",
     right: 16,
-    top: 8,
+    top: 0,
     zIndex: 10,
   },
   welcomeContent: {

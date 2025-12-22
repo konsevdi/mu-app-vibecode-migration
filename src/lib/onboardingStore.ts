@@ -93,18 +93,24 @@ export const useOnboardingStore = create<OnboardingState>()(
 
 // Hook to check if the store has been hydrated from AsyncStorage
 export const useOnboardingHydrated = () => {
-  const [hydrated, setHydrated] = React.useState(false);
+  // Start with the current hydration state to avoid flash
+  const initialHydrated = useOnboardingStore.persist.hasHydrated();
+  const [hydrated, setHydrated] = React.useState(initialHydrated);
 
   React.useEffect(() => {
-    // Check if already hydrated
+    // If already hydrated, we're done
+    if (useOnboardingStore.persist.hasHydrated()) {
+      setHydrated(true);
+      return;
+    }
+
+    // Subscribe to hydration finish event
     const unsubFinishHydration = useOnboardingStore.persist.onFinishHydration(() => {
       setHydrated(true);
     });
 
-    // If the store was already hydrated before this component mounted
-    if (useOnboardingStore.persist.hasHydrated()) {
-      setHydrated(true);
-    }
+    // Also rehydrate manually to ensure hydration happens
+    useOnboardingStore.persist.rehydrate();
 
     return () => {
       unsubFinishHydration();

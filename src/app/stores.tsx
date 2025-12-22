@@ -38,7 +38,7 @@ const STORES = [
     hoursNote: "ΔΕΥ - ΠΑΡ 09:00-19:00, ΣΑΒ 09:00-15:00",
     hoursNoteEn: "MON-FRI 09:00-19:00, SAT 09:00-15:00",
     isPrimary: true,
-    coords: { lat: 36.43477, lng: 28.21827 },
+    coords: { lat: 36.4493557, lng: 28.2202755 },
     services: ["ΔΙΑΓΝΩΣΤΙΚΑ", "ΕΠΙΣΚΕΥΕΣ", "ΑΞΙΟΛΟΓΗΣΗ", "ΠΩΛΗΣΕΙΣ"],
     website: "https://irepair.gr/rhodes",
     googleMapsUrl: "https://maps.app.goo.gl/34kjfjbVnCZSGNCc9",
@@ -55,7 +55,7 @@ const STORES = [
     hoursNote: "ΔΕΥ - ΠΑΡ 09:00-17:00",
     hoursNoteEn: "MON - FRI 09:00-17:00",
     isPrimary: false,
-    coords: { lat: 36.44168, lng: 28.22569 },
+    coords: { lat: 36.4378, lng: 28.2406 },
     services: ["ΔΙΑΓΝΩΣΤΙΚΑ", "ΑΞΙΟΛΟΓΗΣΗ"],
     website: "https://irepair.gr/rhodes",
     googleMapsUrl: "https://maps.app.goo.gl/S5tHHt7Lu6VBDT768",
@@ -63,16 +63,9 @@ const STORES = [
 ];
 
 function openMaps(store: (typeof STORES)[0]) {
-  const { lat, lng } = store.coords;
-
-  if (Platform.OS === "ios") {
-    // Open Apple Maps with a pin at exact coordinates and business name as label
-    const appleMapsUrl = `http://maps.apple.com/?ll=${lat},${lng}&q=${encodeURIComponent(store.name)}`;
-    Linking.openURL(appleMapsUrl);
-  } else {
-    // Use Google Maps short link on Android
-    Linking.openURL(store.googleMapsUrl);
-  }
+  // Use Google Maps links for BOTH platforms - they work reliably
+  // Google Maps links open in Apple Maps on iOS if Google Maps isn't installed
+  Linking.openURL(store.googleMapsUrl);
 }
 
 function StoreCard({ store }: { store: typeof STORES[0] }) {

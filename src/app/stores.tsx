@@ -38,11 +38,9 @@ const STORES = [
     hoursNote: "ΔΕΥ - ΠΑΡ 09:00-19:00, ΣΑΒ 09:00-15:00",
     hoursNoteEn: "MON-FRI 09:00-19:00, SAT 09:00-15:00",
     isPrimary: true,
-    coords: { lat: 36.4349, lng: 28.2176 },
+    coords: { lat: 36.43477, lng: 28.21827 },
     services: ["ΔΙΑΓΝΩΣΤΙΚΑ", "ΕΠΙΣΚΕΥΕΣ", "ΑΞΙΟΛΟΓΗΣΗ", "ΠΩΛΗΣΕΙΣ"],
     website: "https://irepair.gr/rhodes",
-    // Use the exact short links provided by user - these open the correct pins
-    appleMapsUrl: "https://maps.apple.com/place?auid=14519752468660046668",
     googleMapsUrl: "https://maps.app.goo.gl/34kjfjbVnCZSGNCc9",
   },
   {
@@ -57,23 +55,22 @@ const STORES = [
     hoursNote: "ΔΕΥ - ΠΑΡ 09:00-17:00",
     hoursNoteEn: "MON - FRI 09:00-17:00",
     isPrimary: false,
-    coords: { lat: 36.4412, lng: 28.2234 },
+    coords: { lat: 36.44168, lng: 28.22569 },
     services: ["ΔΙΑΓΝΩΣΤΙΚΑ", "ΑΞΙΟΛΟΓΗΣΗ"],
     website: "https://irepair.gr/rhodes",
-    // Use the exact short links provided by user - these open the correct pins
-    appleMapsUrl: "https://maps.apple.com/place?auid=5765285026927199668",
     googleMapsUrl: "https://maps.app.goo.gl/S5tHHt7Lu6VBDT768",
   },
 ];
 
-function openMaps(store: typeof STORES[0]) {
+function openMaps(store: (typeof STORES)[0]) {
+  const { lat, lng } = store.coords;
+
   if (Platform.OS === "ios") {
-    // Use hardcoded Apple Maps link, fallback to Google Maps
-    Linking.openURL(store.appleMapsUrl).catch(() => {
-      Linking.openURL(store.googleMapsUrl);
-    });
+    // Open Apple Maps with a pin at exact coordinates and business name as label
+    const appleMapsUrl = `http://maps.apple.com/?ll=${lat},${lng}&q=${encodeURIComponent(store.name)}`;
+    Linking.openURL(appleMapsUrl);
   } else {
-    // Use hardcoded Google Maps link
+    // Use Google Maps short link on Android
     Linking.openURL(store.googleMapsUrl);
   }
 }

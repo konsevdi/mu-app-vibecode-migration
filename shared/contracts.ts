@@ -318,3 +318,33 @@ export const updateUserOnboardingResponseSchema = z.object({
   }),
 });
 export type UpdateUserOnboardingResponse = z.infer<typeof updateUserOnboardingResponseSchema>;
+
+// ============================================
+// Assistant Types
+// ============================================
+
+// POST /api/assistant/chat
+export const assistantChatRequestSchema = z.object({
+  message: z.string().min(1).max(2000),
+  context: z.object({
+    listingId: z.string().optional(),
+    category: z.string().optional(),
+    page: z.string().optional(),
+  }).optional(),
+  language: languageSchema.default("el"),
+});
+export type AssistantChatRequest = z.infer<typeof assistantChatRequestSchema>;
+
+export const assistantChatResponseSchema = z.object({
+  reply: z.string(),
+  suggestions: z.array(z.string()),
+  timestamp: z.string(),
+});
+export type AssistantChatResponse = z.infer<typeof assistantChatResponseSchema>;
+
+// GET /api/assistant/suggestions
+export const assistantSuggestionsResponseSchema = z.object({
+  suggestions: z.array(z.string()),
+  page: z.string(),
+});
+export type AssistantSuggestionsResponse = z.infer<typeof assistantSuggestionsResponseSchema>;

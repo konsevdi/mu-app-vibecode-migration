@@ -1,11 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   View,
   Text,
   ScrollView,
   Pressable,
   Image,
-  Dimensions,
   Linking,
   Alert,
 } from "react-native";
@@ -33,8 +32,12 @@ import { V1_STORES } from "@/lib/stores";
 import { VERIFICATION_LABEL, gradeLabels } from "@/lib/verification";
 import { SafetyTips } from "@/components/SafetyTips";
 import * as WebBrowser from "expo-web-browser";
-
-const { width } = Dimensions.get("window");
+import {
+  useDimensions,
+  getResponsivePadding,
+  useMaxContentWidth,
+  useResponsiveValue,
+} from "@/lib/responsive";
 
 const conditionLabels: Record<string, { label: string; color: string; description: string }> = {
   new: { label: "Καινούργιο", color: "#00FF88", description: "Αχρησιμοποίητο, στην αρχική συσκευασία" },
@@ -49,10 +52,42 @@ const categoryLabels: Record<string, string> = {
   accessory: "Αξεσουάρ",
 };
 
+function SkeletonDetail() {
+  return (
+    <View className="flex-1 bg-black">
+      <View className="h-80 w-full bg-gray-800/50" />
+      <LinearGradient
+        colors={["#0a0a0a", "#1a1a2e", "#0a0a0a"]}
+        style={{ marginTop: -24, borderTopLeftRadius: 32, borderTopRightRadius: 32, padding: 20 }}
+      >
+        <View className="mb-3 h-8 w-24 rounded-full bg-gray-700/50" />
+        <View className="mb-3 h-8 w-full rounded bg-gray-700/50" />
+        <View className="mb-5 h-10 w-32 rounded bg-gray-700/50" />
+        <View className="mb-5 h-20 w-full rounded-2xl bg-gray-700/50" />
+        <View className="h-32 w-full rounded-2xl bg-gray-700/50" />
+      </LinearGradient>
+    </View>
+  );
+}
+
 export default function ListingDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const viewerCity = useCityStore((s) => s.defaultCity);
+
+  const { width } = useDimensions();
+  const maxContentWidth = useMaxContentWidth();
+  const padding = getResponsivePadding();
+
+  // Responsive image height
+  const imageHeight = useResponsiveValue({
+    default: 320,
+    lg: 400,
+    xl: 450,
+  });
+
+  // Content width for centering on web
+  const contentWidth = maxContentWidth ?? width;
 
   const { data: listing, isLoading } = useQuery({
     queryKey: ["listing", id],
@@ -83,7 +118,6 @@ export default function ListingDetailScreen() {
 
   const openInMaps = (store: typeof V1_STORES[number]) => {
     const { lat, lng } = store.coords;
-    // Try Apple Maps first, fallback to Google Maps
     const appleMapsUrl = `maps://maps.apple.com/?q=${encodeURIComponent(store.name)}&ll=${lat},${lng}`;
     const googleMapsUrl = `https://maps.google.com/?q=${lat},${lng}`;
 
@@ -122,11 +156,7 @@ export default function ListingDetailScreen() {
   };
 
   if (isLoading) {
-    return (
-      <View className="flex-1 items-center justify-center bg-black">
-        <Text className="text-lg font-bold text-gray-500">Φόρτωση...</Text>
-      </View>
-    );
+    return <SkeletonDetail />;
   }
 
   if (!listing) {
@@ -141,7 +171,9 @@ export default function ListingDetailScreen() {
           <Pressable
             onPress={() => router.back()}
             className="mt-6 overflow-hidden rounded-full"
-            style={{ borderWidth: 2, borderColor: "#FF00FF" }}
+            style={{ borderWidth: 2, borderColor: "#FF00FF", minHeight: 48 }}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
           >
             <LinearGradient
               colors={["#FF00FF", "#CC00CC"]}
@@ -168,15 +200,15 @@ export default function ListingDetailScreen() {
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        className="h-80"
-        style={{ flexGrow: 0 }}
+        style={{ height: imageHeight, flexGrow: 0 }}
       >
         {listing.images.map((image: string, index: number) => (
           <Image
             key={index}
             source={{ uri: image }}
-            style={{ width, height: 320 }}
+            style={{ width, height: imageHeight }}
             resizeMode="cover"
+            accessibilityLabel={`Product image ${index + 1} of ${listing.images.length}`}
           />
         ))}
       </ScrollView>
@@ -187,11 +219,21 @@ export default function ListingDetailScreen() {
         className="absolute left-0 right-0 top-0"
         style={{ pointerEvents: "box-none" }}
       >
-        <View className="flex-row items-center justify-between px-4 py-2">
+        <View
+          className="flex-row items-center justify-between py-2"
+          style={{
+            paddingHorizontal: padding,
+            maxWidth: maxContentWidth,
+            alignSelf: maxContentWidth ? "center" : undefined,
+            width: "100%",
+          }}
+        >
           <Pressable
             onPress={() => router.back()}
             className="h-12 w-12 items-center justify-center rounded-full"
             style={{ backgroundColor: "rgba(0,0,0,0.7)", borderWidth: 2, borderColor: "#FF00FF" }}
+            accessibilityRole="button"
+            accessibilityLabel="Go back"
           >
             <ArrowLeft size={24} color="#FF00FF" />
           </Pressable>
@@ -200,12 +242,16 @@ export default function ListingDetailScreen() {
               onPress={handleReport}
               className="mr-2 h-12 w-12 items-center justify-center rounded-full"
               style={{ backgroundColor: "rgba(0,0,0,0.7)", borderWidth: 2, borderColor: "#FF6B6B" }}
+              accessibilityRole="button"
+              accessibilityLabel="Report listing"
             >
               <Flag size={20} color="#FF6B6B" />
             </Pressable>
             <Pressable
               className="h-12 w-12 items-center justify-center rounded-full"
               style={{ backgroundColor: "rgba(0,0,0,0.7)", borderWidth: 2, borderColor: "#00FF88" }}
+              accessibilityRole="button"
+              accessibilityLabel="Share listing"
             >
               <Share2 size={20} color="#00FF88" />
             </Pressable>
@@ -214,14 +260,22 @@ export default function ListingDetailScreen() {
       </SafeAreaView>
 
       {/* Content */}
-      <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+      <ScrollView
+        className="flex-1"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{
+          maxWidth: maxContentWidth,
+          alignSelf: maxContentWidth ? "center" : undefined,
+          width: maxContentWidth ? "100%" : undefined,
+        }}
+      >
         <LinearGradient
           colors={["#0a0a0a", "#1a1a2e", "#0a0a0a"]}
-          style={{ marginTop: -24, borderTopLeftRadius: 32, borderTopRightRadius: 32, paddingTop: 28, paddingHorizontal: 20 }}
+          style={{ marginTop: -24, borderTopLeftRadius: 32, borderTopRightRadius: 32, paddingTop: 28, paddingHorizontal: padding }}
         >
           {/* Price & Title */}
           <View className="mb-5">
-            <View className="mb-3 flex-row items-center">
+            <View className="mb-3 flex-row flex-wrap items-center gap-2">
               <View
                 className="rounded-full px-4 py-2"
                 style={{ backgroundColor: `${condition.color}20`, borderWidth: 1, borderColor: condition.color }}
@@ -230,36 +284,37 @@ export default function ListingDetailScreen() {
                   {condition.label}
                 </Text>
               </View>
-              <View className="ml-3 rounded-full bg-gray-800 px-3 py-2">
+              <View className="rounded-full bg-gray-800 px-3 py-2">
                 <Text className="text-sm font-bold text-gray-400">
                   {categoryLabels[listing.category] ?? listing.category}
                 </Text>
               </View>
             </View>
-            <Text className="text-3xl font-black text-white">{listing.title}</Text>
+            <Text className="text-3xl font-black text-white" accessibilityRole="header">
+              {listing.title}
+            </Text>
             <Text className="mt-3 text-4xl font-black text-fuchsia-400">
               €{listing.price.toFixed(0)}
             </Text>
           </View>
 
           {/* Meta Info */}
-          <View className="mb-5 flex-row flex-wrap">
-            {/* V1: Pickup Only badge */}
-            <View className="mb-2 mr-4 flex-row items-center rounded-full px-3 py-2" style={{ backgroundColor: "#FF00FF20" }}>
+          <View className="mb-5 flex-row flex-wrap gap-2">
+            <View className="flex-row items-center rounded-full px-3 py-2" style={{ backgroundColor: "#FF00FF20" }}>
               <MapPin size={16} color="#FF00FF" />
               <Text className="ml-2 text-sm font-bold text-fuchsia-400">ΠΑΡΑΛΑΒΗ ΜΟΝΟ</Text>
             </View>
             {listing.location && (
-              <View className="mb-2 mr-4 flex-row items-center rounded-full bg-gray-800 px-3 py-2">
+              <View className="flex-row items-center rounded-full bg-gray-800 px-3 py-2">
                 <MapPin size={16} color="#FF00FF" />
                 <Text className="ml-2 text-sm font-semibold text-gray-300">{listing.location}</Text>
               </View>
             )}
-            <View className="mb-2 mr-4 flex-row items-center rounded-full bg-gray-800 px-3 py-2">
+            <View className="flex-row items-center rounded-full bg-gray-800 px-3 py-2">
               <Eye size={16} color="#00FF88" />
               <Text className="ml-2 text-sm font-semibold text-gray-300">{listing.views} προβολές</Text>
             </View>
-            <View className="mb-2 flex-row items-center rounded-full bg-gray-800 px-3 py-2">
+            <View className="flex-row items-center rounded-full bg-gray-800 px-3 py-2">
               <Calendar size={16} color="#FFD700" />
               <Text className="ml-2 text-sm font-semibold text-gray-300">
                 {formatDate(listing.createdAt)}
@@ -314,7 +369,7 @@ export default function ListingDetailScreen() {
             </LinearGradient>
           </View>
 
-          {/* Verified by iRepair - only if grade + checklist */}
+          {/* Verified by iRepair */}
           {listing.grade && listing.checklistComplete && (
             <View className="mb-5 overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#00FF88" }}>
               <LinearGradient
@@ -361,13 +416,15 @@ export default function ListingDetailScreen() {
           {/* Safety Tips */}
           <SafetyTips showIRepairSuggestion={viewerCity === "rhodes" && listing.city === "rhodes"} />
 
-          {/* Get Graded CTA - Only for private listings (not isStore) */}
+          {/* Get Graded CTA */}
           {!listing.grade && (
             <View className="mb-5">
               <Pressable
                 onPress={() => router.push(`/book-appointment?listingId=${listing.id}` as Href)}
                 className="overflow-hidden rounded-2xl"
-                style={{ borderWidth: 2, borderColor: "#00FF88" }}
+                style={{ borderWidth: 2, borderColor: "#00FF88", minHeight: 56 }}
+                accessibilityRole="button"
+                accessibilityLabel="Get device graded at iRepair"
               >
                 <LinearGradient
                   colors={["#00FF88", "#00CC6A"]}
@@ -389,6 +446,9 @@ export default function ListingDetailScreen() {
               <Pressable
                 onPress={() => WebBrowser.openBrowserAsync("https://public.irepair.gr/service-app")}
                 className="mt-2 rounded-xl bg-gray-800 px-4 py-3"
+                style={{ minHeight: 44 }}
+                accessibilityRole="link"
+                accessibilityLabel="Book appointment online"
               >
                 <Text className="text-center text-sm font-bold text-gray-400">
                   Ή κλείσε ραντεβού online →
@@ -414,6 +474,7 @@ export default function ListingDetailScreen() {
                       <Image
                         source={{ uri: listing.seller.image }}
                         className="h-12 w-12 rounded-full"
+                        accessibilityLabel={`${listing.seller.name ?? "User"} profile picture`}
                       />
                     ) : (
                       <User size={28} color="#FF00FF" />
@@ -433,7 +494,12 @@ export default function ListingDetailScreen() {
           )}
 
           {/* iRepair Rhodes Banner */}
-          <Pressable className="mb-6 overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#00FF88" }}>
+          <Pressable
+            className="mb-6 overflow-hidden rounded-2xl"
+            style={{ borderWidth: 2, borderColor: "#00FF88", minHeight: 56 }}
+            accessibilityRole="button"
+            accessibilityLabel="Certify device at iRepair"
+          >
             <LinearGradient
               colors={["#00FF88", "#00CC6A"]}
               start={{ x: 0, y: 0 }}
@@ -473,11 +539,23 @@ export default function ListingDetailScreen() {
                         <Text className="mt-1 text-sm font-medium text-gray-400">{store.address}</Text>
                       </View>
                     </View>
-                    <View className="mt-3 flex-row">
-                      <Pressable onPress={() => openStorePage(store.storePageUrl)} className="mr-2 flex-1 rounded-xl bg-gray-800 px-3 py-2">
+                    <View className="mt-3 flex-row gap-2">
+                      <Pressable
+                        onPress={() => openStorePage(store.storePageUrl)}
+                        className="flex-1 rounded-xl bg-gray-800 px-3 py-3"
+                        style={{ minHeight: 44 }}
+                        accessibilityRole="link"
+                        accessibilityLabel={`Visit ${store.name} website`}
+                      >
                         <Text className="text-center text-sm font-bold text-white">ΣΕΛΙΔΑ</Text>
                       </Pressable>
-                      <Pressable onPress={() => openInMaps(store)} className="flex-1 rounded-xl bg-gray-800 px-3 py-2">
+                      <Pressable
+                        onPress={() => openInMaps(store)}
+                        className="flex-1 rounded-xl bg-gray-800 px-3 py-3"
+                        style={{ minHeight: 44 }}
+                        accessibilityRole="link"
+                        accessibilityLabel={`Open ${store.name} in maps`}
+                      >
                         <Text className="text-center text-sm font-bold text-white">ΧΑΡΤΗΣ</Text>
                       </Pressable>
                     </View>
@@ -510,12 +588,21 @@ export default function ListingDetailScreen() {
       >
         <LinearGradient
           colors={["transparent", "#0a0a0a", "#0a0a0a"]}
-          style={{ paddingTop: 24, paddingHorizontal: 20, paddingBottom: 20 }}
+          style={{
+            paddingTop: 24,
+            paddingHorizontal: padding,
+            paddingBottom: 20,
+            maxWidth: maxContentWidth,
+            alignSelf: maxContentWidth ? "center" : undefined,
+            width: "100%",
+          }}
         >
           <Pressable
             onPress={handleContact}
             className="overflow-hidden rounded-2xl"
-            style={{ borderWidth: 2, borderColor: "#FF00FF" }}
+            style={{ borderWidth: 2, borderColor: "#FF00FF", minHeight: 56 }}
+            accessibilityRole="button"
+            accessibilityLabel="Contact seller"
           >
             <LinearGradient
               colors={["#FF00FF", "#CC00CC"]}

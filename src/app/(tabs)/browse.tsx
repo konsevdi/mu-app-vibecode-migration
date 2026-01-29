@@ -7,6 +7,7 @@ import {
   Image,
   TextInput,
   RefreshControl,
+  DimensionValue,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter, useLocalSearchParams, Href } from "expo-router";
@@ -26,6 +27,12 @@ import {
 } from "lucide-react-native";
 import { api } from "@/lib/api";
 import { type GetListingsResponse, type Listing, type Category } from "@/shared/contracts";
+import {
+  useDimensions,
+  useGridColumns,
+  getResponsivePadding,
+  useMaxContentWidth,
+} from "@/lib/responsive";
 
 const categories: { id: Category | "all"; name: string; icon: React.ComponentType<{ size: number; color: string }>; color: string }[] = [
   { id: "all", name: "ΟΛΑ", icon: SlidersHorizontal, color: "#FF00FF" },
@@ -43,15 +50,35 @@ const conditionLabels: Record<string, { label: string; color: string }> = {
   parts: { label: "Ανταλλακτικά", color: "#888888" },
 };
 
-function ListingCard({ listing }: { listing: Listing }) {
+function SkeletonCard({ width }: { width: DimensionValue }) {
+  return (
+    <View
+      className="mb-4 overflow-hidden rounded-2xl"
+      style={{ width, borderWidth: 2, borderColor: "#333" }}
+    >
+      <LinearGradient colors={["#1a1a2e", "#0f0f23"]}>
+        <View className="h-36 w-full bg-gray-700/50" />
+        <View className="p-4">
+          <View className="mb-2 h-5 w-20 rounded-full bg-gray-700/50" />
+          <View className="mb-2 h-4 w-full rounded bg-gray-700/50" />
+          <View className="h-6 w-16 rounded bg-gray-700/50" />
+        </View>
+      </LinearGradient>
+    </View>
+  );
+}
+
+function ListingCard({ listing, width }: { listing: Listing; width: DimensionValue }) {
   const router = useRouter();
   const condition = conditionLabels[listing.condition] ?? conditionLabels.good;
 
   return (
     <Pressable
       onPress={() => router.push(`/listing/${listing.id}` as Href)}
-      className="mb-4 w-[48%] overflow-hidden rounded-2xl"
-      style={{ borderWidth: 2, borderColor: "#333" }}
+      className="mb-4 overflow-hidden rounded-2xl"
+      style={{ width, borderWidth: 2, borderColor: "#333" }}
+      accessibilityRole="button"
+      accessibilityLabel={`${listing.title}, €${listing.price}, ${condition.label}`}
     >
       <LinearGradient colors={["#1a1a2e", "#0f0f23"]}>
         <Image
@@ -60,6 +87,7 @@ function ListingCard({ listing }: { listing: Listing }) {
           }}
           className="h-36 w-full"
           resizeMode="cover"
+          accessibilityLabel={`Image of ${listing.title}`}
         />
         <View className="p-4">
           <View className="mb-2 flex-row">
@@ -72,7 +100,7 @@ function ListingCard({ listing }: { listing: Listing }) {
               </Text>
             </View>
           </View>
-          <Text className="text-sm font-bold text-white" numberOfLines={1}>
+          <Text className="text-sm font-bold text-white" numberOfLines={2}>
             {listing.title}
           </Text>
           <Text className="mt-2 text-xl font-black text-fuchsia-400">
@@ -99,6 +127,16 @@ export default function BrowseScreen() {
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [verifiedOnly, setVerifiedOnly] = useState(false);
+
+  const { width } = useDimensions();
+  const gridColumns = useGridColumns(2);
+  const maxContentWidth = useMaxContentWidth();
+  const padding = getResponsivePadding();
+
+  // Calculate grid item width
+  const gridGap = 16;
+  const availableWidth = maxContentWidth ?? width;
+  const gridItemWidth = (availableWidth - padding * 2 - gridGap * (gridColumns - 1)) / gridColumns;
 
   const buildQueryString = useCallback(() => {
     const queryParams: string[] = [];
@@ -127,101 +165,7 @@ export default function BrowseScreen() {
         style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
       />
       <SafeAreaView edges={["top"]} className="flex-1">
-        {/* Header */}
-        <View className="px-5 pb-4 pt-4">
-          <View className="flex-row items-center">
-            <Zap size={24} color="#FF00FF" fill="#FF00FF" />
-            <Text className="ml-2 text-3xl font-black text-white">Αναζήτηση</Text>
-          </View>
-          <Text className="mt-1 text-base font-semibold text-gray-400">
-            Βρες την επόμενη συσκευή σου
-          </Text>
-        </View>
-
-        {/* Search Bar */}
-        <View className="mx-5 mb-4 flex-row items-center overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#FF00FF" }}>
-          <LinearGradient
-            colors={["#1a1a2e", "#0f0f23"]}
-            style={{ flex: 1, flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 14 }}
-          >
-            <Search size={22} color="#FF00FF" />
-            <TextInput
-              className="ml-3 flex-1 text-base font-semibold text-white"
-              placeholder="Αναζήτηση συσκευών..."
-              placeholderTextColor="#666"
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-            />
-            {searchQuery.length > 0 && (
-              <Pressable onPress={() => setSearchQuery("")} className="rounded-full bg-gray-700 p-1">
-                <X size={16} color="#FFF" />
-              </Pressable>
-            )}
-          </LinearGradient>
-        </View>
-
-        {/* Category Filters */}
-        <View className="mb-4">
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 20 }}
-            style={{ flexGrow: 0 }}
-          >
-            {categories.map((category) => {
-              const Icon = category.icon;
-              const isSelected = selectedCategory === category.id;
-              return (
-                <Pressable
-                  key={category.id}
-                  onPress={() => setSelectedCategory(category.id)}
-                  className="mr-3 overflow-hidden rounded-full"
-                  style={{
-                    borderWidth: 2,
-                    borderColor: isSelected ? category.color : "#333"
-                  }}
-                >
-                  <LinearGradient
-                    colors={isSelected ? [category.color, category.color] : ["#1a1a2e", "#0f0f23"]}
-                    style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 10 }}
-                  >
-                    <Icon size={18} color={isSelected ? "#000" : "#888"} />
-                    <Text
-                      className={`ml-2 text-sm font-bold uppercase ${
-                        isSelected ? "text-black" : "text-gray-400"
-                      }`}
-                    >
-                      {category.name}
-                    </Text>
-                  </LinearGradient>
-                </Pressable>
-              );
-            })}
-          </ScrollView>
-        </View>
-
-        {/* Verified Only Filter */}
-        <View className="mx-5 mb-4">
-          <Pressable
-            onPress={() => setVerifiedOnly(!verifiedOnly)}
-            className="flex-row items-center overflow-hidden rounded-xl"
-            style={{ borderWidth: 2, borderColor: verifiedOnly ? "#00FF88" : "#333" }}
-          >
-            <LinearGradient
-              colors={verifiedOnly ? ["#00FF8820", "#0f0f23"] : ["#1a1a2e", "#0f0f23"]}
-              style={{ flex: 1, flexDirection: "row", alignItems: "center", paddingHorizontal: 14, paddingVertical: 10 }}
-            >
-              <Shield size={18} color={verifiedOnly ? "#00FF88" : "#666"} />
-              <Text className={`ml-2 text-sm font-bold ${verifiedOnly ? "text-emerald-400" : "text-gray-500"}`}>
-                Μόνο πιστοποιημένα / Verified only
-              </Text>
-            </LinearGradient>
-          </Pressable>
-        </View>
-
-        {/* Results */}
         <ScrollView
-          className="flex-1 px-5"
           showsVerticalScrollIndicator={false}
           refreshControl={
             <RefreshControl
@@ -230,38 +174,176 @@ export default function BrowseScreen() {
               tintColor="#FF00FF"
             />
           }
+          contentContainerStyle={{
+            maxWidth: maxContentWidth,
+            alignSelf: maxContentWidth ? "center" : undefined,
+            width: maxContentWidth ? "100%" : undefined,
+          }}
+          stickyHeaderIndices={[0]}
         >
-          {isLoading ? (
-            <View className="flex-1 items-center justify-center py-20">
-              <Text className="text-lg font-bold text-gray-500">Φόρτωση...</Text>
-            </View>
-          ) : data?.listings && data.listings.length > 0 ? (
-            <>
-              <View className="mb-4 flex-row items-center">
-                <View className="mr-2 h-2 w-2 rounded-full bg-fuchsia-500" />
-                <Text className="text-base font-bold text-gray-400">
-                  {data.total} {data.total === 1 ? "αποτέλεσμα" : "αποτελέσματα"}
+          {/* Header & Search - Sticky on scroll */}
+          <View className="bg-black/90">
+            {/* Header */}
+            <View style={{ paddingHorizontal: padding, paddingBottom: 16, paddingTop: 16 }}>
+              <View className="flex-row items-center">
+                <Zap size={24} color="#FF00FF" fill="#FF00FF" />
+                <Text className="ml-2 text-3xl font-black text-white" accessibilityRole="header">
+                  Αναζήτηση
                 </Text>
               </View>
-              <View className="flex-row flex-wrap justify-between pb-8">
-                {data.listings.map((listing: Listing) => (
-                  <ListingCard key={listing.id} listing={listing} />
-                ))}
-              </View>
-            </>
-          ) : (
-            <View className="items-center justify-center py-20">
-              <View className="mb-4 rounded-3xl bg-gray-800/50 p-6">
-                <Search size={56} color="#666" />
-              </View>
-              <Text className="mt-4 text-xl font-black text-white">
-                Δεν βρέθηκαν αγγελίες
-              </Text>
-              <Text className="mt-2 text-center text-base font-medium text-gray-500">
-                Δοκίμασε διαφορετικά φίλτρα ή αναζήτηση
+              <Text className="mt-1 text-base font-semibold text-gray-400">
+                Βρες την επόμενη συσκευή σου
               </Text>
             </View>
-          )}
+
+            {/* Search Bar */}
+            <View
+              className="mb-4 flex-row items-center overflow-hidden rounded-2xl"
+              style={{ marginHorizontal: padding, borderWidth: 2, borderColor: "#FF00FF" }}
+            >
+              <LinearGradient
+                colors={["#1a1a2e", "#0f0f23"]}
+                style={{ flex: 1, flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 14 }}
+              >
+                <Search size={22} color="#FF00FF" />
+                <TextInput
+                  className="ml-3 flex-1 text-base font-semibold text-white"
+                  placeholder="Αναζήτηση συσκευών..."
+                  placeholderTextColor="#666"
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  accessibilityLabel="Search devices"
+                />
+                {searchQuery.length > 0 && (
+                  <Pressable
+                    onPress={() => setSearchQuery("")}
+                    className="rounded-full bg-gray-700 p-2"
+                    style={{ minHeight: 36, minWidth: 36, alignItems: "center", justifyContent: "center" }}
+                    accessibilityRole="button"
+                    accessibilityLabel="Clear search"
+                  >
+                    <X size={16} color="#FFF" />
+                  </Pressable>
+                )}
+              </LinearGradient>
+            </View>
+
+            {/* Category Filters */}
+            <View className="mb-4">
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: padding }}
+                style={{ flexGrow: 0 }}
+              >
+                {categories.map((category) => {
+                  const Icon = category.icon;
+                  const isSelected = selectedCategory === category.id;
+                  return (
+                    <Pressable
+                      key={category.id}
+                      onPress={() => setSelectedCategory(category.id)}
+                      className="mr-3 overflow-hidden rounded-full"
+                      style={{
+                        borderWidth: 2,
+                        borderColor: isSelected ? category.color : "#333",
+                        minHeight: 44,
+                      }}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Filter by ${category.name}`}
+                      accessibilityState={{ selected: isSelected }}
+                    >
+                      <LinearGradient
+                        colors={isSelected ? [category.color, category.color] : ["#1a1a2e", "#0f0f23"]}
+                        style={{ flexDirection: "row", alignItems: "center", paddingHorizontal: 16, paddingVertical: 10 }}
+                      >
+                        <Icon size={18} color={isSelected ? "#000" : "#888"} />
+                        <Text
+                          className={`ml-2 text-sm font-bold uppercase ${
+                            isSelected ? "text-black" : "text-gray-400"
+                          }`}
+                        >
+                          {category.name}
+                        </Text>
+                      </LinearGradient>
+                    </Pressable>
+                  );
+                })}
+              </ScrollView>
+            </View>
+
+            {/* Verified Only Filter */}
+            <View style={{ marginHorizontal: padding, marginBottom: 16 }}>
+              <Pressable
+                onPress={() => setVerifiedOnly(!verifiedOnly)}
+                className="flex-row items-center overflow-hidden rounded-xl"
+                style={{ borderWidth: 2, borderColor: verifiedOnly ? "#00FF88" : "#333", minHeight: 44 }}
+                accessibilityRole="checkbox"
+                accessibilityLabel="Show verified listings only"
+                accessibilityState={{ checked: verifiedOnly }}
+              >
+                <LinearGradient
+                  colors={verifiedOnly ? ["#00FF8820", "#0f0f23"] : ["#1a1a2e", "#0f0f23"]}
+                  style={{ flex: 1, flexDirection: "row", alignItems: "center", paddingHorizontal: 14, paddingVertical: 10 }}
+                >
+                  <Shield size={18} color={verifiedOnly ? "#00FF88" : "#666"} />
+                  <Text className={`ml-2 text-sm font-bold ${verifiedOnly ? "text-emerald-400" : "text-gray-500"}`}>
+                    Μόνο πιστοποιημένα / Verified only
+                  </Text>
+                </LinearGradient>
+              </Pressable>
+            </View>
+          </View>
+
+          {/* Results */}
+          <View style={{ paddingHorizontal: padding }}>
+            {isLoading ? (
+              <View
+                className="flex-row flex-wrap"
+                style={{ gap: gridGap, justifyContent: gridColumns > 2 ? "flex-start" : "space-between" }}
+              >
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <SkeletonCard
+                    key={i}
+                    width={gridColumns > 2 ? gridItemWidth : "48%"}
+                  />
+                ))}
+              </View>
+            ) : data?.listings && data.listings.length > 0 ? (
+              <>
+                <View className="mb-4 flex-row items-center">
+                  <View className="mr-2 h-2 w-2 rounded-full bg-fuchsia-500" />
+                  <Text className="text-base font-bold text-gray-400">
+                    {data.total} {data.total === 1 ? "αποτέλεσμα" : "αποτελέσματα"}
+                  </Text>
+                </View>
+                <View
+                  className="flex-row flex-wrap pb-8"
+                  style={{ gap: gridGap, justifyContent: gridColumns > 2 ? "flex-start" : "space-between" }}
+                >
+                  {data.listings.map((listing: Listing) => (
+                    <ListingCard
+                      key={listing.id}
+                      listing={listing}
+                      width={gridColumns > 2 ? gridItemWidth : "48%"}
+                    />
+                  ))}
+                </View>
+              </>
+            ) : (
+              <View className="items-center justify-center py-20">
+                <View className="mb-4 rounded-3xl bg-gray-800/50 p-6">
+                  <Search size={56} color="#666" />
+                </View>
+                <Text className="mt-4 text-xl font-black text-white">
+                  Δεν βρέθηκαν αγγελίες
+                </Text>
+                <Text className="mt-2 text-center text-base font-medium text-gray-500">
+                  Δοκίμασε διαφορετικά φίλτρα ή αναζήτηση
+                </Text>
+              </View>
+            )}
+          </View>
         </ScrollView>
       </SafeAreaView>
     </View>

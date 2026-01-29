@@ -6,7 +6,8 @@ import {
   Pressable,
   Image,
   RefreshControl,
-  Dimensions,
+  Platform,
+  DimensionValue,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
@@ -26,9 +27,15 @@ import {
 import { api } from "@/lib/api";
 import { type GetListingsResponse, type Listing } from "@/shared/contracts";
 import { isListingVerified } from "@/lib/verification";
-
-const { width } = Dimensions.get("window");
-const CARD_WIDTH = width * 0.75;
+import {
+  useDimensions,
+  useGridColumns,
+  getCardWidth,
+  useResponsiveValue,
+  getResponsivePadding,
+  useMaxContentWidth,
+  isWeb,
+} from "@/lib/responsive";
 
 const categories = [
   { id: "phone", name: "ΚΙΝΗΤΑ", icon: Smartphone, color: "#FF00FF", bgColor: "#FF00FF20" },
@@ -44,7 +51,42 @@ const conditionLabels: Record<string, { label: string; color: string }> = {
   fair: { label: "Μέτριο", color: "#FF6B6B" },
 };
 
-function FeaturedListingCard({ listing }: { listing: Listing }) {
+function SkeletonCard({ width }: { width: number }) {
+  return (
+    <View
+      className="mr-4 overflow-hidden rounded-3xl"
+      style={{ width }}
+    >
+      <LinearGradient colors={["#1a1a2e", "#16213e"]} style={{ borderRadius: 24 }}>
+        <View className="h-48 w-full animate-pulse bg-gray-700/50" style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24 }} />
+        <View className="p-5">
+          <View className="mb-3 h-6 w-24 rounded-full bg-gray-700/50" />
+          <View className="mb-2 h-6 w-full rounded bg-gray-700/50" />
+          <View className="h-8 w-20 rounded bg-gray-700/50" />
+        </View>
+      </LinearGradient>
+    </View>
+  );
+}
+
+function SkeletonGridCard() {
+  return (
+    <View
+      className="mb-4 overflow-hidden rounded-2xl"
+      style={{ width: "48%", borderWidth: 2, borderColor: "#333" }}
+    >
+      <LinearGradient colors={["#1a1a2e", "#0f0f23"]}>
+        <View className="h-32 w-full bg-gray-700/50" />
+        <View className="p-4">
+          <View className="mb-2 h-4 w-full rounded bg-gray-700/50" />
+          <View className="h-6 w-16 rounded bg-gray-700/50" />
+        </View>
+      </LinearGradient>
+    </View>
+  );
+}
+
+function FeaturedListingCard({ listing, cardWidth }: { listing: Listing; cardWidth: number }) {
   const router = useRouter();
   const condition = conditionLabels[listing.condition] ?? conditionLabels.good;
 
@@ -52,7 +94,9 @@ function FeaturedListingCard({ listing }: { listing: Listing }) {
     <Pressable
       onPress={() => router.push(`/listing/${listing.id}` as Href)}
       className="mr-4 overflow-hidden rounded-3xl"
-      style={{ width: CARD_WIDTH }}
+      style={{ width: cardWidth }}
+      accessibilityRole="button"
+      accessibilityLabel={`${listing.title}, €${listing.price}, ${condition.label}`}
     >
       <LinearGradient
         colors={["#1a1a2e", "#16213e"]}
@@ -63,11 +107,12 @@ function FeaturedListingCard({ listing }: { listing: Listing }) {
           className="h-48 w-full"
           style={{ borderTopLeftRadius: 24, borderTopRightRadius: 24 }}
           resizeMode="cover"
+          accessibilityLabel={`Image of ${listing.title}`}
         />
         <View className="p-5">
-          <View className="mb-3 flex-row items-center">
+          <View className="mb-3 flex-row flex-wrap items-center gap-2">
             <View
-              className="mr-2 rounded-full px-3 py-1.5"
+              className="rounded-full px-3 py-1.5"
               style={{ backgroundColor: `${condition.color}25`, borderWidth: 1, borderColor: condition.color }}
             >
               <Text style={{ color: condition.color }} className="text-xs font-bold uppercase">
@@ -87,7 +132,7 @@ function FeaturedListingCard({ listing }: { listing: Listing }) {
               </View>
             )}
           </View>
-          <Text className="text-xl font-extrabold text-white" numberOfLines={1}>
+          <Text className="text-xl font-extrabold text-white" numberOfLines={2}>
             {listing.title}
           </Text>
           <Text className="mt-2 text-3xl font-black text-fuchsia-400">
@@ -117,11 +162,13 @@ function CategoryCard({
     <Pressable
       onPress={() => router.push({ pathname: "/browse", params: { category: category.id } } as Href)}
       className="mr-4 items-center overflow-hidden rounded-2xl"
-      style={{ borderWidth: 2, borderColor: category.color }}
+      style={{ borderWidth: 2, borderColor: category.color, minWidth: 110 }}
+      accessibilityRole="button"
+      accessibilityLabel={`Browse ${category.name}`}
     >
       <LinearGradient
         colors={["#1a1a2e", "#0f0f23"]}
-        style={{ paddingHorizontal: 28, paddingVertical: 20, alignItems: "center" }}
+        style={{ paddingHorizontal: 28, paddingVertical: 20, alignItems: "center", width: "100%" }}
       >
         <View
           className="mb-3 rounded-2xl p-4"
@@ -135,15 +182,71 @@ function CategoryCard({
   );
 }
 
+function RecentListingCard({ listing, width }: { listing: Listing; width: DimensionValue }) {
+  const router = useRouter();
+  const condition = conditionLabels[listing.condition] ?? conditionLabels.good;
+
+  return (
+    <Pressable
+      onPress={() => router.push(`/listing/${listing.id}` as Href)}
+      className="mb-4 overflow-hidden rounded-2xl"
+      style={{ width, borderWidth: 2, borderColor: "#333" }}
+      accessibilityRole="button"
+      accessibilityLabel={`${listing.title}, €${listing.price}`}
+    >
+      <LinearGradient colors={["#1a1a2e", "#0f0f23"]}>
+        <Image
+          source={{
+            uri:
+              listing.images[0] ??
+              "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400",
+          }}
+          className="h-32 w-full"
+          resizeMode="cover"
+          accessibilityLabel={`Image of ${listing.title}`}
+        />
+        <View className="p-4">
+          <Text
+            className="text-sm font-bold text-white"
+            numberOfLines={1}
+          >
+            {listing.title}
+          </Text>
+          <Text className="mt-2 text-xl font-black text-fuchsia-400">
+            €{listing.price.toFixed(0)}
+          </Text>
+        </View>
+      </LinearGradient>
+    </Pressable>
+  );
+}
+
 export default function HomeScreen() {
   const router = useRouter();
+  const { width } = useDimensions();
+  const gridColumns = useGridColumns(2);
+  const maxContentWidth = useMaxContentWidth();
+  const padding = getResponsivePadding();
+  const cardWidth = getCardWidth(0.75);
+
+  // Responsive header font size
+  const headerFontSize = useResponsiveValue({
+    default: 32,
+    lg: 36,
+    xl: 40,
+  });
+
+  // Calculate grid item width
+  const gridGap = 16;
+  const availableWidth = maxContentWidth ?? width;
+  const gridItemWidth = `${((availableWidth - padding * 2 - gridGap * (gridColumns - 1)) / gridColumns / availableWidth) * 100}%`;
 
   const { data, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ["listings", "featured"],
     queryFn: () => api.get<GetListingsResponse>("/api/listings?featured=true&limit=10"),
   });
 
-  const { data: recentData } = useQuery({
+  const { data: recentData, isLoading: isLoadingRecent } = useQuery({
     queryKey: ["listings", "recent"],
     queryFn: () => api.get<GetListingsResponse>("/api/listings?limit=6"),
   });
@@ -164,12 +267,23 @@ export default function HomeScreen() {
               tintColor="#FF00FF"
             />
           }
+          contentContainerStyle={{
+            maxWidth: maxContentWidth,
+            alignSelf: maxContentWidth ? "center" : undefined,
+            width: maxContentWidth ? "100%" : undefined,
+          }}
         >
           {/* Header */}
-          <View className="px-5 pb-6 pt-4">
+          <View style={{ paddingHorizontal: padding, paddingBottom: 24, paddingTop: 16 }}>
             <View className="flex-row items-center">
               <Zap size={28} color="#FF00FF" fill="#FF00FF" />
-              <Text className="ml-2 text-4xl font-black text-white">Mobile Unit</Text>
+              <Text
+                className="ml-2 font-black text-white"
+                style={{ fontSize: headerFontSize }}
+                accessibilityRole="header"
+              >
+                Mobile Unit
+              </Text>
             </View>
             <Text className="mt-2 text-lg font-semibold text-gray-400">
               Αγορά & Πώληση συσκευών στην Ελλάδα
@@ -179,8 +293,10 @@ export default function HomeScreen() {
           {/* iRepair Rhodes Banner */}
           <Pressable
             onPress={() => router.push("/stores" as Href)}
-            className="mx-5 mb-8 overflow-hidden rounded-3xl"
-            style={{ borderWidth: 2, borderColor: "#00FF88" }}
+            className="mb-8 overflow-hidden rounded-3xl"
+            style={{ marginHorizontal: padding, borderWidth: 2, borderColor: "#00FF88" }}
+            accessibilityRole="button"
+            accessibilityLabel="Visit iRepair Rhodes for device certification"
           >
             <LinearGradient
               colors={["#00FF88", "#00CC6A"]}
@@ -205,13 +321,15 @@ export default function HomeScreen() {
 
           {/* Categories */}
           <View className="mb-8">
-            <View className="mb-5 flex-row items-center justify-between px-5">
-              <Text className="text-2xl font-black uppercase tracking-wider text-white">ΚΑΤΗΓΟΡΙΕΣ</Text>
+            <View className="mb-5 flex-row items-center justify-between" style={{ paddingHorizontal: padding }}>
+              <Text className="text-2xl font-black uppercase tracking-wider text-white" accessibilityRole="header">
+                ΚΑΤΗΓΟΡΙΕΣ
+              </Text>
             </View>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 20 }}
+              contentContainerStyle={{ paddingHorizontal: padding }}
               style={{ flexGrow: 0 }}
             >
               {categories.map((category) => (
@@ -222,15 +340,19 @@ export default function HomeScreen() {
 
           {/* Featured Listings */}
           <View className="mb-8">
-            <View className="mb-5 flex-row items-center justify-between px-5">
+            <View className="mb-5 flex-row items-center justify-between" style={{ paddingHorizontal: padding }}>
               <View className="flex-row items-center">
                 <Sparkles size={22} color="#FFD700" />
-                <Text className="ml-2 text-2xl font-black uppercase tracking-wider text-white">ΠΡΟΤΕΙΝΟΜΕΝΑ</Text>
+                <Text className="ml-2 text-2xl font-black uppercase tracking-wider text-white" accessibilityRole="header">
+                  ΠΡΟΤΕΙΝΟΜΕΝΑ
+                </Text>
               </View>
               <Pressable
                 onPress={() => router.push("/browse" as Href)}
                 className="flex-row items-center rounded-full bg-fuchsia-500/20 px-4 py-2"
-                style={{ borderWidth: 1, borderColor: "#FF00FF" }}
+                style={{ borderWidth: 1, borderColor: "#FF00FF", minHeight: 44, minWidth: 44 }}
+                accessibilityRole="button"
+                accessibilityLabel="View all listings"
               >
                 <Text className="mr-1 text-sm font-bold uppercase text-fuchsia-400">
                   ΟΛΑ
@@ -239,22 +361,29 @@ export default function HomeScreen() {
               </Pressable>
             </View>
             {isLoading ? (
-              <View className="h-64 items-center justify-center">
-                <Text className="text-lg font-bold text-gray-500">Φόρτωση...</Text>
-              </View>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: padding }}
+                style={{ flexGrow: 0 }}
+              >
+                {[1, 2, 3].map((i) => (
+                  <SkeletonCard key={i} width={cardWidth} />
+                ))}
+              </ScrollView>
             ) : data?.listings && data.listings.length > 0 ? (
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingHorizontal: 20 }}
+                contentContainerStyle={{ paddingHorizontal: padding }}
                 style={{ flexGrow: 0 }}
               >
                 {data.listings.map((listing: Listing) => (
-                  <FeaturedListingCard key={listing.id} listing={listing} />
+                  <FeaturedListingCard key={listing.id} listing={listing} cardWidth={cardWidth} />
                 ))}
               </ScrollView>
             ) : (
-              <View className="mx-5 overflow-hidden rounded-3xl" style={{ borderWidth: 2, borderColor: "#333" }}>
+              <View className="overflow-hidden rounded-3xl" style={{ marginHorizontal: padding, borderWidth: 2, borderColor: "#333" }}>
                 <LinearGradient
                   colors={["#1a1a2e", "#0f0f23"]}
                   style={{ padding: 32, alignItems: "center" }}
@@ -266,7 +395,9 @@ export default function HomeScreen() {
                   <Pressable
                     onPress={() => router.push("/sell" as Href)}
                     className="mt-6 overflow-hidden rounded-full"
-                    style={{ borderWidth: 2, borderColor: "#FF00FF" }}
+                    style={{ borderWidth: 2, borderColor: "#FF00FF", minHeight: 48 }}
+                    accessibilityRole="button"
+                    accessibilityLabel="Create a listing"
                   >
                     <LinearGradient
                       colors={["#FF00FF", "#CC00CC"]}
@@ -281,13 +412,17 @@ export default function HomeScreen() {
           </View>
 
           {/* Recent Listings */}
-          <View className="mb-8 px-5">
+          <View className="mb-8" style={{ paddingHorizontal: padding }}>
             <View className="mb-5 flex-row items-center justify-between">
-              <Text className="text-2xl font-black uppercase tracking-wider text-white">ΠΡΟΣΦΑΤΑ</Text>
+              <Text className="text-2xl font-black uppercase tracking-wider text-white" accessibilityRole="header">
+                ΠΡΟΣΦΑΤΑ
+              </Text>
               <Pressable
                 onPress={() => router.push("/browse" as Href)}
                 className="flex-row items-center rounded-full bg-emerald-500/20 px-4 py-2"
-                style={{ borderWidth: 1, borderColor: "#00FF88" }}
+                style={{ borderWidth: 1, borderColor: "#00FF88", minHeight: 44, minWidth: 44 }}
+                accessibilityRole="button"
+                accessibilityLabel="View all recent listings"
               >
                 <Text className="mr-1 text-sm font-bold uppercase text-emerald-400">
                   ΟΛΑ
@@ -295,40 +430,23 @@ export default function HomeScreen() {
                 <ChevronRight size={16} color="#00FF88" />
               </Pressable>
             </View>
-            {recentData?.listings && recentData.listings.length > 0 ? (
+            {isLoadingRecent ? (
               <View className="flex-row flex-wrap justify-between">
+                {[1, 2, 3, 4].map((i) => (
+                  <SkeletonGridCard key={i} />
+                ))}
+              </View>
+            ) : recentData?.listings && recentData.listings.length > 0 ? (
+              <View
+                className="flex-row flex-wrap"
+                style={{ gap: gridGap, justifyContent: gridColumns > 2 ? "flex-start" : "space-between" }}
+              >
                 {recentData.listings.map((listing: Listing) => (
-                  <Pressable
+                  <RecentListingCard
                     key={listing.id}
-                    onPress={() => router.push(`/listing/${listing.id}` as Href)}
-                    className="mb-4 w-[48%] overflow-hidden rounded-2xl"
-                    style={{ borderWidth: 2, borderColor: "#333" }}
-                  >
-                    <LinearGradient
-                      colors={["#1a1a2e", "#0f0f23"]}
-                    >
-                      <Image
-                        source={{
-                          uri:
-                            listing.images[0] ??
-                            "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400",
-                        }}
-                        className="h-32 w-full"
-                        resizeMode="cover"
-                      />
-                      <View className="p-4">
-                        <Text
-                          className="text-sm font-bold text-white"
-                          numberOfLines={1}
-                        >
-                          {listing.title}
-                        </Text>
-                        <Text className="mt-2 text-xl font-black text-fuchsia-400">
-                          €{listing.price.toFixed(0)}
-                        </Text>
-                      </View>
-                    </LinearGradient>
-                  </Pressable>
+                    listing={listing}
+                    width={gridColumns > 2 ? (availableWidth - padding * 2 - gridGap * (gridColumns - 1)) / gridColumns : "48%"}
+                  />
                 ))}
               </View>
             ) : (

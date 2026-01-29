@@ -2,6 +2,13 @@
 
 Μια marketplace εφαρμογη για αγορα και πωληση κινητων τηλεφωνων, tablets, laptops και αξεσουαρ στην Ελλαδα.
 
+## Web App
+
+Η εφαρμογη ειναι διαθεσιμη ως PWA (Progressive Web App):
+- **Web URL**: Accessible via Vibecode preview
+- **PWA Support**: Μπορεις να την "εγκαταστησεις" στην αρχικη οθονη
+- **Responsive**: Λειτουργει σε ολες τις συσκευες (mobile, tablet, desktop)
+
 ## Χαρακτηριστικα
 
 ### Onboarding & City Gate
@@ -10,6 +17,14 @@
 - **City Gate** - Επιλογη πολης με Rhodes διαθεσιμο τωρα
 - **Language Toggle** - EL/EN visible σε ολες τις onboarding οθονες (top-right)
 - **Demo Mode** - Περιηγηση αγγελιων για μη-eligible πολεις (actions locked)
+
+### AI Assistant (Οδηγος Αγορων)
+- **Floating Chat Button** - Διαθεσιμος σε ολες τις οθονες
+- **Buyer's Guide** - Προτασεις συσκευων αναλογα με budget
+- **Pricing Help** - Βοηθεια τιμολογησης για πωλητες
+- **Safety Tips** - Συμβουλες ασφαλειας
+- **Bilingual** - Υποστηριζει EL/EN
+- **Context-Aware** - Γνωριζει σε ποια σελιδα βρισκεσαι
 
 ### Waitlist System
 - **Waitlist Signup** - Email, city, country, interest type (buyer/seller/both)
@@ -68,6 +83,17 @@
 
 ## Ασφαλεια & Moderation
 
+### Rate Limiting
+- Standard: 100 requests/minute για γενικα endpoints
+- Strict: 10 requests/minute για auth και sensitive endpoints
+- Per-user και per-IP tracking
+
+### Input Sanitization
+- XSS prevention με HTML escaping
+- SQL injection detection
+- URL validation
+- Deep object sanitization
+
 ### Anti-Scam Chat
 - Αυτοματος αποκλεισμος URLs, shortlinks, off-platform patterns
 - Ανιχνευση image spam (οριο: 3 εικονες/λεπτο)
@@ -108,6 +134,12 @@
 - **Επισημανση**: Gold (#FFD700)
 - **Φοντο**: Deep Black με dark gradients
 
+### Responsive Design
+- **Mobile-first**: Βελτιστοποιημενο για κινητα
+- **Tablet**: Προσαρμοσμενα grids (3+ columns)
+- **Desktop/Web**: Centered layout με max-width 1024px
+- **Dynamic scaling**: Fonts και paddings προσαρμοζονται
+
 ### Premium Animation System
 Η εφαρμογη εχει Apple-level motion design με:
 - **Consistent Timing**: Micro (120ms), Small (200ms), Medium (280ms), Page (360ms)
@@ -115,11 +147,19 @@
 - **Reduce Motion Support**: Σεβεται την προσβασιμοτητα iOS/Android
 - **Staggered Animations**: 50ms μεταξυ στοιχειων για cascade effect
 - **Haptic Feedback**: Light/Medium feedback σε ολα τα interactions
+- **Skeleton Loaders**: Premium loading states
+
+### Accessibility
+- WCAG AA compliant color contrast
+- accessibilityRole και accessibilityLabel σε ολα τα interactive elements
+- Minimum touch target 44x44pt
 
 ### Animation Files
 - `src/lib/animations.ts` - Animation utilities, timing, easing, hooks
+- `src/lib/responsive.ts` - Responsive breakpoints και utilities
 - `src/components/LanguageTogglePill.tsx` - Animated language toggle pill
 - `src/components/AnimatedButton.tsx` - Premium animated button component
+- `src/components/AssistantChat.tsx` - AI chatbot component
 
 ## Tech Stack
 
@@ -129,6 +169,7 @@
 - **State**: React Query + Zustand
 - **Backend**: Hono + Prisma + SQLite
 - **Auth**: Better Auth
+- **Animations**: react-native-reanimated v3
 
 ## Δομη Εφαρμογης
 
@@ -136,10 +177,12 @@
 src/
 ├── app/
 │   ├── (tabs)/
-│   │   ├── index.tsx      # Αρχικη οθονη (+ LAPTOPS category)
+│   │   ├── _layout.tsx    # Tab layout + AI Assistant
+│   │   ├── index.tsx      # Αρχικη οθονη
 │   │   ├── browse.tsx     # Αναζητηση αγγελιων
 │   │   ├── sell.tsx       # Δημιουργια αγγελιας
 │   │   └── profile.tsx    # Προφιλ χρηστη
+│   ├── +html.tsx          # PWA meta tags
 │   ├── onboarding.tsx     # Welcome + Carousel + City Gate
 │   ├── waitlist.tsx       # Waitlist signup form
 │   ├── waitlist-success.tsx # Success + referral share
@@ -152,6 +195,7 @@ src/
 │   ├── support.tsx        # Υποστηριξη
 │   └── login.tsx          # Συνδεση/Εγγραφη
 ├── components/
+│   ├── AssistantChat.tsx       # AI chatbot (buyer's guide)
 │   ├── LanguageToggle.tsx      # EL/EN toggle (normal + compact)
 │   ├── LanguageTogglePill.tsx  # Floating pill toggle (premium)
 │   ├── AnimatedButton.tsx      # Premium animated button
@@ -160,36 +204,44 @@ src/
 ├── lib/
 │   ├── api.ts             # API client
 │   ├── animations.ts      # Premium animation system
+│   ├── responsive.ts      # Responsive utilities
 │   ├── languageStore.ts   # i18n store (Greek ALL CAPS no accents)
 │   ├── onboardingStore.ts # Onboarding state + city data
 │   ├── constants.ts       # Pricing bands, URLs
 │   └── cityStore.ts       # City selection
-└── shared/
-    └── contracts.ts       # API types
+├── shared/
+│   └── contracts.ts       # API types
+└── public/
+    └── manifest.json      # PWA manifest
 ```
 
-## Backend Schema
+## Backend
 
 ```
-backend/prisma/schema.prisma
-
-Models:
-- User (fraud score, restricted mode, trust events, onboarding flags)
-- WaitlistSignup (email, city, country, referral code, referral count)
-- Listing (status workflow, grade, fraud score)
-- Message (moderation, flags)
-- Store (V1: Rhodes 2 points, multi-store ready)
-- Staff (roles: super_admin, admin, store_manager, moderator)
-- Inspection (grade A/B/C/D + checklist)
-- Token (TTL 72h, rotation 60s, active after admin approval)
-- Appointment (status workflow, diagnostic redeemed)
-- AuditLog (all admin actions)
-- AutoActionLog (auto-moderation history)
-- GradeConfig (admin-configurable multipliers)
-- ModerationConfig (thresholds, cooldowns)
+backend/
+├── src/
+│   ├── routes/
+│   │   ├── assistant.ts   # AI chatbot API
+│   │   ├── listings.ts    # Listings CRUD
+│   │   ├── messages.ts    # Chat messages
+│   │   ├── waitlist.ts    # Waitlist signup
+│   │   └── users.ts       # User management
+│   ├── lib/
+│   │   ├── rate-limiter.ts   # Rate limiting middleware
+│   │   ├── sanitize.ts       # Input sanitization
+│   │   ├── fraud-scoring.ts  # Fraud detection
+│   │   └── chat-moderation.ts # Chat anti-scam
+│   ├── auth.ts            # Better Auth config
+│   └── index.ts           # Hono app
+└── prisma/
+    └── schema.prisma      # Database schema
 ```
 
 ## API Endpoints
+
+### Assistant
+- `POST /api/assistant/chat` - Send message to AI assistant
+- `GET /api/assistant/suggestions` - Get contextual suggestions
 
 ### Waitlist
 - `POST /api/waitlist` - Signup for waitlist
@@ -200,6 +252,12 @@ Models:
 - `GET /api/users/me` - Get current user info
 - `PATCH /api/users/onboarding` - Update onboarding status
 
+### Listings
+- `GET /api/listings` - List all listings
+- `POST /api/listings` - Create new listing
+- `GET /api/listings/:id` - Get listing details
+- `POST /api/listings/:id/report` - Report listing
+
 ## Σχεδιο Μελλοντικης Αναπτυξης
 
 1. **Web Admin Dashboard** - RBAC για διαχειριση (REQUIRED)
@@ -207,3 +265,4 @@ Models:
 3. **City Expansion** - Αθηνα, Θεσσαλονικη κ.λπ.
 4. **Push Notifications** - Chat messages, price drops
 5. **Partner Stores** - Lead fees, monthly statements
+6. **OpenAI Integration** - Advanced AI assistant με real API

@@ -13,8 +13,10 @@ import { messagesRouter } from "./routes/messages";
 import { appointmentsRouter } from "./routes/appointments";
 import { waitlistRouter } from "./routes/waitlist";
 import { usersRouter } from "./routes/users";
+import { assistantRouter } from "./routes/assistant";
 import { type AppType } from "./types";
 import { db } from "./db";
+import { standardRateLimiter, strictRateLimiter } from "./lib/rate-limiter";
 
 // AppType context adds user and session to the context, will be null if the user or session is null
 const app = new Hono<AppType>();
@@ -86,6 +88,11 @@ app.route("/api/waitlist", waitlistRouter);
 
 console.log("👤 Mounting users routes at /api/users");
 app.route("/api/users", usersRouter);
+
+// AI Assistant routes with rate limiting
+console.log("🤖 Mounting assistant routes at /api/assistant");
+app.use("/api/assistant/*", standardRateLimiter);
+app.route("/api/assistant", assistantRouter);
 
 // Health check endpoint
 // Used by load balancers and monitoring tools to verify service is running

@@ -38,18 +38,14 @@ import {
   useMaxContentWidth,
   useResponsiveValue,
 } from "@/lib/responsive";
+import { useTranslation } from "@/lib/languageStore";
+import { CONDITIONS, type ConditionKey, normalizeConditionKey } from "@/lib/conditions";
 
-const conditionLabels: Record<string, { label: string; color: string; description: string }> = {
-  new: { label: "Καινούργιο", color: "#00FF88", description: "Αχρησιμοποίητο, στην αρχική συσκευασία" },
-  like_new: { label: "Σαν Καινούργιο", color: "#00BFFF", description: "Ελάχιστη χρήση, άριστη κατάσταση" },
-  good: { label: "Καλό", color: "#FFD700", description: "Μικρά σημάδια χρήσης" },
-  fair: { label: "Μέτριο", color: "#FF6B6B", description: "Φανερή χρήση, πλήρως λειτουργικό" },
-};
-
-const categoryLabels: Record<string, string> = {
-  phone: "Κινητό",
-  tablet: "Tablet",
-  accessory: "Αξεσουάρ",
+const categoryLabels: Record<string, { el: string; en: string }> = {
+  phone: { el: "Κινητό", en: "Phone" },
+  tablet: { el: "Tablet", en: "Tablet" },
+  laptop: { el: "Laptop", en: "Laptop" },
+  accessory: { el: "Αξεσουάρ", en: "Accessory" },
 };
 
 function SkeletonDetail() {
@@ -74,6 +70,7 @@ export default function ListingDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
   const viewerCity = useCityStore((s) => s.defaultCity);
+  const { t, language } = useTranslation();
 
   const { width } = useDimensions();
   const maxContentWidth = useMaxContentWidth();
@@ -95,17 +92,24 @@ export default function ListingDetailScreen() {
     enabled: !!id,
   });
 
-  const condition = listing ? conditionLabels[listing.condition] ?? conditionLabels.good : conditionLabels.good;
+  // Get condition data from centralized CONDITIONS
+  const conditionKey = listing ? normalizeConditionKey(listing.condition) : "good";
+  const conditionData = CONDITIONS[conditionKey];
+  const conditionLabel = t(conditionData.translationKey as any);
+  const conditionDescription = t(conditionData.descriptionKey as any);
 
   const handleContact = () => {
     if (listing?.seller?.email) {
-      Linking.openURL(`mailto:${listing.seller.email}?subject=Ενδιαφέρομαι για ${listing.title}`);
+      const subject = language === "el"
+        ? `Ενδιαφέρομαι για ${listing.title}`
+        : `Interested in ${listing.title}`;
+      Linking.openURL(`mailto:${listing.seller.email}?subject=${encodeURIComponent(subject)}`);
     }
   };
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("el-GR", {
+    return date.toLocaleDateString(language === "el" ? "el-GR" : "en-US", {
       day: "numeric",
       month: "short",
       year: "numeric",
@@ -134,23 +138,23 @@ export default function ListingDetailScreen() {
     mutationFn: () => api.post(`/api/listings/${id}/report`, {}),
     onSuccess: () => {
       Alert.alert(
-        "Αναφορά Υποβλήθηκε",
-        "Ευχαριστούμε για την αναφορά. Θα εξετάσουμε την αγγελία.\n\nReport submitted. We'll review this listing.",
+        t("report_submitted"),
+        t("report_submitted_desc"),
         [{ text: "OK" }]
       );
     },
     onError: () => {
-      Alert.alert("Σφάλμα", "Δοκιμάστε ξανά αργότερα.");
+      Alert.alert(t("error"), language === "el" ? "Δοκιμάστε ξανά αργότερα." : "Please try again later.");
     },
   });
 
   const handleReport = () => {
     Alert.alert(
-      "Αναφορά Αγγελίας",
-      "Θέλετε να αναφέρετε αυτή την αγγελία ως ύποπτη;\n\nReport this listing as suspicious?",
+      t("report_listing"),
+      t("report_confirm"),
       [
-        { text: "Άκυρο", style: "cancel" },
-        { text: "Αναφορά", style: "destructive", onPress: () => reportMutation.mutate() },
+        { text: t("cancel"), style: "cancel" },
+        { text: language === "el" ? "Αναφορά" : "Report", style: "destructive", onPress: () => reportMutation.mutate() },
       ]
     );
   };
@@ -167,7 +171,7 @@ export default function ListingDetailScreen() {
           style={{ position: "absolute", left: 0, right: 0, top: 0, bottom: 0 }}
         />
         <SafeAreaView className="flex-1 items-center justify-center px-8">
-          <Text className="text-xl font-black text-white">Η αγγελία δεν βρέθηκε</Text>
+          <Text className="text-xl font-black text-white">{t("listing_not_found")}</Text>
           <Pressable
             onPress={() => router.back()}
             className="mt-6 overflow-hidden rounded-full"
@@ -179,7 +183,7 @@ export default function ListingDetailScreen() {
               colors={["#FF00FF", "#CC00CC"]}
               style={{ paddingHorizontal: 32, paddingVertical: 16 }}
             >
-              <Text className="font-black uppercase text-white">Πίσω</Text>
+              <Text className="font-black uppercase text-white">{t("back")}</Text>
             </LinearGradient>
           </Pressable>
         </SafeAreaView>
@@ -278,15 +282,15 @@ export default function ListingDetailScreen() {
             <View className="mb-3 flex-row flex-wrap items-center gap-2">
               <View
                 className="rounded-full px-4 py-2"
-                style={{ backgroundColor: `${condition.color}20`, borderWidth: 1, borderColor: condition.color }}
+                style={{ backgroundColor: `${conditionData.color}20`, borderWidth: 1, borderColor: conditionData.color }}
               >
-                <Text style={{ color: condition.color }} className="text-sm font-bold uppercase">
-                  {condition.label}
+                <Text style={{ color: conditionData.color }} className="text-sm font-bold uppercase">
+                  {conditionLabel}
                 </Text>
               </View>
               <View className="rounded-full bg-gray-800 px-3 py-2">
                 <Text className="text-sm font-bold text-gray-400">
-                  {categoryLabels[listing.category] ?? listing.category}
+                  {categoryLabels[listing.category]?.[language] ?? listing.category}
                 </Text>
               </View>
             </View>
@@ -302,7 +306,7 @@ export default function ListingDetailScreen() {
           <View className="mb-5 flex-row flex-wrap gap-2">
             <View className="flex-row items-center rounded-full px-3 py-2" style={{ backgroundColor: "#FF00FF20" }}>
               <MapPin size={16} color="#FF00FF" />
-              <Text className="ml-2 text-sm font-bold text-fuchsia-400">ΠΑΡΑΛΑΒΗ ΜΟΝΟ</Text>
+              <Text className="ml-2 text-sm font-bold text-fuchsia-400">{t("pickup_only")}</Text>
             </View>
             {listing.location && (
               <View className="flex-row items-center rounded-full bg-gray-800 px-3 py-2">
@@ -312,7 +316,7 @@ export default function ListingDetailScreen() {
             )}
             <View className="flex-row items-center rounded-full bg-gray-800 px-3 py-2">
               <Eye size={16} color="#00FF88" />
-              <Text className="ml-2 text-sm font-semibold text-gray-300">{listing.views} προβολές</Text>
+              <Text className="ml-2 text-sm font-semibold text-gray-300">{listing.views} {t("views")}</Text>
             </View>
             <View className="flex-row items-center rounded-full bg-gray-800 px-3 py-2">
               <Calendar size={16} color="#FFD700" />
@@ -331,13 +335,13 @@ export default function ListingDetailScreen() {
               >
                 {listing.brand && (
                   <View className="flex-1">
-                    <Text className="text-xs font-bold uppercase tracking-wider text-gray-500">Μάρκα</Text>
+                    <Text className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("brand_label")}</Text>
                     <Text className="mt-1 text-base font-bold text-white">{listing.brand}</Text>
                   </View>
                 )}
                 {listing.model && (
                   <View className="flex-1">
-                    <Text className="text-xs font-bold uppercase tracking-wider text-gray-500">Μοντέλο</Text>
+                    <Text className="text-xs font-bold uppercase tracking-wider text-gray-500">{t("model_label")}</Text>
                     <Text className="mt-1 text-base font-bold text-white">{listing.model}</Text>
                   </View>
                 )}
@@ -346,24 +350,24 @@ export default function ListingDetailScreen() {
           )}
 
           {/* Condition Details */}
-          <View className="mb-5 overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: condition.color }}>
+          <View className="mb-5 overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: conditionData.color }}>
             <LinearGradient
               colors={["#1a1a2e", "#0f0f23"]}
               style={{ padding: 16 }}
             >
-              <Text className="mb-3 text-base font-bold uppercase tracking-wider text-white">Κατάσταση</Text>
+              <Text className="mb-3 text-base font-bold uppercase tracking-wider text-white">{t("condition")}</Text>
               <View className="flex-row items-center">
                 <View
                   className="mr-4 rounded-2xl p-3"
-                  style={{ backgroundColor: `${condition.color}20` }}
+                  style={{ backgroundColor: `${conditionData.color}20` }}
                 >
-                  <Shield size={24} color={condition.color} />
+                  <Shield size={24} color={conditionData.color} />
                 </View>
                 <View className="flex-1">
-                  <Text style={{ color: condition.color }} className="text-lg font-black">
-                    {condition.label}
+                  <Text style={{ color: conditionData.color }} className="text-lg font-black">
+                    {conditionLabel}
                   </Text>
-                  <Text className="mt-1 text-sm font-medium text-gray-400">{condition.description}</Text>
+                  <Text className="mt-1 text-sm font-medium text-gray-400">{conditionDescription}</Text>
                 </View>
               </View>
             </LinearGradient>
@@ -382,14 +386,14 @@ export default function ListingDetailScreen() {
                   </View>
                   <View className="flex-1">
                     <Text className="text-lg font-black text-emerald-400">
-                      Verified by {VERIFICATION_LABEL}
+                      {language === "el" ? "Πιστοποιημένο από" : "Verified by"} {VERIFICATION_LABEL}
                     </Text>
                     <Text className="mt-1 text-sm font-medium text-gray-400">
-                      Βαθμός: {gradeLabels[listing.grade]?.label ?? listing.grade} • Checklist ολοκληρώθηκε
+                      {language === "el" ? "Βαθμός" : "Grade"}: {gradeLabels[listing.grade]?.label ?? listing.grade} • {language === "el" ? "Checklist ολοκληρώθηκε" : "Checklist complete"}
                     </Text>
                     {listing.inspectionDate && (
                       <Text className="mt-1 text-xs font-medium text-gray-500">
-                        Ελέγχθηκε: {new Date(listing.inspectionDate).toLocaleDateString("el-GR")}
+                        {language === "el" ? "Ελέγχθηκε" : "Inspected"}: {new Date(listing.inspectionDate).toLocaleDateString(language === "el" ? "el-GR" : "en-US")}
                       </Text>
                     )}
                   </View>
@@ -400,7 +404,7 @@ export default function ListingDetailScreen() {
 
           {/* Description */}
           <View className="mb-5">
-            <Text className="mb-3 text-base font-bold uppercase tracking-wider text-white">Περιγραφή</Text>
+            <Text className="mb-3 text-base font-bold uppercase tracking-wider text-white">{t("description")}</Text>
             <View className="overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#333" }}>
               <LinearGradient
                 colors={["#1a1a2e", "#0f0f23"]}
@@ -435,10 +439,10 @@ export default function ListingDetailScreen() {
                   </View>
                   <View className="flex-1">
                     <Text className="text-lg font-black text-black">
-                      Βαθμολόγησε στο iRepair
+                      {t("grading_cta")}
                     </Text>
                     <Text className="mt-1 text-sm font-semibold text-black/70">
-                      Get graded at iRepair Rhodes
+                      {language === "el" ? "Βαθμολόγησε στο iRepair Ρόδος" : "Get graded at iRepair Rhodes"}
                     </Text>
                   </View>
                 </LinearGradient>
@@ -451,7 +455,7 @@ export default function ListingDetailScreen() {
                 accessibilityLabel="Book appointment online"
               >
                 <Text className="text-center text-sm font-bold text-gray-400">
-                  Ή κλείσε ραντεβού online →
+                  {language === "el" ? "Ή κλείσε ραντεβού online →" : "Or book appointment online →"}
                 </Text>
               </Pressable>
             </View>
@@ -464,7 +468,7 @@ export default function ListingDetailScreen() {
                 colors={["#1a1a2e", "#0f0f23"]}
                 style={{ padding: 16 }}
               >
-                <Text className="mb-3 text-base font-bold uppercase tracking-wider text-white">Πωλητής</Text>
+                <Text className="mb-3 text-base font-bold uppercase tracking-wider text-white">{t("seller_label")}</Text>
                 <View className="flex-row items-center">
                   <View
                     className="h-14 w-14 items-center justify-center rounded-full"
@@ -482,10 +486,10 @@ export default function ListingDetailScreen() {
                   </View>
                   <View className="ml-4 flex-1">
                     <Text className="text-lg font-black text-white">
-                      {listing.seller.name ?? "Χρήστης"}
+                      {listing.seller.name ?? (language === "el" ? "Χρήστης" : "User")}
                     </Text>
                     <Text className="text-sm font-medium text-gray-400">
-                      Μέλος από {formatDate(listing.createdAt)}
+                      {t("member_since")} {formatDate(listing.createdAt)}
                     </Text>
                   </View>
                 </View>
@@ -511,10 +515,10 @@ export default function ListingDetailScreen() {
               </View>
               <View className="flex-1">
                 <Text className="text-lg font-black text-black">
-                  Πιστοποίησε τη συσκευή
+                  {language === "el" ? "Πιστοποίησε τη συσκευή" : "Certify your device"}
                 </Text>
                 <Text className="mt-1 text-sm font-semibold text-black/70">
-                  Επίσκεψη στο iRepair Ρόδος για διαγνωστικά
+                  {language === "el" ? "Επίσκεψη στο iRepair Ρόδος για διαγνωστικά" : "Visit iRepair Rhodes for diagnostics"}
                 </Text>
               </View>
             </LinearGradient>
@@ -524,7 +528,7 @@ export default function ListingDetailScreen() {
           {viewerCity === "rhodes" && listing.city === "rhodes" ? (
             <View className="mb-6">
               <Text className="mb-3 text-base font-bold uppercase tracking-wider text-white">
-                ΑΣΦΑΛΗΣ ΣΥΝΑΝΤΗΣΗ
+                {t("safe_meetup")}
               </Text>
               {V1_STORES.map((store) => (
                 <View key={store.id} className="mb-3 overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: store.isPrimary ? "#FFD700" : "#333" }}>
@@ -547,7 +551,7 @@ export default function ListingDetailScreen() {
                         accessibilityRole="link"
                         accessibilityLabel={`Visit ${store.name} website`}
                       >
-                        <Text className="text-center text-sm font-bold text-white">ΣΕΛΙΔΑ</Text>
+                        <Text className="text-center text-sm font-bold text-white">{language === "el" ? "ΣΕΛΙΔΑ" : "PAGE"}</Text>
                       </Pressable>
                       <Pressable
                         onPress={() => openInMaps(store)}
@@ -556,7 +560,7 @@ export default function ListingDetailScreen() {
                         accessibilityRole="link"
                         accessibilityLabel={`Open ${store.name} in maps`}
                       >
-                        <Text className="text-center text-sm font-bold text-white">ΧΑΡΤΗΣ</Text>
+                        <Text className="text-center text-sm font-bold text-white">{language === "el" ? "ΧΑΡΤΗΣ" : "MAP"}</Text>
                       </Pressable>
                     </View>
                   </LinearGradient>
@@ -570,7 +574,9 @@ export default function ListingDetailScreen() {
                 style={{ padding: 16 }}
               >
                 <Text className="text-sm font-medium text-gray-400">
-                  Επίλεξε την πόλη σου για να δεις προτάσεις ασφαλούς συνάντησης.
+                  {language === "el"
+                    ? "Επίλεξε την πόλη σου για να δεις προτάσεις ασφαλούς συνάντησης."
+                    : "Select your city to see safe meetup suggestions."}
                 </Text>
               </LinearGradient>
             </View>
@@ -610,7 +616,7 @@ export default function ListingDetailScreen() {
             >
               <MessageCircle size={24} color="#FFFFFF" />
               <Text className="ml-3 text-xl font-black uppercase text-white">
-                Επικοινωνία με Πωλητή
+                {t("contact_seller")}
               </Text>
             </LinearGradient>
           </Pressable>

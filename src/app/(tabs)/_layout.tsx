@@ -3,9 +3,11 @@ import { Tabs, usePathname } from "expo-router";
 import { Home, Search, PlusCircle, User } from "lucide-react-native";
 import { View } from "react-native";
 import { AssistantChat } from "@/components/AssistantChat";
+import { useTranslation } from "@/lib/languageStore";
 
 export default function TabLayout() {
   const pathname = usePathname();
+  const { t } = useTranslation();
 
   // Determine current page for context
   const getCurrentPage = () => {
@@ -50,7 +52,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="index"
           options={{
-            title: "Αρχική",
+            title: t("tab_home"),
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <View className={focused ? "opacity-100" : "opacity-60"}>
@@ -62,7 +64,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="browse"
           options={{
-            title: "Αναζήτηση",
+            title: t("tab_browse"),
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <View className={focused ? "opacity-100" : "opacity-60"}>
@@ -74,7 +76,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="sell"
           options={{
-            title: "Πώληση",
+            title: t("tab_sell"),
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <View className={focused ? "opacity-100" : "opacity-60"}>
@@ -86,7 +88,7 @@ export default function TabLayout() {
         <Tabs.Screen
           name="profile"
           options={{
-            title: "Προφίλ",
+            title: t("tab_profile"),
             headerShown: false,
             tabBarIcon: ({ color, focused }) => (
               <View className={focused ? "opacity-100" : "opacity-60"}>

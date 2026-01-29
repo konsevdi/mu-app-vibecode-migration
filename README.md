@@ -206,6 +206,7 @@ src/
 │   ├── animations.ts      # Premium animation system
 │   ├── responsive.ts      # Responsive utilities
 │   ├── languageStore.ts   # i18n store (Greek ALL CAPS no accents)
+│   ├── conditions.ts      # Centralized device condition data
 │   ├── onboardingStore.ts # Onboarding state + city data
 │   ├── constants.ts       # Pricing bands, URLs
 │   └── cityStore.ts       # City selection

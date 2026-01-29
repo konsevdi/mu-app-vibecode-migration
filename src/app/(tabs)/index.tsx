@@ -36,20 +36,15 @@ import {
   useMaxContentWidth,
   isWeb,
 } from "@/lib/responsive";
+import { useTranslation } from "@/lib/languageStore";
+import { CONDITIONS, normalizeConditionKey } from "@/lib/conditions";
 
-const categories = [
-  { id: "phone", name: "ΚΙΝΗΤΑ", icon: Smartphone, color: "#FF00FF", bgColor: "#FF00FF20" },
-  { id: "tablet", name: "TABLETS", icon: Tablet, color: "#00FF88", bgColor: "#00FF8820" },
-  { id: "laptop", name: "LAPTOPS", icon: Laptop, color: "#00BFFF", bgColor: "#00BFFF20" },
-  { id: "accessory", name: "ΑΞΕΣΟΥΑΡ", icon: Headphones, color: "#FFD700", bgColor: "#FFD70020" },
+const getCategoryData = (t: (key: any) => string) => [
+  { id: "phone", name: t("phones"), icon: Smartphone, color: "#FF00FF", bgColor: "#FF00FF20" },
+  { id: "tablet", name: t("tablets"), icon: Tablet, color: "#00FF88", bgColor: "#00FF8820" },
+  { id: "laptop", name: t("laptops"), icon: Laptop, color: "#00BFFF", bgColor: "#00BFFF20" },
+  { id: "accessory", name: t("accessories"), icon: Headphones, color: "#FFD700", bgColor: "#FFD70020" },
 ];
-
-const conditionLabels: Record<string, { label: string; color: string }> = {
-  new: { label: "Καινούργιο", color: "#00FF88" },
-  like_new: { label: "Σαν Καινούργιο", color: "#00BFFF" },
-  good: { label: "Καλό", color: "#FFD700" },
-  fair: { label: "Μέτριο", color: "#FF6B6B" },
-};
 
 function SkeletonCard({ width }: { width: number }) {
   return (
@@ -86,9 +81,11 @@ function SkeletonGridCard() {
   );
 }
 
-function FeaturedListingCard({ listing, cardWidth }: { listing: Listing; cardWidth: number }) {
+function FeaturedListingCard({ listing, cardWidth, t }: { listing: Listing; cardWidth: number; t: (key: any) => string }) {
   const router = useRouter();
-  const condition = conditionLabels[listing.condition] ?? conditionLabels.good;
+  const conditionKey = normalizeConditionKey(listing.condition);
+  const conditionData = CONDITIONS[conditionKey];
+  const conditionLabel = t(conditionData.translationKey as any);
 
   return (
     <Pressable
@@ -96,7 +93,7 @@ function FeaturedListingCard({ listing, cardWidth }: { listing: Listing; cardWid
       className="mr-4 overflow-hidden rounded-3xl"
       style={{ width: cardWidth }}
       accessibilityRole="button"
-      accessibilityLabel={`${listing.title}, €${listing.price}, ${condition.label}`}
+      accessibilityLabel={`${listing.title}, €${listing.price}, ${conditionLabel}`}
     >
       <LinearGradient
         colors={["#1a1a2e", "#16213e"]}
@@ -113,10 +110,10 @@ function FeaturedListingCard({ listing, cardWidth }: { listing: Listing; cardWid
           <View className="mb-3 flex-row flex-wrap items-center gap-2">
             <View
               className="rounded-full px-3 py-1.5"
-              style={{ backgroundColor: `${condition.color}25`, borderWidth: 1, borderColor: condition.color }}
+              style={{ backgroundColor: `${conditionData.color}25`, borderWidth: 1, borderColor: conditionData.color }}
             >
-              <Text style={{ color: condition.color }} className="text-xs font-bold uppercase">
-                {condition.label}
+              <Text style={{ color: conditionData.color }} className="text-xs font-bold uppercase">
+                {conditionLabel}
               </Text>
             </View>
             {listing.isFeatured && (
@@ -128,7 +125,7 @@ function FeaturedListingCard({ listing, cardWidth }: { listing: Listing; cardWid
             {isListingVerified(listing) && (
               <View className="flex-row items-center rounded-full bg-emerald-400/20 px-3 py-1.5" style={{ borderWidth: 1, borderColor: "#00FF88" }}>
                 <Shield size={12} color="#00FF88" />
-                <Text className="ml-1 text-xs font-bold text-emerald-400">Verified</Text>
+                <Text className="ml-1 text-xs font-bold text-emerald-400">{t("verified")}</Text>
               </View>
             )}
           </View>
@@ -184,7 +181,6 @@ function CategoryCard({
 
 function RecentListingCard({ listing, width }: { listing: Listing; width: DimensionValue }) {
   const router = useRouter();
-  const condition = conditionLabels[listing.condition] ?? conditionLabels.good;
 
   return (
     <Pressable
@@ -223,11 +219,15 @@ function RecentListingCard({ listing, width }: { listing: Listing; width: Dimens
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { t, language } = useTranslation();
   const { width } = useDimensions();
   const gridColumns = useGridColumns(2);
   const maxContentWidth = useMaxContentWidth();
   const padding = getResponsivePadding();
   const cardWidth = getCardWidth(0.75);
+
+  // Get categories with translations
+  const categories = getCategoryData(t);
 
   // Responsive header font size
   const headerFontSize = useResponsiveValue({
@@ -286,7 +286,7 @@ export default function HomeScreen() {
               </Text>
             </View>
             <Text className="mt-2 text-lg font-semibold text-gray-400">
-              Αγορά & Πώληση συσκευών στην Ελλάδα
+              {t("home_subtitle")}
             </Text>
           </View>
 
@@ -309,10 +309,10 @@ export default function HomeScreen() {
               </View>
               <View className="flex-1">
                 <Text className="text-xl font-black text-black">
-                  iRepair ΡΟΔΟΣ
+                  iRepair {t("rhodes")}
                 </Text>
                 <Text className="mt-1 text-base font-semibold text-black/70">
-                  Πιστοποιηση & Διαγνωστικα συσκευων
+                  {language === "el" ? "Πιστοποίηση & Διαγνωστικά συσκευών" : "Device certification & diagnostics"}
                 </Text>
               </View>
               <ChevronRight size={28} color="#000000" />
@@ -323,7 +323,7 @@ export default function HomeScreen() {
           <View className="mb-8">
             <View className="mb-5 flex-row items-center justify-between" style={{ paddingHorizontal: padding }}>
               <Text className="text-2xl font-black uppercase tracking-wider text-white" accessibilityRole="header">
-                ΚΑΤΗΓΟΡΙΕΣ
+                {t("category_label")}
               </Text>
             </View>
             <ScrollView
@@ -344,7 +344,7 @@ export default function HomeScreen() {
               <View className="flex-row items-center">
                 <Sparkles size={22} color="#FFD700" />
                 <Text className="ml-2 text-2xl font-black uppercase tracking-wider text-white" accessibilityRole="header">
-                  ΠΡΟΤΕΙΝΟΜΕΝΑ
+                  {t("featured")}
                 </Text>
               </View>
               <Pressable
@@ -355,7 +355,7 @@ export default function HomeScreen() {
                 accessibilityLabel="View all listings"
               >
                 <Text className="mr-1 text-sm font-bold uppercase text-fuchsia-400">
-                  ΟΛΑ
+                  {t("see_all")}
                 </Text>
                 <ChevronRight size={16} color="#FF00FF" />
               </Pressable>
@@ -379,7 +379,7 @@ export default function HomeScreen() {
                 style={{ flexGrow: 0 }}
               >
                 {data.listings.map((listing: Listing) => (
-                  <FeaturedListingCard key={listing.id} listing={listing} cardWidth={cardWidth} />
+                  <FeaturedListingCard key={listing.id} listing={listing} cardWidth={cardWidth} t={t} />
                 ))}
               </ScrollView>
             ) : (
@@ -390,7 +390,7 @@ export default function HomeScreen() {
                 >
                   <Sparkles size={48} color="#666" />
                   <Text className="mt-4 text-center text-lg font-bold text-gray-400">
-                    Δεν υπάρχουν ακόμα προτεινόμενα. Γίνε ο πρώτος!
+                    {language === "el" ? "Δεν υπάρχουν ακόμα προτεινόμενα. Γίνε ο πρώτος!" : "No featured listings yet. Be the first!"}
                   </Text>
                   <Pressable
                     onPress={() => router.push("/sell" as Href)}
@@ -403,7 +403,7 @@ export default function HomeScreen() {
                       colors={["#FF00FF", "#CC00CC"]}
                       style={{ paddingHorizontal: 32, paddingVertical: 16 }}
                     >
-                      <Text className="text-lg font-black uppercase text-white">ΠΟΥΛΗΣΕ ΤΩΡΑ</Text>
+                      <Text className="text-lg font-black uppercase text-white">{t("tab_sell")}</Text>
                     </LinearGradient>
                   </Pressable>
                 </LinearGradient>
@@ -415,7 +415,7 @@ export default function HomeScreen() {
           <View className="mb-8" style={{ paddingHorizontal: padding }}>
             <View className="mb-5 flex-row items-center justify-between">
               <Text className="text-2xl font-black uppercase tracking-wider text-white" accessibilityRole="header">
-                ΠΡΟΣΦΑΤΑ
+                {t("recent_listings")}
               </Text>
               <Pressable
                 onPress={() => router.push("/browse" as Href)}
@@ -425,7 +425,7 @@ export default function HomeScreen() {
                 accessibilityLabel="View all recent listings"
               >
                 <Text className="mr-1 text-sm font-bold uppercase text-emerald-400">
-                  ΟΛΑ
+                  {t("see_all")}
                 </Text>
                 <ChevronRight size={16} color="#00FF88" />
               </Pressable>
@@ -456,7 +456,7 @@ export default function HomeScreen() {
                   style={{ padding: 24, alignItems: "center" }}
                 >
                   <Text className="text-center font-bold text-gray-500">
-                    Δεν υπάρχουν ακόμα αγγελίες
+                    {t("no_listings")}
                   </Text>
                 </LinearGradient>
               </View>

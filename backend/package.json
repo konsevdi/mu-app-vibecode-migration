@@ -24,7 +24,9 @@
     "@hono/zod-validator": "0.7.3",
     "@prisma/adapter-better-sqlite3": "^6.17.1",
     "@prisma/client": "^6.17.1",
-    "@vibecodeapp/cloud-studio": "^0.1.6",
+    "@vibecodeapp/backend-sdk": "^1.0.1",
+    "@vibecodeapp/cloud-studio": "^0.2.4",
+    "@vibecodeapp/proxy": "^2.0.3",
     "better-auth": "^1.4.7",
     "hono": "4.6.0",
     "zod": "4.1.11"

@@ -33,22 +33,16 @@ import {
   getResponsivePadding,
   useMaxContentWidth,
 } from "@/lib/responsive";
+import { useTranslation } from "@/lib/languageStore";
+import { CONDITIONS, normalizeConditionKey } from "@/lib/conditions";
 
-const categories: { id: Category | "all"; name: string; icon: React.ComponentType<{ size: number; color: string }>; color: string }[] = [
-  { id: "all", name: "ΟΛΑ", icon: SlidersHorizontal, color: "#FF00FF" },
-  { id: "phone", name: "ΚΙΝΗΤΑ", icon: Smartphone, color: "#FF00FF" },
-  { id: "tablet", name: "TABLETS", icon: Tablet, color: "#00FF88" },
-  { id: "laptop", name: "LAPTOPS", icon: Laptop, color: "#00BFFF" },
-  { id: "accessory", name: "ΑΞΕΣΟΥΑΡ", icon: Headphones, color: "#FFD700" },
+const getCategoryData = (t: (key: any) => string) => [
+  { id: "all" as const, name: t("all_categories"), icon: SlidersHorizontal, color: "#FF00FF" },
+  { id: "phone" as Category, name: t("phones"), icon: Smartphone, color: "#FF00FF" },
+  { id: "tablet" as Category, name: t("tablets"), icon: Tablet, color: "#00FF88" },
+  { id: "laptop" as Category, name: t("laptops"), icon: Laptop, color: "#00BFFF" },
+  { id: "accessory" as Category, name: t("accessories"), icon: Headphones, color: "#FFD700" },
 ];
-
-const conditionLabels: Record<string, { label: string; color: string }> = {
-  new: { label: "ΚΑΙΝΟΥΡΓΙΟ", color: "#00FF88" },
-  like_new: { label: "ΣΑΝ ΚΑΙΝΟΥΡΓΙΟ", color: "#00BFFF" },
-  good: { label: "ΚΑΛΟ", color: "#FFD700" },
-  fair: { label: "ΜΕΤΡΙΟ", color: "#FF6B6B" },
-  parts: { label: "ΑΝΤΑΛΛΑΚΤΙΚΑ", color: "#888888" },
-};
 
 function SkeletonCard({ width }: { width: DimensionValue }) {
   return (
@@ -68,9 +62,11 @@ function SkeletonCard({ width }: { width: DimensionValue }) {
   );
 }
 
-function ListingCard({ listing, width }: { listing: Listing; width: DimensionValue }) {
+function ListingCard({ listing, width, t }: { listing: Listing; width: DimensionValue; t: (key: any) => string }) {
   const router = useRouter();
-  const condition = conditionLabels[listing.condition] ?? conditionLabels.good;
+  const conditionKey = normalizeConditionKey(listing.condition);
+  const conditionData = CONDITIONS[conditionKey];
+  const conditionLabel = t(conditionData.translationKey as any);
 
   return (
     <Pressable
@@ -78,7 +74,7 @@ function ListingCard({ listing, width }: { listing: Listing; width: DimensionVal
       className="mb-4 overflow-hidden rounded-2xl"
       style={{ width, borderWidth: 2, borderColor: "#333" }}
       accessibilityRole="button"
-      accessibilityLabel={`${listing.title}, €${listing.price}, ${condition.label}`}
+      accessibilityLabel={`${listing.title}, €${listing.price}, ${conditionLabel}`}
     >
       <LinearGradient colors={["#1a1a2e", "#0f0f23"]}>
         <Image
@@ -93,10 +89,10 @@ function ListingCard({ listing, width }: { listing: Listing; width: DimensionVal
           <View className="mb-2 flex-row">
             <View
               className="rounded-full px-2 py-1"
-              style={{ backgroundColor: `${condition.color}20`, borderWidth: 1, borderColor: condition.color }}
+              style={{ backgroundColor: `${conditionData.color}20`, borderWidth: 1, borderColor: conditionData.color }}
             >
-              <Text style={{ color: condition.color }} className="text-xs font-bold uppercase">
-                {condition.label}
+              <Text style={{ color: conditionData.color }} className="text-xs font-bold uppercase">
+                {conditionLabel}
               </Text>
             </View>
           </View>
@@ -122,6 +118,7 @@ function ListingCard({ listing, width }: { listing: Listing; width: DimensionVal
 
 export default function BrowseScreen() {
   const params = useLocalSearchParams<{ category?: string }>();
+  const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState<Category | "all">(
     (params.category as Category) ?? "all"
   );
@@ -132,6 +129,9 @@ export default function BrowseScreen() {
   const gridColumns = useGridColumns(2);
   const maxContentWidth = useMaxContentWidth();
   const padding = getResponsivePadding();
+
+  // Get categories with translations
+  const categories = getCategoryData(t);
 
   // Calculate grid item width
   const gridGap = 16;
@@ -188,11 +188,11 @@ export default function BrowseScreen() {
               <View className="flex-row items-center">
                 <Zap size={24} color="#FF00FF" fill="#FF00FF" />
                 <Text className="ml-2 text-2xl font-black text-white" accessibilityRole="header">
-                  ΑΝΑΖΗΤΗΣΗ
+                  {t("browse_title")}
                 </Text>
               </View>
               <Text className="mt-1 text-base font-semibold text-gray-400">
-                Βρες την επομενη συσκευη σου
+                {t("browse_subtitle")}
               </Text>
             </View>
 
@@ -208,7 +208,7 @@ export default function BrowseScreen() {
                 <Search size={22} color="#FF00FF" />
                 <TextInput
                   className="ml-3 flex-1 text-base font-semibold text-white"
-                  placeholder="Αναζητηση συσκευων..."
+                  placeholder={t("search_placeholder")}
                   placeholderTextColor="#666"
                   value={searchQuery}
                   onChangeText={setSearchQuery}
@@ -288,7 +288,7 @@ export default function BrowseScreen() {
                 >
                   <Shield size={18} color={verifiedOnly ? "#00FF88" : "#666"} />
                   <Text className={`ml-2 text-sm font-bold ${verifiedOnly ? "text-emerald-400" : "text-gray-500"}`}>
-                    ΜΟΝΟ ΠΙΣΤΟΠΟΙΗΜΕΝΑ / VERIFIED ONLY
+                    {t("verified_only")}
                   </Text>
                 </LinearGradient>
               </Pressable>
@@ -314,7 +314,7 @@ export default function BrowseScreen() {
                 <View className="mb-4 flex-row items-center">
                   <View className="mr-2 h-2 w-2 rounded-full bg-fuchsia-500" />
                   <Text className="text-base font-bold text-gray-400">
-                    {data.total} {data.total === 1 ? "αποτελεσμα" : "αποτελεσματα"}
+                    {data.total} {data.total === 1 ? t("results_singular") : t("results_plural")}
                   </Text>
                 </View>
                 <View
@@ -326,6 +326,7 @@ export default function BrowseScreen() {
                       key={listing.id}
                       listing={listing}
                       width={gridColumns > 2 ? gridItemWidth : "48%"}
+                      t={t}
                     />
                   ))}
                 </View>
@@ -336,10 +337,10 @@ export default function BrowseScreen() {
                   <Search size={56} color="#666" />
                 </View>
                 <Text className="mt-4 text-xl font-black text-white">
-                  ΔΕΝ ΒΡΕΘΗΚΑΝ ΑΓΓΕΛΙΕΣ
+                  {t("no_listings")}
                 </Text>
                 <Text className="mt-2 text-center text-base font-medium text-gray-500">
-                  Δοκιμασε διαφορετικα φιλτρα η αναζητηση
+                  {t("try_different_filters")}
                 </Text>
               </View>
             )}

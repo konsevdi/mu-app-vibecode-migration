@@ -33,39 +33,43 @@ import { authClient } from "@/lib/authClient";
 import { type CreateListingRequest, type CreateListingResponse, type Category, type Condition, type City } from "@/shared/contracts";
 import { PANDAS_PRICING_URL } from "@/lib/constants";
 import { useCityStore } from "@/lib/cityStore";
+import { useTranslation, type TranslationKey } from "@/lib/languageStore";
+import { CONDITIONS, type ConditionKey } from "@/lib/conditions";
 import * as WebBrowser from "expo-web-browser";
 
-const categories: { id: Category; name: string; icon: React.ComponentType<{ size: number; color: string }>; color: string }[] = [
-  { id: "phone", name: "ΚΙΝΗΤΟ", icon: Smartphone, color: "#FF00FF" },
-  { id: "tablet", name: "TABLET", icon: Tablet, color: "#00FF88" },
-  { id: "laptop", name: "LAPTOP", icon: Laptop, color: "#00BFFF" },
-  { id: "accessory", name: "ΑΞΕΣΟΥΑΡ", icon: Headphones, color: "#FFD700" },
+// Category data - uses translations
+const getCategoryData = (t: (key: TranslationKey) => string) => [
+  { id: "phone" as Category, name: t("category_phone"), icon: Smartphone, color: "#FF00FF" },
+  { id: "tablet" as Category, name: t("category_tablet"), icon: Tablet, color: "#00FF88" },
+  { id: "laptop" as Category, name: t("category_laptop"), icon: Laptop, color: "#00BFFF" },
+  { id: "accessory" as Category, name: t("category_accessory"), icon: Headphones, color: "#FFD700" },
 ];
 
-const conditions: { id: Condition; name: string; description: string; color: string; band: string }[] = [
-  { id: "new", name: "ΚΑΙΝΟΥΡΓΙΟ", description: "Αχρησιμοποιητο", color: "#00FF88", band: "85-95%" },
-  { id: "like_new", name: "ΣΑΝ ΚΑΙΝΟΥΡΓΙΟ", description: "Ελαχιστη χρηση", color: "#00BFFF", band: "75-88%" },
-  { id: "good", name: "ΚΑΛΟ", description: "Μικρα σημαδια χρησης", color: "#FFD700", band: "60-75%" },
-  { id: "fair", name: "ΜΕΤΡΙΟ", description: "Φανερη χρηση, λειτουργικο", color: "#FF6B6B", band: "40-60%" },
-  { id: "parts", name: "ΑΝΤΑΛΛΑΚΤΙΚΑ", description: "Για επισκευη μονο", color: "#888888", band: "10-35%" },
+// Condition data - uses translations and CONDITIONS from conditions.ts
+const getConditionData = (t: (key: TranslationKey) => string) => [
+  { id: "new" as Condition, name: t("condition_new"), description: t("condition_new_desc"), color: CONDITIONS.new.color, band: `${CONDITIONS.new.priceRangePercent.min}-${CONDITIONS.new.priceRangePercent.max}%` },
+  { id: "like_new" as Condition, name: t("condition_like_new"), description: t("condition_like_new_desc"), color: CONDITIONS.like_new.color, band: `${CONDITIONS.like_new.priceRangePercent.min}-${CONDITIONS.like_new.priceRangePercent.max}%` },
+  { id: "good" as Condition, name: t("condition_good"), description: t("condition_good_desc"), color: CONDITIONS.good.color, band: `${CONDITIONS.good.priceRangePercent.min}-${CONDITIONS.good.priceRangePercent.max}%` },
+  { id: "fair" as Condition, name: t("condition_fair"), description: t("condition_fair_desc"), color: CONDITIONS.fair.color, band: `${CONDITIONS.fair.priceRangePercent.min}-${CONDITIONS.fair.priceRangePercent.max}%` },
+  { id: "parts" as Condition, name: t("condition_parts"), description: t("condition_parts_desc"), color: CONDITIONS.parts.color, band: `${CONDITIONS.parts.priceRangePercent.min}-${CONDITIONS.parts.priceRangePercent.max}%` },
 ];
 
-// Brand options per category
-const brandOptions: Record<Category, string[]> = {
-  phone: ["Apple", "Samsung", "Xiaomi", "OnePlus", "Google", "Huawei", "OPPO", "Realme", "Sony", "Nokia", "Motorola", "Nothing", "ΑΛΛΟ"],
-  tablet: ["Apple", "Samsung", "Xiaomi", "Lenovo", "Huawei", "Microsoft", "Amazon", "ΑΛΛΟ"],
-  laptop: ["Apple", "Lenovo", "HP", "Dell", "Asus", "Acer", "MSI", "Microsoft", "Razer", "ΑΛΛΟ"],
-  accessory: ["Apple", "Samsung", "Sony", "JBL", "Bose", "Anker", "Belkin", "ΑΛΛΟ"],
-};
+// Brand options per category - uses translations for "OTHER"
+const getBrandOptions = (t: (key: TranslationKey) => string): Record<Category, string[]> => ({
+  phone: ["Apple", "Samsung", "Xiaomi", "OnePlus", "Google", "Huawei", "OPPO", "Realme", "Sony", "Nokia", "Motorola", "Nothing", t("other_brand")],
+  tablet: ["Apple", "Samsung", "Xiaomi", "Lenovo", "Huawei", "Microsoft", "Amazon", t("other_brand")],
+  laptop: ["Apple", "Lenovo", "HP", "Dell", "Asus", "Acer", "MSI", "Microsoft", "Razer", t("other_brand")],
+  accessory: ["Apple", "Samsung", "Sony", "JBL", "Bose", "Anker", "Belkin", t("other_brand")],
+});
 
-// Model options per brand (simplified)
-const modelOptions: Record<string, string[]> = {
-  Apple: ["iPhone 15 Pro Max", "iPhone 15 Pro", "iPhone 15 Plus", "iPhone 15", "iPhone 14 Pro Max", "iPhone 14 Pro", "iPhone 14 Plus", "iPhone 14", "iPhone 13 Pro Max", "iPhone 13 Pro", "iPhone 13", "iPhone 13 mini", "iPhone 12 Pro Max", "iPhone 12 Pro", "iPhone 12", "iPhone 12 mini", "iPhone SE (2022)", "iPhone SE (2020)", "iPhone 11 Pro Max", "iPhone 11 Pro", "iPhone 11", "iPad Pro 12.9", "iPad Pro 11", "iPad Air", "iPad mini", "iPad", "MacBook Pro 16", "MacBook Pro 14", "MacBook Pro 13", "MacBook Air M2", "MacBook Air M1", "AirPods Pro 2", "AirPods Pro", "AirPods 3", "AirPods 2", "AirPods Max", "ΑΛΛΟ"],
-  Samsung: ["Galaxy S24 Ultra", "Galaxy S24+", "Galaxy S24", "Galaxy S23 Ultra", "Galaxy S23+", "Galaxy S23", "Galaxy Z Fold 5", "Galaxy Z Flip 5", "Galaxy Z Fold 4", "Galaxy Z Flip 4", "Galaxy A54", "Galaxy A34", "Galaxy Tab S9 Ultra", "Galaxy Tab S9+", "Galaxy Tab S9", "Galaxy Tab S8", "Galaxy Buds 2 Pro", "Galaxy Buds FE", "ΑΛΛΟ"],
-  Xiaomi: ["14 Ultra", "14 Pro", "14", "13T Pro", "13T", "13 Pro", "13", "Redmi Note 13 Pro+", "Redmi Note 13 Pro", "Redmi Note 13", "Poco X6 Pro", "Poco X6", "Pad 6 Pro", "Pad 6", "ΑΛΛΟ"],
-  OnePlus: ["12", "12R", "11", "Open", "Nord 3", "Nord CE 3", "Buds Pro 2", "ΑΛΛΟ"],
-  Google: ["Pixel 8 Pro", "Pixel 8", "Pixel 7 Pro", "Pixel 7", "Pixel 7a", "Pixel Fold", "Pixel Buds Pro", "ΑΛΛΟ"],
-};
+// Model options per brand (simplified) - uses translations for "OTHER"
+const getModelOptions = (t: (key: TranslationKey) => string): Record<string, string[]> => ({
+  Apple: ["iPhone 15 Pro Max", "iPhone 15 Pro", "iPhone 15 Plus", "iPhone 15", "iPhone 14 Pro Max", "iPhone 14 Pro", "iPhone 14 Plus", "iPhone 14", "iPhone 13 Pro Max", "iPhone 13 Pro", "iPhone 13", "iPhone 13 mini", "iPhone 12 Pro Max", "iPhone 12 Pro", "iPhone 12", "iPhone 12 mini", "iPhone SE (2022)", "iPhone SE (2020)", "iPhone 11 Pro Max", "iPhone 11 Pro", "iPhone 11", "iPad Pro 12.9", "iPad Pro 11", "iPad Air", "iPad mini", "iPad", "MacBook Pro 16", "MacBook Pro 14", "MacBook Pro 13", "MacBook Air M2", "MacBook Air M1", "AirPods Pro 2", "AirPods Pro", "AirPods 3", "AirPods 2", "AirPods Max", t("other_brand")],
+  Samsung: ["Galaxy S24 Ultra", "Galaxy S24+", "Galaxy S24", "Galaxy S23 Ultra", "Galaxy S23+", "Galaxy S23", "Galaxy Z Fold 5", "Galaxy Z Flip 5", "Galaxy Z Fold 4", "Galaxy Z Flip 4", "Galaxy A54", "Galaxy A34", "Galaxy Tab S9 Ultra", "Galaxy Tab S9+", "Galaxy Tab S9", "Galaxy Tab S8", "Galaxy Buds 2 Pro", "Galaxy Buds FE", t("other_brand")],
+  Xiaomi: ["14 Ultra", "14 Pro", "14", "13T Pro", "13T", "13 Pro", "13", "Redmi Note 13 Pro+", "Redmi Note 13 Pro", "Redmi Note 13", "Poco X6 Pro", "Poco X6", "Pad 6 Pro", "Pad 6", t("other_brand")],
+  OnePlus: ["12", "12R", "11", "Open", "Nord 3", "Nord CE 3", "Buds Pro 2", t("other_brand")],
+  Google: ["Pixel 8 Pro", "Pixel 8", "Pixel 7 Pro", "Pixel 7", "Pixel 7a", "Pixel Fold", "Pixel Buds Pro", t("other_brand")],
+});
 
 const placeholderImages = [
   "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400",
@@ -78,6 +82,13 @@ export default function SellScreen() {
   const queryClient = useQueryClient();
   const { data: session } = authClient.useSession();
   const defaultCity = useCityStore((s) => s.defaultCity);
+  const { t } = useTranslation();
+
+  // Get translated category and condition data
+  const categories = getCategoryData(t);
+  const conditions = getConditionData(t);
+  const brandOptions = getBrandOptions(t);
+  const modelOptions = getModelOptions(t);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -98,8 +109,8 @@ export default function SellScreen() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["listings"] });
       Alert.alert(
-        "ΥΠΟΒΛΗΘΗΚΕ ΓΙΑ ΕΓΚΡΙΣΗ",
-        "Η αγγελια σου υποβληθηκε και θα εγκριθει συντομα απο τη διαχειριση.\n\nYour listing is pending approval.",
+        t("submitted_for_approval"),
+        t("submitted_for_approval_desc"),
         [{ text: "OK", onPress: () => router.push("/" as Href) }]
       );
       // Reset form
@@ -114,7 +125,7 @@ export default function SellScreen() {
       setImages([]);
     },
     onError: (error) => {
-      Alert.alert("ΣΦΑΛΜΑ", "Αποτυχια δημιουργιας αγγελιας. Προσπαθησε ξανα.");
+      Alert.alert(t("error"), t("error"));
       console.error(error);
     },
   });
@@ -126,12 +137,12 @@ export default function SellScreen() {
     }
 
     if (!title.trim() || !description.trim() || !price || !category || !condition || !city) {
-      Alert.alert("ΛΕΙΠΟΥΝ ΣΤΟΙΧΕΙΑ", "Συμπληρωσε ολα τα υποχρεωτικα πεδια.");
+      Alert.alert(t("missing_fields"), t("missing_fields_desc"));
       return;
     }
 
     if (images.length < 3) {
-      Alert.alert("ΑΠΑΙΤΟΥΝΤΑΙ ΦΩΤΟΓΡΑΦΙΕΣ", "Προσθεσε τουλαχιστον 3 φωτογραφιες.\n\nMinimum 3 photos required.");
+      Alert.alert(t("photos_required"), t("photos_required_desc"));
       return;
     }
 
@@ -174,10 +185,10 @@ export default function SellScreen() {
             <Camera size={72} color="#FF00FF" />
           </View>
           <Text className="text-center text-3xl font-black text-white">
-            ΣΥΝΔΕΣΟΥ ΓΙΑ ΝΑ ΠΟΥΛΗΣΕΙΣ
+            {t("login_to_sell")}
           </Text>
           <Text className="mt-3 text-center text-base font-medium text-gray-400">
-            Δημιουργησε λογαριασμο για να καταχωρησεις τις συσκευες σου στο Mobile Unit
+            {t("login_to_sell_desc")}
           </Text>
           <Pressable
             onPress={() => router.push("/login" as Href)}
@@ -188,7 +199,7 @@ export default function SellScreen() {
               colors={["#FF00FF", "#CC00CC"]}
               style={{ paddingHorizontal: 40, paddingVertical: 18 }}
             >
-              <Text className="text-xl font-black uppercase text-white">ΣΥΝΔΕΣΗ</Text>
+              <Text className="text-xl font-black uppercase text-white">{t("sign_in")}</Text>
             </LinearGradient>
           </Pressable>
         </SafeAreaView>
@@ -216,20 +227,20 @@ export default function SellScreen() {
             <View className="px-5 pb-6 pt-4">
               <View className="flex-row items-center">
                 <Sparkles size={24} color="#FFD700" />
-                <Text className="ml-2 text-2xl font-black text-white">ΝΕΑ ΑΓΓΕΛΙΑ</Text>
+                <Text className="ml-2 text-2xl font-black text-white">{t("sell_title")}</Text>
               </View>
               <Text className="mt-1 text-base font-semibold text-gray-400">
-                Πουλησε τη συσκευη σου στο Mobile Unit
+                {t("sell_subtitle")}
               </Text>
             </View>
 
             {/* Images */}
             <View className="mb-6 px-5">
               <Text className="mb-3 text-base font-bold uppercase tracking-wider text-white">
-                ΦΩΤΟΓΡΑΦΙΕΣ (3-10) *
+                {t("photos_label")} *
               </Text>
               <Text className="mb-3 text-sm font-medium text-gray-400">
-                Ελαχιστο 3 φωτογραφιες / Minimum 3 photos required
+                {t("min_photos")}
               </Text>
               <ScrollView
                 horizontal
@@ -261,7 +272,7 @@ export default function SellScreen() {
                   >
                     <ImagePlus size={32} color={images.length < 3 ? "#FF6B6B" : "#FF00FF"} />
                     <Text className={`mt-2 text-xs font-bold ${images.length < 3 ? "text-red-400" : "text-fuchsia-400"}`}>
-                      {images.length < 3 ? `${3 - images.length} ΑΚΟΜΑ` : "ΠΡΟΣΘΗΚΗ"}
+                      {images.length < 3 ? `${3 - images.length} ${t("more_needed")}` : t("add")}
                     </Text>
                   </Pressable>
                 )}
@@ -271,7 +282,7 @@ export default function SellScreen() {
             {/* Title */}
             <View className="mb-5 px-5">
               <Text className="mb-2 text-base font-bold uppercase tracking-wider text-white">
-                ΤΙΤΛΟΣ *
+                {t("title_label")} *
               </Text>
               <View className="overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#333" }}>
                 <LinearGradient colors={["#1a1a2e", "#0f0f23"]}>
@@ -289,7 +300,7 @@ export default function SellScreen() {
             {/* Category */}
             <View className="mb-5 px-5">
               <Text className="mb-3 text-base font-bold uppercase tracking-wider text-white">
-                ΚΑΤΗΓΟΡΙΑ *
+                {t("category_label")} *
               </Text>
               <View className="flex-row">
                 {categories.map((cat) => {
@@ -324,7 +335,7 @@ export default function SellScreen() {
             {/* Condition */}
             <View className="mb-5 px-5">
               <Text className="mb-3 text-base font-bold uppercase tracking-wider text-white">
-                ΚΑΤΑΣΤΑΣΗ *
+                {t("condition_label")} *
               </Text>
               <View className="flex-row flex-wrap">
                 {conditions.map((cond) => {
@@ -366,13 +377,13 @@ export default function SellScreen() {
               {condition && (
                 <View className="mt-2 rounded-xl p-3" style={{ backgroundColor: "#FFD70020", borderWidth: 1, borderColor: "#FFD700" }}>
                   <Text className="text-xs font-bold text-amber-400">
-                    ΟΔΗΓΟΣ ΤΙΜΟΛΟΓΗΣΗΣ / PRICING GUIDE
+                    {t("pricing_guide")}
                   </Text>
                   <Text className="mt-1 text-sm font-medium text-gray-300">
-                    {conditions.find((c) => c.id === condition)?.name}: {conditions.find((c) => c.id === condition)?.band} της τιμης καινουργιου
+                    {conditions.find((c) => c.id === condition)?.name}: {conditions.find((c) => c.id === condition)?.band} {t("pricing_of_new")}
                   </Text>
                   <Text className="mt-1 text-xs text-gray-400">
-                    Χωρις ΦΠΑ για μεταχειρισμενα / VAT-free for used items
+                    {t("vat_free")}
                   </Text>
                 </View>
               )}
@@ -388,7 +399,7 @@ export default function SellScreen() {
                 >
                   <ExternalLink size={16} color="#00BFFF" />
                   <Text className="ml-2 text-sm font-bold text-sky-400">
-                    Δες Τιμες Αγορας Pandas / Check Pandas Pricing
+                    {t("check_pricing")}
                   </Text>
                 </LinearGradient>
               </Pressable>
@@ -397,7 +408,7 @@ export default function SellScreen() {
             {/* City */}
             <View className="mb-5 px-5">
               <Text className="mb-3 text-base font-bold uppercase tracking-wider text-white">
-                ΠΟΛΗ *
+                {t("city_label")} *
               </Text>
               <Pressable
                 onPress={() => setCity("rhodes")}
@@ -410,7 +421,7 @@ export default function SellScreen() {
                 >
                   {city === "rhodes" && <Check size={18} color="#000" />}
                   <Text className={`${city === "rhodes" ? "ml-2 text-black" : "text-white"} text-base font-bold`}>
-                    ΡΟΔΟΣ
+                    {t("rhodes")}
                   </Text>
                 </LinearGradient>
               </Pressable>
@@ -419,7 +430,7 @@ export default function SellScreen() {
             {/* Price */}
             <View className="mb-5 px-5">
               <Text className="mb-2 text-base font-bold uppercase tracking-wider text-white">
-                ΤΙΜΗ (€) *
+                {t("price_label")} (€) *
               </Text>
               <View className="overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#00FF88" }}>
                 <LinearGradient colors={["#1a1a2e", "#0f0f23"]}>
@@ -438,7 +449,7 @@ export default function SellScreen() {
             {/* Brand & Model */}
             <View className="mb-5 px-5">
               <Text className="mb-2 text-base font-bold uppercase tracking-wider text-white">
-                ΜΑΡΚΑ
+                {t("brand_label")}
               </Text>
               <Pressable
                 onPress={() => category && setShowBrandPicker(!showBrandPicker)}
@@ -448,7 +459,7 @@ export default function SellScreen() {
                 <LinearGradient colors={["#1a1a2e", "#0f0f23"]}>
                   <View className="flex-row items-center justify-between px-4 py-4">
                     <Text className={`text-base font-semibold ${brand ? "text-white" : "text-gray-500"}`}>
-                      {brand || (category ? "Επιλεξε μαρκα" : "Επιλεξε πρωτα κατηγορια")}
+                      {brand || (category ? t("select_brand") : t("select_category_first"))}
                     </Text>
                     <ChevronDown size={20} color="#666" />
                   </View>
@@ -481,7 +492,7 @@ export default function SellScreen() {
 
             <View className="mb-5 px-5">
               <Text className="mb-2 text-base font-bold uppercase tracking-wider text-white">
-                ΜΟΝΤΕΛΟ
+                {t("model_label")}
               </Text>
               <Pressable
                 onPress={() => brand && modelOptions[brand] && setShowModelPicker(!showModelPicker)}
@@ -491,7 +502,7 @@ export default function SellScreen() {
                 <LinearGradient colors={["#1a1a2e", "#0f0f23"]}>
                   <View className="flex-row items-center justify-between px-4 py-4">
                     <Text className={`text-base font-semibold ${model ? "text-white" : "text-gray-500"}`}>
-                      {model || (brand ? (modelOptions[brand] ? "Επιλεξε μοντελο" : "Γραψε μοντελο") : "Επιλεξε πρωτα μαρκα")}
+                      {model || (brand ? (modelOptions[brand] ? t("select_model") : t("type_model")) : t("select_brand_first"))}
                     </Text>
                     <ChevronDown size={20} color="#666" />
                   </View>
@@ -539,7 +550,7 @@ export default function SellScreen() {
             {/* Location */}
             <View className="mb-5 px-5">
               <Text className="mb-2 text-base font-bold uppercase tracking-wider text-white">
-                ΤΟΠΟΘΕΣΙΑ
+                {t("location_label")}
               </Text>
               <View className="overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#333" }}>
                 <LinearGradient colors={["#1a1a2e", "#0f0f23"]}>
@@ -557,13 +568,13 @@ export default function SellScreen() {
             {/* Description */}
             <View className="mb-6 px-5">
               <Text className="mb-2 text-base font-bold uppercase tracking-wider text-white">
-                ΠΕΡΙΓΡΑΦΗ *
+                {t("description_label")} *
               </Text>
               <View className="overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#333" }}>
                 <LinearGradient colors={["#1a1a2e", "#0f0f23"]}>
                   <TextInput
                     className="min-h-[140px] px-4 py-4 text-base font-semibold text-white"
-                    placeholder="Περιγραψε τη συσκευη σου, συμπεριλαμβανομενων τυχον γρατζουνιων, αξεσουαρ, υγεια μπαταριας κ.λπ."
+                    placeholder={t("description_placeholder")}
                     placeholderTextColor="#666"
                     value={description}
                     onChangeText={setDescription}
@@ -587,7 +598,7 @@ export default function SellScreen() {
                   style={{ alignItems: "center", paddingVertical: 18 }}
                 >
                   <Text className="text-xl font-black uppercase text-white">
-                    {createMutation.isPending ? "ΔΗΜΙΟΥΡΓΙΑ..." : "ΔΗΜΟΣΙΕΥΣΗ ΑΓΓΕΛΙΑΣ"}
+                    {createMutation.isPending ? t("creating") : t("publish_button")}
                   </Text>
                 </LinearGradient>
               </Pressable>

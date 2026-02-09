@@ -7,6 +7,7 @@ import { Calendar, Sun, Moon, Check, ExternalLink, Euro, Info } from "lucide-rea
 import { useMutation } from "@tanstack/react-query";
 import { api } from "@/lib/api";
 import * as WebBrowser from "expo-web-browser";
+import { useTranslation } from "@/lib/languageStore";
 
 const EXTERNAL_BOOKING_URL = "https://public.irepair.gr/service-app";
 
@@ -34,6 +35,7 @@ export default function BookAppointmentScreen() {
   const { listingId } = useLocalSearchParams<{ listingId?: string }>();
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<"morning" | "afternoon" | null>(null);
+  const { t, language } = useTranslation();
 
   const dates = generateDates();
 
@@ -48,13 +50,13 @@ export default function BookAppointmentScreen() {
     },
     onSuccess: () => {
       Alert.alert(
-        "Ραντεβού Κλείστηκε!",
-        "Θα λάβετε επιβεβαίωση σύντομα.\n\nAppointment booked! You'll receive confirmation shortly.",
+        t("appointment_booked"),
+        t("appointment_booked_desc"),
         [{ text: "OK", onPress: () => router.back() }]
       );
     },
     onError: () => {
-      Alert.alert("Σφάλμα", "Δοκιμάστε ξανά ή χρησιμοποιήστε το online booking.");
+      Alert.alert(t("error"), t("booking_error"));
     },
   });
 
@@ -64,14 +66,14 @@ export default function BookAppointmentScreen() {
 
   return (
     <View className="flex-1 bg-black">
-      <Stack.Screen options={{ title: "Κλείσε Ραντεβού", headerStyle: { backgroundColor: "#0a0a0a" }, headerTintColor: "#fff" }} />
+      <Stack.Screen options={{ title: t("book_appointment_title"), headerStyle: { backgroundColor: "#0a0a0a" }, headerTintColor: "#fff" }} />
       <LinearGradient colors={["#0a0a0a", "#1a1a2e", "#0a0a0a"]} style={{ flex: 1 }}>
         <ScrollView className="flex-1 px-5 pt-4" showsVerticalScrollIndicator={false}>
 
           {/* Header */}
           <View className="mb-6">
-            <Text className="text-2xl font-black text-white">Βαθμολόγηση στο iRepair</Text>
-            <Text className="mt-1 text-base text-gray-400">Get your device graded at iRepair Rhodes</Text>
+            <Text className="text-2xl font-black text-white">{t("grading_at_irepair")}</Text>
+            <Text className="mt-1 text-base text-gray-400">{t("grading_at_irepair_desc")}</Text>
           </View>
 
           {/* Diagnostic Fee Banner */}
@@ -82,16 +84,16 @@ export default function BookAppointmentScreen() {
                   <Euro size={20} color="#000" />
                 </View>
                 <View className="flex-1">
-                  <Text className="text-lg font-black text-emerald-400">€10 ΔΙΑΓΝΩΣΤΙΚΟ / DIAGNOSTIC FEE</Text>
+                  <Text className="text-lg font-black text-emerald-400">{t("diagnostic_fee_title")}</Text>
                   <Text className="mt-1 text-sm text-gray-300">
-                    Επιστρέφεται αν αγοράσετε / Refunded on purchase
+                    {t("diagnostic_fee_refund")}
                   </Text>
                 </View>
               </View>
               <View className="mt-3 flex-row items-start">
                 <Info size={14} color="#888" style={{ marginTop: 2 }} />
                 <Text className="ml-2 flex-1 text-xs text-gray-400">
-                  Το διαγνωστικό τέλος καλύπτει τον έλεγχο της συσκευής και την έκδοση βαθμολογίας. Επιστρέφεται πλήρως εάν πουλήσετε τη συσκευή μέσω Mobile Unit.
+                  {t("diagnostic_fee_info")}
                 </Text>
               </View>
             </LinearGradient>
@@ -99,7 +101,7 @@ export default function BookAppointmentScreen() {
 
           {/* Date Selection */}
           <Text className="mb-3 text-base font-bold uppercase tracking-wider text-white">
-            <Calendar size={16} color="#FF00FF" /> ΕΠΙΛΕΞΤΕ ΗΜΕΡΟΜΗΝΙΑ
+            <Calendar size={16} color="#FF00FF" /> {t("select_date")}
           </Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-6" style={{ flexGrow: 0 }}>
             {dates.map((date, index) => {
@@ -116,13 +118,13 @@ export default function BookAppointmentScreen() {
                     style={{ padding: 12, alignItems: "center" }}
                   >
                     <Text className={`text-xs font-bold ${isSelected ? "text-fuchsia-400" : "text-gray-500"}`}>
-                      {date.toLocaleDateString("el-GR", { weekday: "short" })}
+                      {date.toLocaleDateString(language === "el" ? "el-GR" : "en-US", { weekday: "short" })}
                     </Text>
                     <Text className={`text-lg font-black ${isSelected ? "text-white" : "text-gray-300"}`}>
                       {date.getDate()}
                     </Text>
                     <Text className={`text-xs ${isSelected ? "text-fuchsia-400" : "text-gray-500"}`}>
-                      {date.toLocaleDateString("el-GR", { month: "short" })}
+                      {date.toLocaleDateString(language === "el" ? "el-GR" : "en-US", { month: "short" })}
                     </Text>
                     {isSelected && <Check size={16} color="#FF00FF" style={{ marginTop: 4 }} />}
                   </LinearGradient>
@@ -132,7 +134,7 @@ export default function BookAppointmentScreen() {
           </ScrollView>
 
           {/* Time Slot Selection */}
-          <Text className="mb-3 text-base font-bold uppercase tracking-wider text-white">ΕΠΙΛΕΞΤΕ ΩΡΑ</Text>
+          <Text className="mb-3 text-base font-bold uppercase tracking-wider text-white">{t("select_time")}</Text>
           <View className="mb-6 flex-row">
             <Pressable
               onPress={() => setSelectedSlot("morning")}
@@ -145,7 +147,7 @@ export default function BookAppointmentScreen() {
               >
                 <Sun size={24} color={selectedSlot === "morning" ? "#00FF88" : "#666"} />
                 <Text className={`mt-2 text-base font-bold ${selectedSlot === "morning" ? "text-emerald-400" : "text-gray-400"}`}>
-                  Πρωί
+                  {t("morning")}
                 </Text>
                 <Text className="text-xs text-gray-500">09:00 - 14:00</Text>
               </LinearGradient>
@@ -162,7 +164,7 @@ export default function BookAppointmentScreen() {
               >
                 <Moon size={24} color={selectedSlot === "afternoon" ? "#FFD700" : "#666"} />
                 <Text className={`mt-2 text-base font-bold ${selectedSlot === "afternoon" ? "text-yellow-400" : "text-gray-400"}`}>
-                  Απόγευμα
+                  {t("afternoon")}
                 </Text>
                 <Text className="text-xs text-gray-500">14:00 - 21:00</Text>
               </LinearGradient>
@@ -181,7 +183,7 @@ export default function BookAppointmentScreen() {
               style={{ padding: 18, alignItems: "center" }}
             >
               <Text className={`text-lg font-black ${selectedDate && selectedSlot ? "text-black" : "text-gray-500"}`}>
-                {bookMutation.isPending ? "ΚΡΑΤΗΣΗ..." : "ΚΛΕΙΣΕ ΡΑΝΤΕΒΟΥ"}
+                {bookMutation.isPending ? t("booking") : t("book_appointment_cta")}
               </Text>
             </LinearGradient>
           </Pressable>
@@ -189,7 +191,7 @@ export default function BookAppointmentScreen() {
           {/* External Booking (Secondary) */}
           <Pressable onPress={openExternalBooking} className="mb-8 rounded-xl bg-gray-800 px-4 py-3">
             <View className="flex-row items-center justify-center">
-              <Text className="text-sm font-bold text-gray-400">Ή κλείσε online στο iRepair.gr</Text>
+              <Text className="text-sm font-bold text-gray-400">{t("external_booking")}</Text>
               <ExternalLink size={14} color="#666" style={{ marginLeft: 8 }} />
             </View>
           </Pressable>

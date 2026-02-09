@@ -17,7 +17,10 @@ export const translations = {
     laptops: "LAPTOPS",
     accessories: "ΑΞΕΣΟΥΑΡ",
     verified_only: "ΜΟΝΟ ΠΙΣΤΟΠΟΙΗΜΕΝΑ",
-    no_listings: "Δεν βρεθηκαν αγγελιες",
+    no_listings: "ΔΕΝ ΒΡΕΘΗΚΑΝ ΑΓΓΕΛΙΕΣ",
+    results_singular: "αποτελεσμα",
+    results_plural: "αποτελεσματα",
+    try_different_filters: "Δοκιμασε διαφορετικα φιλτρα η αναζητηση",
     // Conditions (UPPERCASE = no accents)
     condition_new: "ΚΑΙΝΟΥΡΓΙΟ",
     condition_like_new: "ΣΑΝ ΚΑΙΝΟΥΡΓΙΟ",
@@ -63,6 +66,9 @@ export const translations = {
     sign_out: "ΑΠΟΣΥΝΔΕΣΗ",
     sign_in: "ΣΥΝΔΕΣΗ",
     sign_in_to_profile: "Συνδεσου στο προφιλ σου",
+    manage_listings_desc: "Διαχειρισου τις αγγελιες και τις ρυθμισεις του λογαριασμου σου",
+    user_fallback: "Χρηστης",
+    language_label: "ΓΛΩΣΣΑ",
     // Service
     service_title: "ΥΠΗΡΕΣΙΕΣ",
     grading_cta: "ΒΑΘΜΟΛΟΓΗΣΗ ΣΤΟ IREPAIR",
@@ -225,6 +231,51 @@ export const translations = {
     see_all: "ΔΕΣ ΟΛΑ",
     featured: "ΠΡΟΤΕΙΝΟΜΕΝΑ",
     verified: "ΠΙΣΤΟΠΟΙΗΜΕΝΟ",
+    // Sell screen additional
+    login_to_sell: "ΣΥΝΔΕΣΟΥ ΓΙΑ ΝΑ ΠΟΥΛΗΣΕΙΣ",
+    login_to_sell_desc: "Δημιουργησε λογαριασμο για να καταχωρησεις τις συσκευες σου",
+    submitted_for_approval: "ΥΠΟΒΛΗΘΗΚΕ ΓΙΑ ΕΓΚΡΙΣΗ",
+    submitted_for_approval_desc: "Η αγγελια σου υποβληθηκε και θα εγκριθει συντομα",
+    missing_fields: "ΛΕΙΠΟΥΝ ΣΤΟΙΧΕΙΑ",
+    missing_fields_desc: "Συμπληρωσε ολα τα υποχρεωτικα πεδια",
+    photos_required: "ΑΠΑΙΤΟΥΝΤΑΙ ΦΩΤΟΓΡΑΦΙΕΣ",
+    photos_required_desc: "Προσθεσε τουλαχιστον 3 φωτογραφιες",
+    select_brand: "Επιλεξε μαρκα",
+    select_category_first: "Επιλεξε πρωτα κατηγορια",
+    select_model: "Επιλεξε μοντελο",
+    type_model: "Γραψε μοντελο",
+    select_brand_first: "Επιλεξε πρωτα μαρκα",
+    more_needed: "ΑΚΟΜΑ",
+    other_brand: "ΑΛΛΟ",
+    description_placeholder: "Περιγραψε τη συσκευη σου, συμπεριλαμβανομενων τυχον γρατζουνιων, αξεσουαρ, υγεια μπαταριας κ.λπ.",
+    pricing_of_new: "της τιμης καινουργιου",
+    // Category names for sell form
+    category_phone: "ΚΙΝΗΤΟ",
+    category_tablet: "TABLET",
+    category_laptop: "LAPTOP",
+    category_accessory: "ΑΞΕΣΟΥΑΡ",
+    // Demo browse
+    get_repair_quote: "Ζητα προσφορα επισκευης",
+    ask_us: "Ρωτα μας",
+    buy_sell_greece: "Αγορα & Πωληση συσκευων στην Ελλαδα",
+    device_certification: "Πιστοποιηση & Διαγνωστικα συσκευων",
+    categories: "ΚΑΤΗΓΟΡΙΕΣ",
+    no_featured_yet: "Δεν υπαρχουν ακομα προτεινομενα",
+    recent: "ΠΡΟΣΦΑΤΑ",
+    all: "ΟΛΑ",
+    no_listings_yet_demo: "Δεν υπαρχουν ακομα αγγελιες",
+    // Book Appointment Screen additional
+    appointment_booked: "ΡΑΝΤΕΒΟΥ ΚΛΕΙΣΤΗΚΕ!",
+    appointment_booked_desc: "Θα λαβετε επιβεβαιωση συντομα",
+    booking_error: "Δοκιμαστε ξανα η χρησιμοποιηστε το online booking",
+    grading_at_irepair: "Βαθμολογηση στο iRepair",
+    grading_at_irepair_desc: "Ελα να βαθμολογησουμε τη συσκευη σου στο iRepair Rhodes",
+    diagnostic_fee_title: "€10 ΔΙΑΓΝΩΣΤΙΚΟ",
+    diagnostic_fee_refund: "Επιστρεφεται αν αγορασετε",
+    diagnostic_fee_info: "Το διαγνωστικο τελος καλυπτει τον ελεγχο της συσκευης και την εκδοση βαθμολογιας. Επιστρεφεται πληρως εαν πουλησετε τη συσκευη μεσω Mobile Unit.",
+    booking: "ΚΡΑΤΗΣΗ...",
+    book_appointment_cta: "ΚΛΕΙΣΕ ΡΑΝΤΕΒΟΥ",
+    external_booking: "Η κλεισε online στο iRepair.gr",
   },
   en: {
     // Browse
@@ -237,7 +288,10 @@ export const translations = {
     laptops: "LAPTOPS",
     accessories: "ACCESSORIES",
     verified_only: "VERIFIED ONLY",
-    no_listings: "No listings found",
+    no_listings: "NO LISTINGS FOUND",
+    results_singular: "result",
+    results_plural: "results",
+    try_different_filters: "Try different filters or search",
     // Conditions
     condition_new: "NEW",
     condition_like_new: "LIKE NEW",
@@ -283,6 +337,9 @@ export const translations = {
     sign_out: "SIGN OUT",
     sign_in: "SIGN IN",
     sign_in_to_profile: "Sign in to your profile",
+    manage_listings_desc: "Manage your listings and account settings",
+    user_fallback: "User",
+    language_label: "LANGUAGE",
     // Service
     service_title: "SERVICES",
     grading_cta: "GET GRADED AT IREPAIR",
@@ -445,6 +502,51 @@ export const translations = {
     see_all: "SEE ALL",
     featured: "FEATURED",
     verified: "VERIFIED",
+    // Sell screen additional
+    login_to_sell: "SIGN IN TO SELL",
+    login_to_sell_desc: "Create an account to list your devices",
+    submitted_for_approval: "SUBMITTED FOR APPROVAL",
+    submitted_for_approval_desc: "Your listing was submitted and will be approved soon",
+    missing_fields: "MISSING FIELDS",
+    missing_fields_desc: "Fill in all required fields",
+    photos_required: "PHOTOS REQUIRED",
+    photos_required_desc: "Add at least 3 photos",
+    select_brand: "Select brand",
+    select_category_first: "Select category first",
+    select_model: "Select model",
+    type_model: "Type model",
+    select_brand_first: "Select brand first",
+    more_needed: "MORE",
+    other_brand: "OTHER",
+    description_placeholder: "Describe your device, including any scratches, accessories, battery health, etc.",
+    pricing_of_new: "of new price",
+    // Category names for sell form
+    category_phone: "PHONE",
+    category_tablet: "TABLET",
+    category_laptop: "LAPTOP",
+    category_accessory: "ACCESSORY",
+    // Demo browse
+    get_repair_quote: "Get repair quote",
+    ask_us: "Ask us",
+    buy_sell_greece: "Buy & Sell devices in Greece",
+    device_certification: "Device certification & diagnostics",
+    categories: "CATEGORIES",
+    no_featured_yet: "No featured listings yet",
+    recent: "RECENT",
+    all: "ALL",
+    no_listings_yet_demo: "No listings yet",
+    // Book Appointment Screen additional
+    appointment_booked: "APPOINTMENT BOOKED!",
+    appointment_booked_desc: "You'll receive confirmation shortly",
+    booking_error: "Try again or use online booking",
+    grading_at_irepair: "Grading at iRepair",
+    grading_at_irepair_desc: "Get your device graded at iRepair Rhodes",
+    diagnostic_fee_title: "€10 DIAGNOSTIC FEE",
+    diagnostic_fee_refund: "Refunded on purchase",
+    diagnostic_fee_info: "The diagnostic fee covers device inspection and grading. Fully refunded if you sell your device through Mobile Unit.",
+    booking: "BOOKING...",
+    book_appointment_cta: "BOOK APPOINTMENT",
+    external_booking: "Or book online at iRepair.gr",
   },
 } as const;
 
@@ -463,7 +565,7 @@ export const useLanguageStore = create<LanguageState>()(
       setLanguage: (lang) => set({ language: lang }),
       t: (key) => {
         const lang = get().language;
-        return translations[lang][key] ?? key;
+        return (translations[lang] as Record<TranslationKey, string>)[key] ?? key;
       },
     }),
     {
@@ -479,7 +581,7 @@ export const useTranslation = () => {
   const setLanguage = useLanguageStore((s) => s.setLanguage);
 
   const t = (key: TranslationKey): string => {
-    return translations[language][key] ?? key;
+    return (translations[language] as Record<TranslationKey, string>)[key] ?? key;
   };
 
   return { t, language, setLanguage };

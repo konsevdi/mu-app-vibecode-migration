@@ -27,18 +27,14 @@ import { api } from "@/lib/api";
 import { authClient } from "@/lib/authClient";
 import { type GetListingsResponse, type Listing } from "@/shared/contracts";
 import { LanguageToggle } from "@/components/LanguageToggle";
-import { useTranslation } from "@/lib/languageStore";
+import { useTranslation, type TranslationKey } from "@/lib/languageStore";
+import { CONDITIONS, normalizeConditionKey } from "@/lib/conditions";
 
-const conditionLabels: Record<string, { label: string; color: string }> = {
-  new: { label: "ΚΑΙΝΟΥΡΓΙΟ", color: "#00FF88" },
-  like_new: { label: "ΣΑΝ ΚΑΙΝΟΥΡΓΙΟ", color: "#00BFFF" },
-  good: { label: "ΚΑΛΟ", color: "#FFD700" },
-  fair: { label: "ΜΕΤΡΙΟ", color: "#FF6B6B" },
-};
-
-function MyListingCard({ listing }: { listing: Listing }) {
+function MyListingCard({ listing, t }: { listing: Listing; t: (key: TranslationKey) => string }) {
   const router = useRouter();
-  const condition = conditionLabels[listing.condition] ?? conditionLabels.good;
+  const conditionKey = normalizeConditionKey(listing.condition);
+  const conditionData = CONDITIONS[conditionKey];
+  const conditionLabel = t(conditionData.translationKey as TranslationKey);
 
   return (
     <Pressable
@@ -61,10 +57,10 @@ function MyListingCard({ listing }: { listing: Listing }) {
           <View className="mb-1 flex-row items-center">
             <View
               className="rounded-full px-2 py-0.5"
-              style={{ backgroundColor: `${condition.color}20`, borderWidth: 1, borderColor: condition.color }}
+              style={{ backgroundColor: `${conditionData.color}20`, borderWidth: 1, borderColor: conditionData.color }}
             >
-              <Text style={{ color: condition.color }} className="text-xs font-bold uppercase">
-                {condition.label}
+              <Text style={{ color: conditionData.color }} className="text-xs font-bold uppercase">
+                {conditionLabel}
               </Text>
             </View>
             <View className="ml-2 flex-row items-center">
@@ -78,7 +74,7 @@ function MyListingCard({ listing }: { listing: Listing }) {
             {listing.title}
           </Text>
           <Text className="mt-1 text-lg font-black text-fuchsia-400">
-            €{listing.price.toFixed(0)}
+            {listing.price.toFixed(0)}
           </Text>
         </View>
         <View className="items-center justify-center pr-4">
@@ -133,9 +129,7 @@ export default function ProfileScreen() {
             {t("sign_in_to_profile")}
           </Text>
           <Text className="mt-3 text-center text-base font-medium text-gray-400">
-            {language === "el"
-              ? "Διαχειρισου τις αγγελιες και τις ρυθμισεις του λογαριασμου σου"
-              : "Manage your listings and account settings"}
+            {t("manage_listings_desc")}
           </Text>
           <Pressable
             onPress={() => router.push("/login" as Href)}
@@ -188,7 +182,7 @@ export default function ProfileScreen() {
               )}
             </View>
             <Text className="mt-5 text-2xl font-black text-white">
-              {session.user.name ?? "Χρηστης"}
+              {session.user.name ?? t("user_fallback")}
             </Text>
             <Text className="mt-1 text-base font-medium text-gray-400">
               {session.user.email}
@@ -249,7 +243,7 @@ export default function ProfileScreen() {
             </View>
             {myListings?.listings && myListings.listings.length > 0 ? (
               myListings.listings.map((listing: Listing) => (
-                <MyListingCard key={listing.id} listing={listing} />
+                <MyListingCard key={listing.id} listing={listing} t={t} />
               ))
             ) : (
               <View className="items-center overflow-hidden rounded-2xl" style={{ borderWidth: 2, borderColor: "#333" }}>
@@ -283,7 +277,7 @@ export default function ProfileScreen() {
           {/* Language Toggle */}
           <View className="mx-5 mb-4 mt-6">
             <Text className="mb-3 text-sm font-bold uppercase tracking-wider text-gray-500">
-              {language === "el" ? "ΓΛΩΣΣΑ / LANGUAGE" : "LANGUAGE / ΓΛΩΣΣΑ"}
+              {t("language_label")} / {language === "el" ? "LANGUAGE" : "ΓΛΩΣΣΑ"}
             </Text>
             <LanguageToggle />
           </View>

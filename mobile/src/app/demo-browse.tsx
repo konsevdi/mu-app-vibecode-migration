@@ -43,6 +43,7 @@ import { api } from "@/lib/api";
 import { type GetListingsResponse, type Listing } from "@/shared/contracts";
 import { isListingVerified } from "@/lib/verification";
 import { useTranslation, type TranslationKey } from "@/lib/languageStore";
+import { CONDITIONS, normalizeConditionKey } from "@/lib/conditions";
 import { useOnboardingStore } from "@/lib/onboardingStore";
 import { LanguageTogglePill } from "@/components/LanguageTogglePill";
 import {
@@ -58,50 +59,37 @@ const CARD_WIDTH = width * 0.75;
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-const categories = [
+// Category data with icons and colors - translations applied at render time
+const getCategoryData = (t: (key: TranslationKey) => string) => [
   {
     id: "phone",
-    name: "PHONES",
-    nameEl: "ΚΙΝΗΤΑ",
+    name: t("phones"),
     icon: Smartphone,
     color: "#FF00FF",
     bgColor: "#FF00FF20",
   },
   {
     id: "tablet",
-    name: "TABLETS",
-    nameEl: "TABLETS",
+    name: t("tablets"),
     icon: Tablet,
     color: "#00FF88",
     bgColor: "#00FF8820",
   },
   {
     id: "laptop",
-    name: "LAPTOPS",
-    nameEl: "LAPTOPS",
+    name: t("laptops"),
     icon: Laptop,
     color: "#00BFFF",
     bgColor: "#00BFFF20",
   },
   {
     id: "accessory",
-    name: "ACCESSORIES",
-    nameEl: "ΑΞΕΣΟΥΑΡ",
+    name: t("accessories"),
     icon: Headphones,
     color: "#FFD700",
     bgColor: "#FFD70020",
   },
 ];
-
-const conditionLabels: Record<
-  string,
-  { label: string; labelEl: string; color: string }
-> = {
-  new: { label: "New", labelEl: "ΚΑΙΝΟΥΡΓΙΟ", color: "#00FF88" },
-  like_new: { label: "Like New", labelEl: "ΣΑΝ ΚΑΙΝΟΥΡΓΙΟ", color: "#00BFFF" },
-  good: { label: "Good", labelEl: "ΚΑΛΟ", color: "#FFD700" },
-  fair: { label: "Fair", labelEl: "ΜΕΤΡΙΟ", color: "#FF6B6B" },
-};
 
 // ============================================================================
 // PREMIUM DEMO LOCKED MODAL
@@ -113,7 +101,6 @@ function DemoLockedModal({
   onJoinWaitlist,
   onRepairQuote,
   onAskAccessories,
-  language,
   t,
   reduceMotion,
 }: {
@@ -122,7 +109,6 @@ function DemoLockedModal({
   onJoinWaitlist: () => void;
   onRepairQuote: () => void;
   onAskAccessories: () => void;
-  language: string;
   t: (key: TranslationKey) => string;
   reduceMotion: boolean;
 }) {
@@ -244,9 +230,7 @@ function DemoLockedModal({
               {/* Secondary CTA - Repair Quote */}
               <AnimatedModalButton
                 onPress={onRepairQuote}
-                label={
-                  language === "el" ? "Ζητα προσφορα επισκευης" : "Get repair quote"
-                }
+                label={t("get_repair_quote")}
                 variant="secondary"
                 icon={<Wrench size={18} color="#FFD700" />}
                 reduceMotion={reduceMotion}
@@ -256,7 +240,7 @@ function DemoLockedModal({
               <Pressable onPress={onAskAccessories} style={styles.modalLinkCTA}>
                 <MessageCircle size={14} color="#666" />
                 <Text style={styles.modalLinkText}>
-                  {language === "el" ? "Ρωτα μας" : "Ask us"}
+                  {t("ask_us")}
                 </Text>
               </Pressable>
             </View>
@@ -339,16 +323,21 @@ function AnimatedModalButton({
 // EXISTING COMPONENTS (unchanged logic, just using LanguageTogglePill)
 // ============================================================================
 
+// Type for category data returned by getCategoryData
+type CategoryData = ReturnType<typeof getCategoryData>[0];
+
 function FeaturedListingCard({
   listing,
   onPress,
-  language,
+  t,
 }: {
   listing: Listing;
   onPress: () => void;
-  language: string;
+  t: (key: TranslationKey) => string;
 }) {
-  const condition = conditionLabels[listing.condition] ?? conditionLabels.good;
+  const conditionKey = normalizeConditionKey(listing.condition);
+  const conditionData = CONDITIONS[conditionKey];
+  const conditionLabel = t(conditionData.translationKey as TranslationKey);
 
   return (
     <Pressable
@@ -372,16 +361,16 @@ function FeaturedListingCard({
             <View
               className="mr-2 rounded-full px-3 py-1.5"
               style={{
-                backgroundColor: `${condition.color}25`,
+                backgroundColor: `${conditionData.color}25`,
                 borderWidth: 1,
-                borderColor: condition.color,
+                borderColor: conditionData.color,
               }}
             >
               <Text
-                style={{ color: condition.color }}
+                style={{ color: conditionData.color }}
                 className="text-xs font-bold uppercase"
               >
-                {language === "el" ? condition.labelEl : condition.label}
+                {conditionLabel}
               </Text>
             </View>
             {listing.isFeatured && (
@@ -402,7 +391,7 @@ function FeaturedListingCard({
               >
                 <Shield size={12} color="#00FF88" />
                 <Text className="ml-1 text-xs font-bold text-emerald-400">
-                  Verified
+                  {t("verified")}
                 </Text>
               </View>
             )}
@@ -411,7 +400,7 @@ function FeaturedListingCard({
             {listing.title}
           </Text>
           <Text className="mt-2 text-3xl font-black text-fuchsia-400">
-            €{listing.price.toFixed(0)}
+            {"\u20AC"}{listing.price.toFixed(0)}
           </Text>
           {listing.location && (
             <View className="mt-3 flex-row items-center">
@@ -430,11 +419,9 @@ function FeaturedListingCard({
 function CategoryCard({
   category,
   onPress,
-  language,
 }: {
-  category: (typeof categories)[0];
+  category: CategoryData;
   onPress: () => void;
-  language: string;
 }) {
   const Icon = category.icon;
 
@@ -455,7 +442,7 @@ function CategoryCard({
           <Icon size={32} color={category.color} />
         </View>
         <Text className="text-base font-bold text-white">
-          {language === "el" ? category.nameEl : category.name}
+          {category.name}
         </Text>
       </LinearGradient>
     </Pressable>
@@ -472,6 +459,9 @@ export default function DemoBrowseScreen() {
   const reduceMotion = useReduceMotion();
   const selectedCity = useOnboardingStore((s) => s.selectedCity);
   const [showLockedModal, setShowLockedModal] = useState(false);
+
+  // Get categories with translations
+  const categories = getCategoryData(t);
 
   const { data, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ["listings", "featured"],
@@ -566,9 +556,7 @@ export default function DemoBrowseScreen() {
               </Text>
             </View>
             <Text className="mt-2 text-lg font-semibold text-gray-400">
-              {language === "el"
-                ? "Αγορα & Πωληση συσκευων στην Ελλαδα"
-                : "Buy & Sell devices in Greece"}
+              {t("buy_sell_greece")}
             </Text>
           </View>
 
@@ -593,12 +581,10 @@ export default function DemoBrowseScreen() {
               </View>
               <View className="flex-1">
                 <Text className="text-xl font-black text-gray-500">
-                  iRepair {language === "el" ? "ΡΟΔΟΣ" : "RHODES"}
+                  iRepair {t("rhodes")}
                 </Text>
                 <Text className="mt-1 text-base font-semibold text-gray-600">
-                  {language === "el"
-                    ? "Πιστοποιηση & Διαγνωστικα συσκευων"
-                    : "Device certification & diagnostics"}
+                  {t("device_certification")}
                 </Text>
               </View>
               <Lock size={24} color="#666" />
@@ -609,7 +595,7 @@ export default function DemoBrowseScreen() {
           <View className="mb-8">
             <View className="mb-5 flex-row items-center justify-between px-5">
               <Text className="text-2xl font-black uppercase tracking-wider text-white">
-                {language === "el" ? "ΚΑΤΗΓΟΡΙΕΣ" : "CATEGORIES"}
+                {t("categories")}
               </Text>
             </View>
             <ScrollView
@@ -623,7 +609,6 @@ export default function DemoBrowseScreen() {
                   key={category.id}
                   category={category}
                   onPress={handleLockedAction}
-                  language={language}
                 />
               ))}
             </ScrollView>
@@ -635,7 +620,7 @@ export default function DemoBrowseScreen() {
               <View className="flex-row items-center">
                 <Sparkles size={22} color="#FFD700" />
                 <Text className="ml-2 text-2xl font-black uppercase tracking-wider text-white">
-                  {language === "el" ? "ΠΡΟΤΕΙΝΟΜΕΝΑ" : "FEATURED"}
+                  {t("featured")}
                 </Text>
               </View>
               <Pressable
@@ -644,7 +629,7 @@ export default function DemoBrowseScreen() {
                 style={{ borderWidth: 1, borderColor: "#FF00FF" }}
               >
                 <Text className="mr-1 text-sm font-bold uppercase text-fuchsia-400">
-                  {language === "el" ? "ΟΛΑ" : "ALL"}
+                  {t("all")}
                 </Text>
                 <ChevronRight size={16} color="#FF00FF" />
               </Pressable>
@@ -652,7 +637,7 @@ export default function DemoBrowseScreen() {
             {isLoading ? (
               <View className="h-64 items-center justify-center">
                 <Text className="text-lg font-bold text-gray-500">
-                  {language === "el" ? "Φορτωση..." : "Loading..."}
+                  {t("loading")}
                 </Text>
               </View>
             ) : data?.listings && data.listings.length > 0 ? (
@@ -667,7 +652,7 @@ export default function DemoBrowseScreen() {
                     key={listing.id}
                     listing={listing}
                     onPress={() => handleListingPress(listing.id)}
-                    language={language}
+                    t={t}
                   />
                 ))}
               </ScrollView>
@@ -682,9 +667,7 @@ export default function DemoBrowseScreen() {
                 >
                   <Sparkles size={48} color="#666" />
                   <Text className="mt-4 text-center text-lg font-bold text-gray-400">
-                    {language === "el"
-                      ? "Δεν υπαρχουν ακομα προτεινομενα"
-                      : "No featured listings yet"}
+                    {t("no_featured_yet")}
                   </Text>
                 </LinearGradient>
               </View>
@@ -695,7 +678,7 @@ export default function DemoBrowseScreen() {
           <View className="mb-8 px-5">
             <View className="mb-5 flex-row items-center justify-between">
               <Text className="text-2xl font-black uppercase tracking-wider text-white">
-                {language === "el" ? "ΠΡΟΣΦΑΤΑ" : "RECENT"}
+                {t("recent")}
               </Text>
               <Pressable
                 onPress={handleLockedAction}
@@ -703,7 +686,7 @@ export default function DemoBrowseScreen() {
                 style={{ borderWidth: 1, borderColor: "#00FF88" }}
               >
                 <Text className="mr-1 text-sm font-bold uppercase text-emerald-400">
-                  {language === "el" ? "ΟΛΑ" : "ALL"}
+                  {t("all")}
                 </Text>
                 <ChevronRight size={16} color="#00FF88" />
               </Pressable>
@@ -735,7 +718,7 @@ export default function DemoBrowseScreen() {
                           {listing.title}
                         </Text>
                         <Text className="mt-2 text-xl font-black text-fuchsia-400">
-                          €{listing.price.toFixed(0)}
+                          {"\u20AC"}{listing.price.toFixed(0)}
                         </Text>
                       </View>
                     </LinearGradient>
@@ -752,9 +735,7 @@ export default function DemoBrowseScreen() {
                   style={{ padding: 24, alignItems: "center" }}
                 >
                   <Text className="text-center font-bold text-gray-500">
-                    {language === "el"
-                      ? "Δεν υπαρχουν ακομα αγγελιες"
-                      : "No listings yet"}
+                    {t("no_listings_yet_demo")}
                   </Text>
                 </LinearGradient>
               </View>
@@ -794,7 +775,6 @@ export default function DemoBrowseScreen() {
         onJoinWaitlist={handleJoinWaitlist}
         onRepairQuote={handleRepairQuote}
         onAskAccessories={handleAskAccessories}
-        language={language}
         t={t}
         reduceMotion={reduceMotion}
       />

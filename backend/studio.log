@@ -84,3 +84,25 @@ Cloud Studio starting on http://0.0.0.0:3001
 Cloud Studio is running at http://0.0.0.0:3001
 Prisma Client not available: @prisma/client did not initialize yet. Please run "prisma generate" and try to import it again.
 The UI will display setup instructions.
++ exec gosu vibecode scripts/studio
+Starting in development mode...
+Installing dependencies...
+[0.04ms] ".env"
+bun install v1.2.19 (aad3abea)
+
+$ prisma generate
+Environment variables loaded from .env
+Prisma schema loaded from prisma/schema.prisma
+
+✔ Generated Prisma Client (v6.17.1) to ./generated/prisma in 375ms
+
+Start by importing your Prisma Client (See: https://pris.ly/d/importing-client)
+
+Tip: Interested in query caching in just a few lines of code? Try Accelerate today! https://pris.ly/tip-3-accelerate
+
+
+Checked 160 installs across 159 packages (no changes) [2.54s]
+Starting Cloud Studio...
+Cloud Studio starting on http://0.0.0.0:3001
+Cloud Studio is running at http://0.0.0.0:3001
+Prisma Client connected

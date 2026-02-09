@@ -312,7 +312,7 @@ export default function HomeScreen() {
                   iRepair {t("rhodes")}
                 </Text>
                 <Text className="mt-1 text-base font-semibold text-black/70">
-                  {language === "el" ? "Πιστοποίηση & Διαγνωστικά συσκευών" : "Device certification & diagnostics"}
+                  {language === "el" ? "Πιστοποιηση & Διαγνωστικα συσκευων" : "Device certification & diagnostics"}
                 </Text>
               </View>
               <ChevronRight size={28} color="#000000" />
@@ -390,7 +390,7 @@ export default function HomeScreen() {
                 >
                   <Sparkles size={48} color="#666" />
                   <Text className="mt-4 text-center text-lg font-bold text-gray-400">
-                    {language === "el" ? "Δεν υπάρχουν ακόμα προτεινόμενα. Γίνε ο πρώτος!" : "No featured listings yet. Be the first!"}
+                    {language === "el" ? "Δεν υπαρχουν ακομα προτεινομενα. Γινε ο πρωτος!" : "No featured listings yet. Be the first!"}
                   </Text>
                   <Pressable
                     onPress={() => router.push("/sell" as Href)}

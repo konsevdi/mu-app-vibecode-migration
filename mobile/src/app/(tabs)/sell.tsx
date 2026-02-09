@@ -52,19 +52,19 @@ const conditions: { id: Condition; name: string; description: string; color: str
 
 // Brand options per category
 const brandOptions: Record<Category, string[]> = {
-  phone: ["Apple", "Samsung", "Xiaomi", "OnePlus", "Google", "Huawei", "OPPO", "Realme", "Sony", "Nokia", "Motorola", "Nothing", "Αλλο"],
-  tablet: ["Apple", "Samsung", "Xiaomi", "Lenovo", "Huawei", "Microsoft", "Amazon", "Αλλο"],
-  laptop: ["Apple", "Lenovo", "HP", "Dell", "Asus", "Acer", "MSI", "Microsoft", "Razer", "Αλλο"],
-  accessory: ["Apple", "Samsung", "Sony", "JBL", "Bose", "Anker", "Belkin", "Αλλο"],
+  phone: ["Apple", "Samsung", "Xiaomi", "OnePlus", "Google", "Huawei", "OPPO", "Realme", "Sony", "Nokia", "Motorola", "Nothing", "ΑΛΛΟ"],
+  tablet: ["Apple", "Samsung", "Xiaomi", "Lenovo", "Huawei", "Microsoft", "Amazon", "ΑΛΛΟ"],
+  laptop: ["Apple", "Lenovo", "HP", "Dell", "Asus", "Acer", "MSI", "Microsoft", "Razer", "ΑΛΛΟ"],
+  accessory: ["Apple", "Samsung", "Sony", "JBL", "Bose", "Anker", "Belkin", "ΑΛΛΟ"],
 };
 
 // Model options per brand (simplified)
 const modelOptions: Record<string, string[]> = {
-  Apple: ["iPhone 15 Pro Max", "iPhone 15 Pro", "iPhone 15 Plus", "iPhone 15", "iPhone 14 Pro Max", "iPhone 14 Pro", "iPhone 14 Plus", "iPhone 14", "iPhone 13 Pro Max", "iPhone 13 Pro", "iPhone 13", "iPhone 13 mini", "iPhone 12 Pro Max", "iPhone 12 Pro", "iPhone 12", "iPhone 12 mini", "iPhone SE (2022)", "iPhone SE (2020)", "iPhone 11 Pro Max", "iPhone 11 Pro", "iPhone 11", "iPad Pro 12.9", "iPad Pro 11", "iPad Air", "iPad mini", "iPad", "MacBook Pro 16", "MacBook Pro 14", "MacBook Pro 13", "MacBook Air M2", "MacBook Air M1", "AirPods Pro 2", "AirPods Pro", "AirPods 3", "AirPods 2", "AirPods Max", "Αλλο"],
-  Samsung: ["Galaxy S24 Ultra", "Galaxy S24+", "Galaxy S24", "Galaxy S23 Ultra", "Galaxy S23+", "Galaxy S23", "Galaxy Z Fold 5", "Galaxy Z Flip 5", "Galaxy Z Fold 4", "Galaxy Z Flip 4", "Galaxy A54", "Galaxy A34", "Galaxy Tab S9 Ultra", "Galaxy Tab S9+", "Galaxy Tab S9", "Galaxy Tab S8", "Galaxy Buds 2 Pro", "Galaxy Buds FE", "Αλλο"],
-  Xiaomi: ["14 Ultra", "14 Pro", "14", "13T Pro", "13T", "13 Pro", "13", "Redmi Note 13 Pro+", "Redmi Note 13 Pro", "Redmi Note 13", "Poco X6 Pro", "Poco X6", "Pad 6 Pro", "Pad 6", "Αλλο"],
-  OnePlus: ["12", "12R", "11", "Open", "Nord 3", "Nord CE 3", "Buds Pro 2", "Αλλο"],
-  Google: ["Pixel 8 Pro", "Pixel 8", "Pixel 7 Pro", "Pixel 7", "Pixel 7a", "Pixel Fold", "Pixel Buds Pro", "Αλλο"],
+  Apple: ["iPhone 15 Pro Max", "iPhone 15 Pro", "iPhone 15 Plus", "iPhone 15", "iPhone 14 Pro Max", "iPhone 14 Pro", "iPhone 14 Plus", "iPhone 14", "iPhone 13 Pro Max", "iPhone 13 Pro", "iPhone 13", "iPhone 13 mini", "iPhone 12 Pro Max", "iPhone 12 Pro", "iPhone 12", "iPhone 12 mini", "iPhone SE (2022)", "iPhone SE (2020)", "iPhone 11 Pro Max", "iPhone 11 Pro", "iPhone 11", "iPad Pro 12.9", "iPad Pro 11", "iPad Air", "iPad mini", "iPad", "MacBook Pro 16", "MacBook Pro 14", "MacBook Pro 13", "MacBook Air M2", "MacBook Air M1", "AirPods Pro 2", "AirPods Pro", "AirPods 3", "AirPods 2", "AirPods Max", "ΑΛΛΟ"],
+  Samsung: ["Galaxy S24 Ultra", "Galaxy S24+", "Galaxy S24", "Galaxy S23 Ultra", "Galaxy S23+", "Galaxy S23", "Galaxy Z Fold 5", "Galaxy Z Flip 5", "Galaxy Z Fold 4", "Galaxy Z Flip 4", "Galaxy A54", "Galaxy A34", "Galaxy Tab S9 Ultra", "Galaxy Tab S9+", "Galaxy Tab S9", "Galaxy Tab S8", "Galaxy Buds 2 Pro", "Galaxy Buds FE", "ΑΛΛΟ"],
+  Xiaomi: ["14 Ultra", "14 Pro", "14", "13T Pro", "13T", "13 Pro", "13", "Redmi Note 13 Pro+", "Redmi Note 13 Pro", "Redmi Note 13", "Poco X6 Pro", "Poco X6", "Pad 6 Pro", "Pad 6", "ΑΛΛΟ"],
+  OnePlus: ["12", "12R", "11", "Open", "Nord 3", "Nord CE 3", "Buds Pro 2", "ΑΛΛΟ"],
+  Google: ["Pixel 8 Pro", "Pixel 8", "Pixel 7 Pro", "Pixel 7", "Pixel 7a", "Pixel Fold", "Pixel Buds Pro", "ΑΛΛΟ"],
 };
 
 const placeholderImages = [
@@ -98,7 +98,7 @@ export default function SellScreen() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["listings"] });
       Alert.alert(
-        "Υποβληθηκε για Εγκριση",
+        "ΥΠΟΒΛΗΘΗΚΕ ΓΙΑ ΕΓΚΡΙΣΗ",
         "Η αγγελια σου υποβληθηκε και θα εγκριθει συντομα απο τη διαχειριση.\n\nYour listing is pending approval.",
         [{ text: "OK", onPress: () => router.push("/" as Href) }]
       );
@@ -114,7 +114,7 @@ export default function SellScreen() {
       setImages([]);
     },
     onError: (error) => {
-      Alert.alert("Σφαλμα", "Αποτυχια δημιουργιας αγγελιας. Προσπαθησε ξανα.");
+      Alert.alert("ΣΦΑΛΜΑ", "Αποτυχια δημιουργιας αγγελιας. Προσπαθησε ξανα.");
       console.error(error);
     },
   });
@@ -126,12 +126,12 @@ export default function SellScreen() {
     }
 
     if (!title.trim() || !description.trim() || !price || !category || !condition || !city) {
-      Alert.alert("Λειπουν Στοιχεια", "Συμπληρωσε ολα τα υποχρεωτικα πεδια.");
+      Alert.alert("ΛΕΙΠΟΥΝ ΣΤΟΙΧΕΙΑ", "Συμπληρωσε ολα τα υποχρεωτικα πεδια.");
       return;
     }
 
     if (images.length < 3) {
-      Alert.alert("Απαιτουνται Φωτογραφιες", "Προσθεσε τουλαχιστον 3 φωτογραφιες.\n\nMinimum 3 photos required.");
+      Alert.alert("ΑΠΑΙΤΟΥΝΤΑΙ ΦΩΤΟΓΡΑΦΙΕΣ", "Προσθεσε τουλαχιστον 3 φωτογραφιες.\n\nMinimum 3 photos required.");
       return;
     }
 
@@ -174,7 +174,7 @@ export default function SellScreen() {
             <Camera size={72} color="#FF00FF" />
           </View>
           <Text className="text-center text-3xl font-black text-white">
-            Συνδεσου για να πουλησεις
+            ΣΥΝΔΕΣΟΥ ΓΙΑ ΝΑ ΠΟΥΛΗΣΕΙΣ
           </Text>
           <Text className="mt-3 text-center text-base font-medium text-gray-400">
             Δημιουργησε λογαριασμο για να καταχωρησεις τις συσκευες σου στο Mobile Unit
@@ -188,7 +188,7 @@ export default function SellScreen() {
               colors={["#FF00FF", "#CC00CC"]}
               style={{ paddingHorizontal: 40, paddingVertical: 18 }}
             >
-              <Text className="text-xl font-black uppercase text-white">Συνδεση</Text>
+              <Text className="text-xl font-black uppercase text-white">ΣΥΝΔΕΣΗ</Text>
             </LinearGradient>
           </Pressable>
         </SafeAreaView>
@@ -216,7 +216,7 @@ export default function SellScreen() {
             <View className="px-5 pb-6 pt-4">
               <View className="flex-row items-center">
                 <Sparkles size={24} color="#FFD700" />
-                <Text className="ml-2 text-3xl font-black text-white">Νεα Αγγελια</Text>
+                <Text className="ml-2 text-2xl font-black text-white">ΝΕΑ ΑΓΓΕΛΙΑ</Text>
               </View>
               <Text className="mt-1 text-base font-semibold text-gray-400">
                 Πουλησε τη συσκευη σου στο Mobile Unit
@@ -261,7 +261,7 @@ export default function SellScreen() {
                   >
                     <ImagePlus size={32} color={images.length < 3 ? "#FF6B6B" : "#FF00FF"} />
                     <Text className={`mt-2 text-xs font-bold ${images.length < 3 ? "text-red-400" : "text-fuchsia-400"}`}>
-                      {images.length < 3 ? `${3 - images.length} ακομα` : "Προσθηκη"}
+                      {images.length < 3 ? `${3 - images.length} ΑΚΟΜΑ` : "ΠΡΟΣΘΗΚΗ"}
                     </Text>
                   </Pressable>
                 )}
@@ -388,7 +388,7 @@ export default function SellScreen() {
                 >
                   <ExternalLink size={16} color="#00BFFF" />
                   <Text className="ml-2 text-sm font-bold text-sky-400">
-                    Δες Τιμές Αγοράς Pandas / Check Pandas Pricing
+                    Δες Τιμες Αγορας Pandas / Check Pandas Pricing
                   </Text>
                 </LinearGradient>
               </Pressable>
@@ -587,7 +587,7 @@ export default function SellScreen() {
                   style={{ alignItems: "center", paddingVertical: 18 }}
                 >
                   <Text className="text-xl font-black uppercase text-white">
-                    {createMutation.isPending ? "Δημιουργια..." : "Δημοσιευση Αγγελιας"}
+                    {createMutation.isPending ? "ΔΗΜΙΟΥΡΓΙΑ..." : "ΔΗΜΟΣΙΕΥΣΗ ΑΓΓΕΛΙΑΣ"}
                   </Text>
                 </LinearGradient>
               </Pressable>

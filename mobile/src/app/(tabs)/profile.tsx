@@ -30,10 +30,10 @@ import { LanguageToggle } from "@/components/LanguageToggle";
 import { useTranslation } from "@/lib/languageStore";
 
 const conditionLabels: Record<string, { label: string; color: string }> = {
-  new: { label: "Καινούργιο", color: "#00FF88" },
-  like_new: { label: "Σαν Καινούργιο", color: "#00BFFF" },
-  good: { label: "Καλό", color: "#FFD700" },
-  fair: { label: "Μέτριο", color: "#FF6B6B" },
+  new: { label: "ΚΑΙΝΟΥΡΓΙΟ", color: "#00FF88" },
+  like_new: { label: "ΣΑΝ ΚΑΙΝΟΥΡΓΙΟ", color: "#00BFFF" },
+  good: { label: "ΚΑΛΟ", color: "#FFD700" },
+  fair: { label: "ΜΕΤΡΙΟ", color: "#FF6B6B" },
 };
 
 function MyListingCard({ listing }: { listing: Listing }) {
@@ -134,7 +134,7 @@ export default function ProfileScreen() {
           </Text>
           <Text className="mt-3 text-center text-base font-medium text-gray-400">
             {language === "el"
-              ? "Διαχειρίσου τις αγγελίες και τις ρυθμίσεις του λογαριασμού σου"
+              ? "Διαχειρισου τις αγγελιες και τις ρυθμισεις του λογαριασμου σου"
               : "Manage your listings and account settings"}
           </Text>
           <Pressable
@@ -188,7 +188,7 @@ export default function ProfileScreen() {
               )}
             </View>
             <Text className="mt-5 text-2xl font-black text-white">
-              {session.user.name ?? "Χρήστης"}
+              {session.user.name ?? "Χρηστης"}
             </Text>
             <Text className="mt-1 text-base font-medium text-gray-400">
               {session.user.email}

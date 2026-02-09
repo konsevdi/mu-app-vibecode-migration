@@ -418,12 +418,12 @@ function RepairUpsellCard({
         <View style={styles.repairTextContainer}>
           <Text style={styles.repairTitle}>
             {language === "el"
-              ? "Έχει θέμα η συσκευή σου;"
+              ? "Εχει θεμα η συσκευη σου;"
               : "Device needs repair?"}
           </Text>
           <Text style={styles.repairSubtitle}>
             {language === "el"
-              ? "Ζήτα προσφορά επισκευής"
+              ? "Ζητα προσφορα επισκευης"
               : "Get a repair quote"}
           </Text>
         </View>
@@ -791,7 +791,7 @@ export default function OnboardingScreen() {
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
             <Text style={styles.skipText}>
-              {language === "el" ? "Πίσω" : "Back"}
+              {language === "el" ? "Πισω" : "Back"}
             </Text>
           </Pressable>
           <LanguageTogglePill />
@@ -834,7 +834,7 @@ export default function OnboardingScreen() {
               <View style={styles.rhodesContent}>
                 <View>
                   <Text style={styles.rhodesTitle}>
-                    {language === "el" ? "Ρόδος" : "Rhodes"}
+                    {language === "el" ? "Ροδος" : "Rhodes"}
                   </Text>
                   <View style={styles.rhodesBadge}>
                     <Text style={styles.rhodesBadgeText}>{t("available_now")}</Text>
@@ -857,7 +857,7 @@ export default function OnboardingScreen() {
             {greekCities.length > 0 && (
               <View style={styles.citySection}>
                 <Text style={styles.citySectionTitle}>
-                  {language === "el" ? "Ελλάδα" : "Greece"}
+                  {language === "el" ? "Ελλαδα" : "Greece"}
                 </Text>
                 <View style={styles.cityChipsContainer}>
                   {greekCities
@@ -879,7 +879,7 @@ export default function OnboardingScreen() {
             {europeCities.length > 0 && (
               <View style={styles.citySection}>
                 <Text style={styles.citySectionTitle}>
-                  {language === "el" ? "Ευρώπη" : "Europe"}
+                  {language === "el" ? "Ευρωπη" : "Europe"}
                 </Text>
                 <View style={styles.cityChipsContainer}>
                   {europeCities.map((city, index) => (

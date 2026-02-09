@@ -43,11 +43,11 @@ const categories: { id: Category | "all"; name: string; icon: React.ComponentTyp
 ];
 
 const conditionLabels: Record<string, { label: string; color: string }> = {
-  new: { label: "Καινούργιο", color: "#00FF88" },
-  like_new: { label: "Σαν Καινούργιο", color: "#00BFFF" },
-  good: { label: "Καλό", color: "#FFD700" },
-  fair: { label: "Μέτριο", color: "#FF6B6B" },
-  parts: { label: "Ανταλλακτικά", color: "#888888" },
+  new: { label: "ΚΑΙΝΟΥΡΓΙΟ", color: "#00FF88" },
+  like_new: { label: "ΣΑΝ ΚΑΙΝΟΥΡΓΙΟ", color: "#00BFFF" },
+  good: { label: "ΚΑΛΟ", color: "#FFD700" },
+  fair: { label: "ΜΕΤΡΙΟ", color: "#FF6B6B" },
+  parts: { label: "ΑΝΤΑΛΛΑΚΤΙΚΑ", color: "#888888" },
 };
 
 function SkeletonCard({ width }: { width: DimensionValue }) {
@@ -187,12 +187,12 @@ export default function BrowseScreen() {
             <View style={{ paddingHorizontal: padding, paddingBottom: 16, paddingTop: 16 }}>
               <View className="flex-row items-center">
                 <Zap size={24} color="#FF00FF" fill="#FF00FF" />
-                <Text className="ml-2 text-3xl font-black text-white" accessibilityRole="header">
-                  Αναζήτηση
+                <Text className="ml-2 text-2xl font-black text-white" accessibilityRole="header">
+                  ΑΝΑΖΗΤΗΣΗ
                 </Text>
               </View>
               <Text className="mt-1 text-base font-semibold text-gray-400">
-                Βρες την επόμενη συσκευή σου
+                Βρες την επομενη συσκευη σου
               </Text>
             </View>
 
@@ -208,7 +208,7 @@ export default function BrowseScreen() {
                 <Search size={22} color="#FF00FF" />
                 <TextInput
                   className="ml-3 flex-1 text-base font-semibold text-white"
-                  placeholder="Αναζήτηση συσκευών..."
+                  placeholder="Αναζητηση συσκευων..."
                   placeholderTextColor="#666"
                   value={searchQuery}
                   onChangeText={setSearchQuery}
@@ -288,7 +288,7 @@ export default function BrowseScreen() {
                 >
                   <Shield size={18} color={verifiedOnly ? "#00FF88" : "#666"} />
                   <Text className={`ml-2 text-sm font-bold ${verifiedOnly ? "text-emerald-400" : "text-gray-500"}`}>
-                    Μόνο πιστοποιημένα / Verified only
+                    ΜΟΝΟ ΠΙΣΤΟΠΟΙΗΜΕΝΑ / VERIFIED ONLY
                   </Text>
                 </LinearGradient>
               </Pressable>
@@ -314,7 +314,7 @@ export default function BrowseScreen() {
                 <View className="mb-4 flex-row items-center">
                   <View className="mr-2 h-2 w-2 rounded-full bg-fuchsia-500" />
                   <Text className="text-base font-bold text-gray-400">
-                    {data.total} {data.total === 1 ? "αποτέλεσμα" : "αποτελέσματα"}
+                    {data.total} {data.total === 1 ? "αποτελεσμα" : "αποτελεσματα"}
                   </Text>
                 </View>
                 <View
@@ -336,10 +336,10 @@ export default function BrowseScreen() {
                   <Search size={56} color="#666" />
                 </View>
                 <Text className="mt-4 text-xl font-black text-white">
-                  Δεν βρέθηκαν αγγελίες
+                  ΔΕΝ ΒΡΕΘΗΚΑΝ ΑΓΓΕΛΙΕΣ
                 </Text>
                 <Text className="mt-2 text-center text-base font-medium text-gray-500">
-                  Δοκίμασε διαφορετικά φίλτρα ή αναζήτηση
+                  Δοκιμασε διαφορετικα φιλτρα η αναζητηση
                 </Text>
               </View>
             )}

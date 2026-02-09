@@ -42,10 +42,10 @@ import { useTranslation } from "@/lib/languageStore";
 import { CONDITIONS, type ConditionKey, normalizeConditionKey } from "@/lib/conditions";
 
 const categoryLabels: Record<string, { el: string; en: string }> = {
-  phone: { el: "Κινητό", en: "Phone" },
+  phone: { el: "Κινητο", en: "Phone" },
   tablet: { el: "Tablet", en: "Tablet" },
   laptop: { el: "Laptop", en: "Laptop" },
-  accessory: { el: "Αξεσουάρ", en: "Accessory" },
+  accessory: { el: "Αξεσουαρ", en: "Accessory" },
 };
 
 function SkeletonDetail() {
@@ -101,7 +101,7 @@ export default function ListingDetailScreen() {
   const handleContact = () => {
     if (listing?.seller?.email) {
       const subject = language === "el"
-        ? `Ενδιαφέρομαι για ${listing.title}`
+        ? `Ενδιαφερομαι για ${listing.title}`
         : `Interested in ${listing.title}`;
       Linking.openURL(`mailto:${listing.seller.email}?subject=${encodeURIComponent(subject)}`);
     }
@@ -144,7 +144,7 @@ export default function ListingDetailScreen() {
       );
     },
     onError: () => {
-      Alert.alert(t("error"), language === "el" ? "Δοκιμάστε ξανά αργότερα." : "Please try again later.");
+      Alert.alert(t("error"), language === "el" ? "Δοκιμαστε ξανα αργοτερα." : "Please try again later.");
     },
   });
 
@@ -154,7 +154,7 @@ export default function ListingDetailScreen() {
       t("report_confirm"),
       [
         { text: t("cancel"), style: "cancel" },
-        { text: language === "el" ? "Αναφορά" : "Report", style: "destructive", onPress: () => reportMutation.mutate() },
+        { text: language === "el" ? "Αναφορα" : "Report", style: "destructive", onPress: () => reportMutation.mutate() },
       ]
     );
   };
@@ -386,14 +386,14 @@ export default function ListingDetailScreen() {
                   </View>
                   <View className="flex-1">
                     <Text className="text-lg font-black text-emerald-400">
-                      {language === "el" ? "Πιστοποιημένο από" : "Verified by"} {VERIFICATION_LABEL}
+                      {language === "el" ? "Πιστοποιημενο απο" : "Verified by"} {VERIFICATION_LABEL}
                     </Text>
                     <Text className="mt-1 text-sm font-medium text-gray-400">
-                      {language === "el" ? "Βαθμός" : "Grade"}: {gradeLabels[listing.grade]?.label ?? listing.grade} • {language === "el" ? "Checklist ολοκληρώθηκε" : "Checklist complete"}
+                      {language === "el" ? "Βαθμος" : "Grade"}: {gradeLabels[listing.grade]?.label ?? listing.grade} • {language === "el" ? "Checklist ολοκληρωθηκε" : "Checklist complete"}
                     </Text>
                     {listing.inspectionDate && (
                       <Text className="mt-1 text-xs font-medium text-gray-500">
-                        {language === "el" ? "Ελέγχθηκε" : "Inspected"}: {new Date(listing.inspectionDate).toLocaleDateString(language === "el" ? "el-GR" : "en-US")}
+                        {language === "el" ? "Ελεγχθηκε" : "Inspected"}: {new Date(listing.inspectionDate).toLocaleDateString(language === "el" ? "el-GR" : "en-US")}
                       </Text>
                     )}
                   </View>
@@ -442,7 +442,7 @@ export default function ListingDetailScreen() {
                       {t("grading_cta")}
                     </Text>
                     <Text className="mt-1 text-sm font-semibold text-black/70">
-                      {language === "el" ? "Βαθμολόγησε στο iRepair Ρόδος" : "Get graded at iRepair Rhodes"}
+                      {language === "el" ? "Βαθμολογησε στο iRepair Ροδος" : "Get graded at iRepair Rhodes"}
                     </Text>
                   </View>
                 </LinearGradient>
@@ -455,7 +455,7 @@ export default function ListingDetailScreen() {
                 accessibilityLabel="Book appointment online"
               >
                 <Text className="text-center text-sm font-bold text-gray-400">
-                  {language === "el" ? "Ή κλείσε ραντεβού online →" : "Or book appointment online →"}
+                  {language === "el" ? "Η κλεισε ραντεβου online →" : "Or book appointment online →"}
                 </Text>
               </Pressable>
             </View>
@@ -486,7 +486,7 @@ export default function ListingDetailScreen() {
                   </View>
                   <View className="ml-4 flex-1">
                     <Text className="text-lg font-black text-white">
-                      {listing.seller.name ?? (language === "el" ? "Χρήστης" : "User")}
+                      {listing.seller.name ?? (language === "el" ? "Χρηστης" : "User")}
                     </Text>
                     <Text className="text-sm font-medium text-gray-400">
                       {t("member_since")} {formatDate(listing.createdAt)}
@@ -515,10 +515,10 @@ export default function ListingDetailScreen() {
               </View>
               <View className="flex-1">
                 <Text className="text-lg font-black text-black">
-                  {language === "el" ? "Πιστοποίησε τη συσκευή" : "Certify your device"}
+                  {language === "el" ? "Πιστοποιησε τη συσκευη" : "Certify your device"}
                 </Text>
                 <Text className="mt-1 text-sm font-semibold text-black/70">
-                  {language === "el" ? "Επίσκεψη στο iRepair Ρόδος για διαγνωστικά" : "Visit iRepair Rhodes for diagnostics"}
+                  {language === "el" ? "Επισκεψη στο iRepair Ροδος για διαγνωστικα" : "Visit iRepair Rhodes for diagnostics"}
                 </Text>
               </View>
             </LinearGradient>
@@ -575,7 +575,7 @@ export default function ListingDetailScreen() {
               >
                 <Text className="text-sm font-medium text-gray-400">
                   {language === "el"
-                    ? "Επίλεξε την πόλη σου για να δεις προτάσεις ασφαλούς συνάντησης."
+                    ? "Επιλεξε την πολη σου για να δεις προτασεις ασφαλους συναντησης."
                     : "Select your city to see safe meetup suggestions."}
                 </Text>
               </LinearGradient>

@@ -335,7 +335,7 @@ export default function WaitlistScreen() {
   const [notes, setNotes] = useState(
     isRepairIntent
       ? language === "el"
-        ? "Ενδιαφέρομαι για επισκευή συσκευής"
+        ? "Ενδιαφερομαι για επισκευη συσκευης"
         : "Interested in device repair"
       : ""
   );
@@ -359,7 +359,7 @@ export default function WaitlistScreen() {
       setErrors({
         submit:
           language === "el"
-            ? "Κάτι πήγε στραβά. Δοκίμασε ξανά."
+            ? "Κατι πηγε στραβα. Δοκιμασε ξανα."
             : "Something went wrong. Please try again.",
       });
     },
@@ -370,18 +370,18 @@ export default function WaitlistScreen() {
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       newErrors.email =
-        language === "el" ? "Απαιτείται έγκυρο email" : "Valid email required";
+        language === "el" ? "Απαιτειται εγκυρο email" : "Valid email required";
     }
     if (!city.trim()) {
-      newErrors.city = language === "el" ? "Απαιτείται πόλη" : "City required";
+      newErrors.city = language === "el" ? "Απαιτειται πολη" : "City required";
     }
     if (!country.trim()) {
       newErrors.country =
-        language === "el" ? "Απαιτείται χώρα" : "Country required";
+        language === "el" ? "Απαιτειται χωρα" : "Country required";
     }
     if (!consent) {
       newErrors.consent =
-        language === "el" ? "Απαιτείται συναίνεση" : "Consent required";
+        language === "el" ? "Απαιτειται συναινεση" : "Consent required";
     }
 
     setErrors(newErrors);
@@ -444,7 +444,7 @@ export default function WaitlistScreen() {
           <Pressable onPress={handleBack} style={styles.backButton}>
             <ChevronLeft size={24} color="#999" />
             <Text style={styles.backText}>
-              {language === "el" ? "Πίσω" : "Back"}
+              {language === "el" ? "Πισω" : "Back"}
             </Text>
           </Pressable>
           <LanguageTogglePill />
@@ -477,14 +477,14 @@ export default function WaitlistScreen() {
                 <Text style={styles.title}>
                   {isRepairIntent
                     ? language === "el"
-                      ? "Ζήτα Προσφορά"
+                      ? "Ζητα Προσφορα"
                       : "Get a Quote"
                     : t("waitlist_title")}
                 </Text>
                 <Text style={styles.subtitle}>
                   {isRepairIntent
                     ? language === "el"
-                      ? "Συμπλήρωσε τα στοιχεία σου για να λάβεις προσφορά επισκευής"
+                      ? "Συμπληρωσε τα στοιχεια σου για να λαβεις προσφορα επισκευης"
                       : "Fill in your details to receive a repair quote"
                     : t("waitlist_subtitle")}
                 </Text>
@@ -538,7 +538,7 @@ export default function WaitlistScreen() {
                     <TextInput
                       value={city}
                       onChangeText={setCity}
-                      placeholder={language === "el" ? "Πόλη" : "City"}
+                      placeholder={language === "el" ? "Πολη" : "City"}
                       placeholderTextColor="#666"
                       style={[
                         styles.inputSimple,
@@ -553,7 +553,7 @@ export default function WaitlistScreen() {
                     <TextInput
                       value={country}
                       onChangeText={setCountry}
-                      placeholder={language === "el" ? "Χώρα" : "Country"}
+                      placeholder={language === "el" ? "Χωρα" : "Country"}
                       placeholderTextColor="#666"
                       style={[
                         styles.inputSimple,
@@ -642,7 +642,7 @@ export default function WaitlistScreen() {
                       onChangeText={setNotes}
                       placeholder={
                         language === "el"
-                          ? "Πες μας κάτι ακόμα..."
+                          ? "Πες μας κατι ακομα..."
                           : "Tell us more..."
                       }
                       placeholderTextColor="#666"

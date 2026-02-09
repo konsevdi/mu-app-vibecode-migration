@@ -97,10 +97,10 @@ const conditionLabels: Record<
   string,
   { label: string; labelEl: string; color: string }
 > = {
-  new: { label: "New", labelEl: "Καινούργιο", color: "#00FF88" },
-  like_new: { label: "Like New", labelEl: "Σαν Καινούργιο", color: "#00BFFF" },
-  good: { label: "Good", labelEl: "Καλό", color: "#FFD700" },
-  fair: { label: "Fair", labelEl: "Μέτριο", color: "#FF6B6B" },
+  new: { label: "New", labelEl: "ΚΑΙΝΟΥΡΓΙΟ", color: "#00FF88" },
+  like_new: { label: "Like New", labelEl: "ΣΑΝ ΚΑΙΝΟΥΡΓΙΟ", color: "#00BFFF" },
+  good: { label: "Good", labelEl: "ΚΑΛΟ", color: "#FFD700" },
+  fair: { label: "Fair", labelEl: "ΜΕΤΡΙΟ", color: "#FF6B6B" },
 };
 
 // ============================================================================
@@ -245,7 +245,7 @@ function DemoLockedModal({
               <AnimatedModalButton
                 onPress={onRepairQuote}
                 label={
-                  language === "el" ? "Ζήτα προσφορά επισκευής" : "Get repair quote"
+                  language === "el" ? "Ζητα προσφορα επισκευης" : "Get repair quote"
                 }
                 variant="secondary"
                 icon={<Wrench size={18} color="#FFD700" />}
@@ -256,7 +256,7 @@ function DemoLockedModal({
               <Pressable onPress={onAskAccessories} style={styles.modalLinkCTA}>
                 <MessageCircle size={14} color="#666" />
                 <Text style={styles.modalLinkText}>
-                  {language === "el" ? "Ρώτα μας" : "Ask us"}
+                  {language === "el" ? "Ρωτα μας" : "Ask us"}
                 </Text>
               </Pressable>
             </View>
@@ -567,7 +567,7 @@ export default function DemoBrowseScreen() {
             </View>
             <Text className="mt-2 text-lg font-semibold text-gray-400">
               {language === "el"
-                ? "Αγορά & Πώληση συσκευών στην Ελλάδα"
+                ? "Αγορα & Πωληση συσκευων στην Ελλαδα"
                 : "Buy & Sell devices in Greece"}
             </Text>
           </View>
@@ -652,7 +652,7 @@ export default function DemoBrowseScreen() {
             {isLoading ? (
               <View className="h-64 items-center justify-center">
                 <Text className="text-lg font-bold text-gray-500">
-                  {language === "el" ? "Φόρτωση..." : "Loading..."}
+                  {language === "el" ? "Φορτωση..." : "Loading..."}
                 </Text>
               </View>
             ) : data?.listings && data.listings.length > 0 ? (
@@ -683,7 +683,7 @@ export default function DemoBrowseScreen() {
                   <Sparkles size={48} color="#666" />
                   <Text className="mt-4 text-center text-lg font-bold text-gray-400">
                     {language === "el"
-                      ? "Δεν υπάρχουν ακόμα προτεινόμενα"
+                      ? "Δεν υπαρχουν ακομα προτεινομενα"
                       : "No featured listings yet"}
                   </Text>
                 </LinearGradient>
@@ -753,7 +753,7 @@ export default function DemoBrowseScreen() {
                 >
                   <Text className="text-center font-bold text-gray-500">
                     {language === "el"
-                      ? "Δεν υπάρχουν ακόμα αγγελίες"
+                      ? "Δεν υπαρχουν ακομα αγγελιες"
                       : "No listings yet"}
                   </Text>
                 </LinearGradient>

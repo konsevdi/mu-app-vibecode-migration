@@ -210,8 +210,7 @@ export default function StoresScreen() {
         style={{ flex: 1 }}
       >
         <ScrollView className="flex-1 px-5 pt-4" showsVerticalScrollIndicator={false}>
-          {/* Header */}
-          <View className="mb-6">
+            <View className="mb-6">
             <View className="flex-row items-center">
               <MapPin size={24} color="#FF00FF" />
               <Text className="ml-2 text-2xl font-black text-white">ΣΗΜΕΙΑ ΕΞΥΠΗΡΕΤΗΣΗΣ</Text>

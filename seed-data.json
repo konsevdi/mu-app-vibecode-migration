@@ -1,0 +1,64 @@
+{
+  "cities": [
+    { "slug": "rhodes",       "name_el": "Ροδος",        "name_en": "Rhodes",       "country": "Greece",          "is_eligible": true,  "display_order": 1 },
+    { "slug": "athens",       "name_el": "Αθηνα",        "name_en": "Athens",       "country": "Greece",          "is_eligible": false, "display_order": 2 },
+    { "slug": "thessaloniki", "name_el": "Θεσσαλονικη",  "name_en": "Thessaloniki", "country": "Greece",          "is_eligible": false, "display_order": 3 },
+    { "slug": "patras",       "name_el": "Πατρα",        "name_en": "Patras",       "country": "Greece",          "is_eligible": false, "display_order": 4 },
+    { "slug": "heraklion",    "name_el": "Ηρακλειο",     "name_en": "Heraklion",    "country": "Greece",          "is_eligible": false, "display_order": 5 },
+    { "slug": "larissa",      "name_el": "Λαρισα",       "name_en": "Larissa",      "country": "Greece",          "is_eligible": false, "display_order": 6 },
+    { "slug": "volos",        "name_el": "Βολος",        "name_en": "Volos",        "country": "Greece",          "is_eligible": false, "display_order": 7 },
+    { "slug": "ioannina",     "name_el": "Ιωαννινα",     "name_en": "Ioannina",     "country": "Greece",          "is_eligible": false, "display_order": 8 },
+    { "slug": "chania",       "name_el": "Χανια",        "name_en": "Chania",       "country": "Greece",          "is_eligible": false, "display_order": 9 },
+    { "slug": "london",       "name_el": "London",       "name_en": "London",       "country": "United Kingdom",  "is_eligible": false, "display_order": 10 },
+    { "slug": "berlin",       "name_el": "Berlin",       "name_en": "Berlin",       "country": "Germany",         "is_eligible": false, "display_order": 11 },
+    { "slug": "paris",        "name_el": "Paris",        "name_en": "Paris",        "country": "France",          "is_eligible": false, "display_order": 12 },
+    { "slug": "amsterdam",    "name_el": "Amsterdam",    "name_en": "Amsterdam",    "country": "Netherlands",     "is_eligible": false, "display_order": 13 },
+    { "slug": "rome",         "name_el": "Rome",         "name_en": "Rome",         "country": "Italy",           "is_eligible": false, "display_order": 14 },
+    { "slug": "madrid",       "name_el": "Madrid",       "name_en": "Madrid",       "country": "Spain",           "is_eligible": false, "display_order": 15 }
+  ],
+  "stores": [
+    {
+      "id": "store_irepair_rhodes",
+      "name": "iRepair Rhodes",
+      "name_el": "iRepair Ροδος",
+      "address": "Plateia Kyprou 3, Rhodes 851 00",
+      "address_en": "Plateia Kyprou 3, Rhodes 851 00",
+      "phone": null,
+      "hours": "Mon–Sat 09:00–21:00",
+      "hours_note": "Κυριακη κλειστα",
+      "hours_note_en": "Closed Sunday",
+      "website": "https://irepair.gr",
+      "maps_url": null,
+      "city": "rhodes",
+      "lat": 36.4378,
+      "lng": 28.2237,
+      "is_primary": true,
+      "visible_in_app": true,
+      "promo_enabled": true,
+      "partner_status": "owned",
+      "lead_fee_per_checkin": 0,
+      "lead_fee_per_redeem": 0
+    }
+  ],
+  "grade_config": [
+    {
+      "id": "grade_config_default",
+      "store_id": null,
+      "grade_a": 1.00,
+      "grade_b": 0.93,
+      "grade_c": 0.85,
+      "grade_d": 0.60
+    }
+  ],
+  "moderation_config": [
+    {
+      "id": "moderation_config_default",
+      "private_report_threshold": 2,
+      "store_report_threshold": 5,
+      "cooldown_days": 7,
+      "limited_state_days": 7,
+      "strike_decay_days": 90,
+      "fraud_hold_threshold": 80
+    }
+  ]
+}

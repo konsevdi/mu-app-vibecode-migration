@@ -1,0 +1,34 @@
+-- 006_seed_admin_user.sql
+--
+-- INTENTIONALLY (almost) EMPTY.
+--
+-- Demo users and their listings depend on rows in `auth.users`, which can only
+-- be created via the Supabase Admin API:
+--
+--   supabase.auth.admin.createUser({
+--     email, password, email_confirm: true,
+--     user_metadata: { language_pref: 'el' | 'en' }
+--   })
+--
+-- The actual seeding is performed by `scripts/seed.ts` (TypeScript, runs with
+-- the service-role key). The script:
+--
+--   1. Reads `codex-export/seed-data.json` → `demoUsers`
+--   2. Calls `auth.admin.createUser()` for each, with a known dev password
+--      stored in `.env.local` (SEED_DEMO_PASSWORD). The handle_new_user
+--      trigger (defined in 004_…) creates the `profiles` row automatically.
+--   3. Updates `public.profiles` for each user with `handle` and `language_pref`.
+--   4. Inserts `public.staff` rows for users with a non-null `role` from the JSON.
+--   5. Reads `demoListings` and inserts them, using `irepair.demo@mobileunit.gr`
+--      as the canonical seller_id. Image paths are placeholders pointing at
+--      seed image files uploaded once via the storage Admin API.
+--
+-- This file exists so that the migration ordering is explicit and the comment
+-- block is checked into git. Re-running the migration is a no-op.
+--
+-- If a future change requires SQL-only admin seeding (e.g. moving to a Postgres
+-- function that uses pgsodium to insert into auth.users directly), add the
+-- statements here and remove the TS script. For V1 we keep the TS path.
+
+-- Mark this migration as applied — no-op statement.
+do $$ begin null; end $$;

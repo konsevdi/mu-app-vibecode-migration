@@ -1,0 +1,111 @@
+{
+  "$comment": "Seed data for Mobile Unit. Loaded by scripts/seed.ts. Greek city names and addresses are as authored in mobile/src/lib (kept WITH accents for canonical names; UI applies the no-accent rule via i18n).",
+  "cities": [
+    { "name": "Rhodes", "nameEl": "Ρόδος", "country": "Greece", "countryEl": "Ελλάδα", "isEligible": true, "displayOrder": 1 },
+    { "name": "Athens", "nameEl": "Αθήνα", "country": "Greece", "countryEl": "Ελλάδα", "isEligible": false, "displayOrder": 2 },
+    { "name": "Thessaloniki", "nameEl": "Θεσσαλονίκη", "country": "Greece", "countryEl": "Ελλάδα", "isEligible": false, "displayOrder": 3 },
+    { "name": "Patras", "nameEl": "Πάτρα", "country": "Greece", "countryEl": "Ελλάδα", "isEligible": false, "displayOrder": 4 },
+    { "name": "Heraklion", "nameEl": "Ηράκλειο", "country": "Greece", "countryEl": "Ελλάδα", "isEligible": false, "displayOrder": 5 },
+    { "name": "Larissa", "nameEl": "Λάρισα", "country": "Greece", "countryEl": "Ελλάδα", "isEligible": false, "displayOrder": 6 },
+    { "name": "Volos", "nameEl": "Βόλος", "country": "Greece", "countryEl": "Ελλάδα", "isEligible": false, "displayOrder": 7 },
+    { "name": "Ioannina", "nameEl": "Ιωάννινα", "country": "Greece", "countryEl": "Ελλάδα", "isEligible": false, "displayOrder": 8 },
+    { "name": "Chania", "nameEl": "Χανιά", "country": "Greece", "countryEl": "Ελλάδα", "isEligible": false, "displayOrder": 9 },
+    { "name": "London", "nameEl": "London", "country": "United Kingdom", "countryEl": "Ηνωμένο Βασίλειο", "isEligible": false, "displayOrder": 10 },
+    { "name": "Berlin", "nameEl": "Berlin", "country": "Germany", "countryEl": "Γερμανία", "isEligible": false, "displayOrder": 11 },
+    { "name": "Paris", "nameEl": "Paris", "country": "France", "countryEl": "Γαλλία", "isEligible": false, "displayOrder": 12 },
+    { "name": "Amsterdam", "nameEl": "Amsterdam", "country": "Netherlands", "countryEl": "Ολλανδία", "isEligible": false, "displayOrder": 13 },
+    { "name": "Rome", "nameEl": "Rome", "country": "Italy", "countryEl": "Ιταλία", "isEligible": false, "displayOrder": 14 },
+    { "name": "Madrid", "nameEl": "Madrid", "country": "Spain", "countryEl": "Ισπανία", "isEligible": false, "displayOrder": 15 }
+  ],
+  "stores": [
+    {
+      "id": "irepair-rhodes",
+      "name": "iRepair Rhodes",
+      "subtitle": null,
+      "address": "Αμμοχώστου 18, 85131, Ρόδος",
+      "city": "Rhodes",
+      "storePageUrl": "https://irepair.gr/stores/irepair-%CF%81%CF%8C%CE%B4%CE%BF%CF%82",
+      "lat": 36.4349,
+      "lng": 28.2176,
+      "isPrimary": true,
+      "hoursJson": {
+        "monday":    {"open": "09:30", "close": "21:00"},
+        "tuesday":   {"open": "09:30", "close": "21:00"},
+        "wednesday": {"open": "09:30", "close": "21:00"},
+        "thursday":  {"open": "09:30", "close": "21:00"},
+        "friday":    {"open": "09:30", "close": "21:00"},
+        "saturday":  {"open": "10:00", "close": "20:00"},
+        "sunday":    null
+      },
+      "services": ["diagnostic", "repair", "grading", "sales"]
+    },
+    {
+      "id": "irepair-spot",
+      "name": "iRepair Spot",
+      "subtitle": "Public Νέα Μαρίνα",
+      "address": "Αυστραλίας 84-86, 85100, Ρόδος",
+      "city": "Rhodes",
+      "storePageUrl": "https://irepair.gr/stores/irepair-public-home-%CF%81%CF%8C%CE%B4%CE%BF%CF%82",
+      "lat": 36.4412,
+      "lng": 28.2234,
+      "isPrimary": false,
+      "hoursJson": {
+        "monday":    {"open": "09:30", "close": "21:00"},
+        "tuesday":   {"open": "09:30", "close": "21:00"},
+        "wednesday": {"open": "09:30", "close": "21:00"},
+        "thursday":  {"open": "09:30", "close": "21:00"},
+        "friday":    {"open": "09:30", "close": "21:00"},
+        "saturday":  {"open": "10:00", "close": "20:00"},
+        "sunday":    null
+      },
+      "services": ["diagnostic", "repair", "sales"]
+    }
+  ],
+  "gradeConfig": {
+    "global": { "storeId": null, "gradeAMult": 1.000, "gradeBMult": 0.930, "gradeCMult": 0.850, "gradeDMult": 0.600 },
+    "byStore": [
+      { "storeId": "irepair-rhodes", "gradeAMult": 1.000, "gradeBMult": 0.930, "gradeCMult": 0.850, "gradeDMult": 0.600 }
+    ]
+  },
+  "moderationConfig": {
+    "privateReportThreshold": 2,
+    "storeReportThreshold": 5,
+    "cooldownDays": 7,
+    "limitedStateDays": 7,
+    "strikeDecayDays": 90,
+    "fraudHoldThreshold": 80
+  },
+  "demoUsers": [
+    { "email": "super.admin@mobileunit.gr",  "role": "super_admin",    "storeId": null,            "handle": "superadmin" },
+    { "email": "admin@mobileunit.gr",        "role": "admin",          "storeId": null,            "handle": "admin" },
+    { "email": "store.manager@irepair.gr",   "role": "store_manager",  "storeId": "irepair-rhodes","handle": "store_manager" },
+    { "email": "inspector@irepair.gr",       "role": "inspector",      "storeId": "irepair-rhodes","handle": "inspector" },
+    { "email": "staff@irepair.gr",           "role": "front_office",   "storeId": "irepair-rhodes","handle": "staff" },
+    { "email": "moderator@mobileunit.gr",    "role": "moderator",      "storeId": null,            "handle": "moderator" },
+    { "email": "seller@mobileunit.gr",       "role": null,             "storeId": null,            "handle": "seller_demo" },
+    { "email": "buyer@mobileunit.gr",        "role": null,             "storeId": null,            "handle": "buyer_demo" },
+    { "email": "irepair.demo@mobileunit.gr", "role": null,             "storeId": null,            "handle": "irepair_demo", "isStoreSeller": true }
+  ],
+  "demoListings": [
+    { "sellerEmail": "irepair.demo@mobileunit.gr", "title": "iPhone 13 128GB Midnight",    "category": "phone",     "condition": "like_new", "grade": "A", "brand": "Apple",   "model": "iPhone 13",            "price": 480, "city": "Rhodes", "isStore": true, "isDemo": true, "images": 5, "description": "Σαν καινούργιο, μπαταρία 91%. Αξιολογημένο στο iRepair Rhodes." },
+    { "sellerEmail": "irepair.demo@mobileunit.gr", "title": "iPhone 12 64GB Black",         "category": "phone",     "condition": "good",     "grade": "B", "brand": "Apple",   "model": "iPhone 12",            "price": 360, "city": "Rhodes", "isStore": true, "isDemo": true, "images": 5, "description": "Μικρά σημάδια χρήσης, οθόνη χωρίς γρατζουνιές." },
+    { "sellerEmail": "irepair.demo@mobileunit.gr", "title": "iPhone 11 128GB White",        "category": "phone",     "condition": "good",     "grade": "B", "brand": "Apple",   "model": "iPhone 11",            "price": 280, "city": "Rhodes", "isStore": true, "isDemo": true, "images": 4 },
+    { "sellerEmail": "irepair.demo@mobileunit.gr", "title": "iPhone XR 64GB Coral",         "category": "phone",     "condition": "fair",     "grade": "C", "brand": "Apple",   "model": "iPhone XR",            "price": 180, "city": "Rhodes", "isStore": true, "isDemo": true, "images": 4 },
+    { "sellerEmail": "irepair.demo@mobileunit.gr", "title": "Samsung Galaxy S22 256GB",     "category": "phone",     "condition": "like_new", "grade": "A", "brand": "Samsung", "model": "Galaxy S22",           "price": 420, "city": "Rhodes", "isStore": true, "isDemo": true, "images": 5 },
+    { "sellerEmail": "irepair.demo@mobileunit.gr", "title": "Samsung Galaxy S21 FE",        "category": "phone",     "condition": "good",     "grade": "B", "brand": "Samsung", "model": "Galaxy S21 FE",        "price": 290, "city": "Rhodes", "isStore": true, "isDemo": true, "images": 4 },
+    { "sellerEmail": "irepair.demo@mobileunit.gr", "title": "Google Pixel 7 128GB",         "category": "phone",     "condition": "like_new", "grade": "A", "brand": "Google",  "model": "Pixel 7",              "price": 380, "city": "Rhodes", "isStore": true, "isDemo": true, "images": 4 },
+    { "sellerEmail": "irepair.demo@mobileunit.gr", "title": "Xiaomi 12T Pro 256GB",         "category": "phone",     "condition": "good",     "grade": "B", "brand": "Xiaomi",  "model": "12T Pro",              "price": 310, "city": "Rhodes", "isStore": true, "isDemo": true, "images": 4 },
+    { "sellerEmail": "irepair.demo@mobileunit.gr", "title": "iPhone SE 2020 64GB",          "category": "phone",     "condition": "fair",     "grade": "C", "brand": "Apple",   "model": "iPhone SE (2020)",     "price": 150, "city": "Rhodes", "isStore": true, "isDemo": true, "images": 4 },
+    { "sellerEmail": "irepair.demo@mobileunit.gr", "title": "Nokia G22 64GB",               "category": "phone",     "condition": "new",      "grade": "A", "brand": "Nokia",   "model": "G22",                  "price": 130, "city": "Rhodes", "isStore": true, "isDemo": true, "images": 5 },
+    { "sellerEmail": "irepair.demo@mobileunit.gr", "title": "iPad Air 4 64GB Wi-Fi",        "category": "tablet",    "condition": "like_new", "grade": "A", "brand": "Apple",   "model": "iPad Air (4th gen)",   "price": 420, "city": "Rhodes", "isStore": true, "isDemo": true, "images": 5 },
+    { "sellerEmail": "irepair.demo@mobileunit.gr", "title": "iPad 9 64GB",                  "category": "tablet",    "condition": "good",     "grade": "B", "brand": "Apple",   "model": "iPad (9th gen)",       "price": 220, "city": "Rhodes", "isStore": true, "isDemo": true, "images": 4 },
+    { "sellerEmail": "irepair.demo@mobileunit.gr", "title": "Samsung Tab A8 32GB",          "category": "tablet",    "condition": "good",     "grade": "B", "brand": "Samsung", "model": "Galaxy Tab A8",        "price": 160, "city": "Rhodes", "isStore": true, "isDemo": true, "images": 4 },
+    { "sellerEmail": "irepair.demo@mobileunit.gr", "title": "Apple AirPods Pro (2nd gen)",  "category": "accessory", "condition": "like_new", "grade": "A", "brand": "Apple",   "model": "AirPods Pro 2",        "price": 175, "city": "Rhodes", "isStore": true, "isDemo": true, "images": 4 },
+    { "sellerEmail": "irepair.demo@mobileunit.gr", "title": "Apple MagSafe Charger",        "category": "accessory", "condition": "good",     "grade": "B", "brand": "Apple",   "model": "MagSafe Charger",      "price": 25,  "city": "Rhodes", "isStore": true, "isDemo": true, "images": 3 }
+  ],
+  "demoWaitlistSignups": [
+    { "email": "athens.buyer@example.com",      "city": "Athens",       "country": "Greece",         "interestType": "buyer",  "consent": true, "languagePref": "el", "referralCode": "MUATHEN1", "referredByCode": null,        "referralCount": 1, "positionScore": 3 },
+    { "email": "thessaloniki.both@example.com", "city": "Thessaloniki", "country": "Greece",         "interestType": "both",   "consent": true, "languagePref": "el", "referralCode": "MUTHESS1", "referredByCode": "MUATHEN1",  "referralCount": 0, "positionScore": 0 },
+    { "email": "london.seller@example.com",     "city": "London",       "country": "United Kingdom", "interestType": "seller", "consent": true, "languagePref": "en", "referralCode": "MULOND01", "referredByCode": null,        "referralCount": 0, "positionScore": 0 }
+  ]
+}
